@@ -204,9 +204,7 @@ void App::doExtract()
             // qDebug() << "dateTime: " << dateTime.toVariantMap();
             event.timeStart = dateTime.value(QLatin1Literal("value")).toString().toLongLong();
             event.timeEnd = dateTime.value(QLatin1Literal("value2")).toString().toLongLong();
-            // event.dateTime = dateTime.value(QLatin1Literal("time_start")).toString();
-            event.date
-                = QDateTime::fromSecsSinceEpoch(event.timeStart).date().toString(Qt::DateFormat::DefaultLocaleLongDate);
+            event.date = QDateTime::fromSecsSinceEpoch(event.timeStart).date();
             event.description = memberObj.value(QLatin1Literal("body")).toObject().value(QLatin1Literal("value")).toString();
             const auto &offline = memberObj.value(QLatin1Literal("offline")).toArray();
             if (!offline.empty()) {
@@ -353,9 +351,10 @@ const QString &App::description() const
 
 const QString App::dateTime() const
 {
-    // FIXME
-    return QDateTime::fromSecsSinceEpoch(m_currentEvent.timeStart).toString();
-    // return m_currentEvent.dateTime;
+    const auto dateTime = QDateTime::fromSecsSinceEpoch(m_currentEvent.timeStart);
+    return QStringLiteral("%1, %2")
+            .arg(dateTime.date().toString(Qt::SystemLocaleLongDate))
+            .arg(dateTime.time().toString(QStringLiteral("HH:mm")));
 }
 
 const QString &App::category() const
@@ -365,7 +364,6 @@ const QString &App::category() const
 
 const QString &App::price() const
 {
-    // FIXME
     static QString unknown = QStringLiteral("Unknown");// m_currentEvent.price;
     return unknown;
 }

@@ -2,6 +2,7 @@
 
 #include <QAbstractListModel>
 #include <QHash>
+#include <QDate>
 #include <QUuid>
 
 struct Event {
@@ -9,7 +10,7 @@ struct Event {
     QString description;
     QUuid locationID; //replace with 16-byte integer
     QString rawAddress;
-    QString date;
+    QDate date;
     qint64 timeStart;
     qint64 timeEnd;
     QString category;

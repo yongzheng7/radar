@@ -116,7 +116,9 @@ Cras nec ante sit amet augue sodales iaculis. Aliquam erat volutpat. Nam aliquet
                         font.bold: true
                     }
                     Text {
+                        height: implicitHeight
                         text: root.dateTime
+                        wrapMode: TextEdit.WordWrap
                     }
                 }
 
@@ -148,9 +150,17 @@ Cras nec ante sit amet augue sodales iaculis. Aliquam erat volutpat. Nam aliquet
                         font.bold: true
                     }
                     TextEdit {
+                        height: implicitHeight
+                        id: address
                         readOnly: true
-                        selectByMouse: true
+                        wrapMode: TextEdit.WordWrap
                         text: root.locationAddress
+                        MouseArea {
+                            anchors.fill: parent
+                            onClicked: {
+                                console.log("Location: %1".arg(address.text));
+                            }
+                        }
                     }
                 }
 
@@ -161,10 +171,12 @@ Cras nec ante sit amet augue sodales iaculis. Aliquam erat volutpat. Nam aliquet
                         text: qsTr("Directions:")
                         font.bold: true
                     }
+
                     TextEdit {
+                        height: implicitHeight
                         readOnly: true
-                        selectByMouse: true
                         text: root.directions
+                        wrapMode: TextEdit.WordWrap
                     }
                 }
 

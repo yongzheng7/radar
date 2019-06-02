@@ -56,7 +56,7 @@ QVariant EventsModel::data(const QModelIndex &index, int role) const
     case Address:
         return m_events[pos].rawAddress;
     case Date:
-        return m_events[pos].date;
+        return m_events[pos].date.toString(Qt::DateFormat::DefaultLocaleLongDate);
     case StartDateTime:
         return QDateTime::fromSecsSinceEpoch(m_events[pos].timeStart).toString(QStringLiteral("hh:mm"));
     case Category:

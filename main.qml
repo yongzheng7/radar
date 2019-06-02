@@ -119,8 +119,10 @@ ApplicationWindow {
             }
             onLinkActivated: App.openLink(link)
         }
-        onStatusChanged: {
-            if (eventPage.status === Loader.Ready) {
+
+        function updateEventInfo() {
+            if (eventPage.item) {
+                console.log("Updating event details...");
                 eventPage.item.title = App.title;
                 eventPage.item.description = App.description;
                 eventPage.item.category = App.category;
@@ -130,25 +132,26 @@ ApplicationWindow {
                 eventPage.item.locationAddress = App.locationAddress;
                 eventPage.item.city = App.eventCity;
                 eventPage.item.country = App.eventCountry;
+                eventPage.item.directions = App.directions;
             }
         }
+        function updateLocationInfo() {
+            if (eventPage.item) {
+                console.log("Updating location details...");
+                eventPage.item.locationName = App.locationName;
+                eventPage.item.locationAddress = App.locationAddress;
+                eventPage.item.directions = App.directions;
+            }
+        }
+        onLoaded: {
+            updateEventInfo();
+            updateLocationInfo();
+        }
+
         Connections {
             target: App
-            onCurrentEventChanged: {
-                if (eventPage.item) {
-                    console.log("Updating location details...");
-                    eventPage.item.city = App.eventCity;
-                    eventPage.item.country = App.eventCountry;
-                    eventPage.item.locationName = App.locationName;
-                    eventPage.item.locationAddress = App.locationAddress;
-                    eventPage.item.directions = App.directions;
-                }
-            }
-            onCurrentLocationChanged: {
-                eventPage.item.locationName = App.locationName || "";
-                eventPage.item.locationAddress = App.locationAddress || "";
-                eventPage.item.directions = App.directions || "";
-            }
+            onCurrentEventChanged: eventPage.updateEventInfo()
+            onCurrentLocationChanged: eventPage.updateLocationInfo()
         }
     }
 
