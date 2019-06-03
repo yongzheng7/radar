@@ -60,18 +60,21 @@ Cras nec ante sit amet augue sodales iaculis. Aliquam erat volutpat. Nam aliquet
             clip: true
 
             ScrollIndicator.vertical: ScrollIndicator {}
-            Column {
+            ColumnLayout {
                 id: column
                 spacing: 12
                 width: parent.width
 
                 Text {
+                    Layout.fillWidth: true
                     id: header
                     textFormat: Text.AutoText
                     text: root.title
                     font.bold: true
+                    wrapMode: Text.Wrap
                 }
                 Row {
+                    Layout.fillWidth: true
                     spacing: 6
                     Label {
                         text: qsTr("at:")
@@ -81,12 +84,13 @@ Cras nec ante sit amet augue sodales iaculis. Aliquam erat volutpat. Nam aliquet
                         readOnly: true
                         selectByMouse: true
                         text: root.locationName
+                        wrapMode: Text.Wrap
                     }
                 }
                 Text {
-                    width: parent.width
+                    Layout.fillWidth: true
                     id: description
-                    wrapMode: Text.WordWrap
+                    wrapMode: Text.Wrap
                     textFormat: Text.RichText
                     text: root.description
                     onLinkActivated: {
@@ -110,6 +114,8 @@ Cras nec ante sit amet augue sodales iaculis. Aliquam erat volutpat. Nam aliquet
                 }
 
                 Row {
+                    Layout.fillWidth: true
+                    height: Layout.preferredHeight
                     spacing: 6
                     Label {
                         text: qsTr("Date & Time:")
@@ -118,11 +124,12 @@ Cras nec ante sit amet augue sodales iaculis. Aliquam erat volutpat. Nam aliquet
                     Text {
                         height: implicitHeight
                         text: root.dateTime
-                        wrapMode: TextEdit.WordWrap
+                        wrapMode: TextEdit.Wrap
                     }
                 }
 
                 Row {
+                    Layout.fillWidth: true
                     spacing: 6
                     visible: root.category.length > 0
                     Label {
@@ -134,6 +141,7 @@ Cras nec ante sit amet augue sodales iaculis. Aliquam erat volutpat. Nam aliquet
                     }
                 }
                 Row {
+                    Layout.fillWidth: true
                     spacing: 6
                     Label {
                         text: qsTr("Price:")
@@ -144,16 +152,20 @@ Cras nec ante sit amet augue sodales iaculis. Aliquam erat volutpat. Nam aliquet
                     }
                 }
                 Row {
+                    Layout.fillWidth: true
+                    onWidthChanged: {
+                        console.log("Width changed to %1".arg(width));
+                    }
+
                     spacing: 6
                     Label {
                         text: qsTr("Address:")
                         font.bold: true
                     }
                     TextEdit {
-                        height: implicitHeight
                         id: address
                         readOnly: true
-                        wrapMode: TextEdit.WordWrap
+                        wrapMode: TextEdit.Wrap
                         text: root.locationAddress
                         MouseArea {
                             anchors.fill: parent
@@ -165,6 +177,7 @@ Cras nec ante sit amet augue sodales iaculis. Aliquam erat volutpat. Nam aliquet
                 }
 
                 Row {
+                    Layout.fillWidth: true
                     visible: root.directions.length > 0
                     spacing: 6
                     Label {
@@ -173,18 +186,19 @@ Cras nec ante sit amet augue sodales iaculis. Aliquam erat volutpat. Nam aliquet
                     }
 
                     TextEdit {
-                        height: implicitHeight
                         readOnly: true
                         text: root.directions
-                        wrapMode: TextEdit.WordWrap
+                        wrapMode: TextEdit.Wrap
                     }
                 }
 
                 Label {
+                    Layout.fillWidth: true
                     text: root.city
                 }
 
                 Label {
+                    Layout.fillWidth: true
                     text: root.country
                 }
             }

@@ -25,6 +25,7 @@ ApplicationWindow {
     }
 
     ColumnLayout {
+        id: column
         anchors.fill: parent
         spacing: 6
         anchors.margins: 0
@@ -65,24 +66,16 @@ ApplicationWindow {
             }
         }
 
-        PageIndicator {
-            id: swipeIndicator
-
-            Layout.alignment: Qt.AlignCenter
-
-            count: swipeView.count
-            currentIndex: swipeView.currentIndex
-        }
-
         RowLayout {
             id: buttons
+
             Layout.preferredWidth: swipeView.width
-            Layout.fillWidth: true
-            Layout.fillHeight: true
             Layout.topMargin: 0
             Layout.bottomMargin: 12
             Layout.leftMargin: 12
             Layout.rightMargin: 12
+            Layout.fillWidth: true
+            Layout.fillHeight: true
 
             Button {
                 id: back
@@ -90,6 +83,13 @@ ApplicationWindow {
                 text: qsTr("< Back")
                 enabled: swipeView.currentIndex > 0
                 onClicked: root.setPrevious()
+            }
+            PageIndicator {
+                id: swipeIndicator
+                Layout.alignment: Qt.AlignCenter
+
+                count: swipeView.count
+                currentIndex: swipeView.currentIndex
             }
             Button {
                 id: forward

@@ -1,6 +1,7 @@
 import QtQuick 2.12
 import QtQuick.Layouts 1.11
 import QtQuick.Controls 2.12
+import QtQuick.Controls.Material 2.12
 
 import org.radar.app 1.0
 
@@ -9,23 +10,18 @@ FocusScope {
 
     signal itemClicked(int index);
 
-    SystemPalette {
-        id: palette
-        colorGroup: SystemPalette.Active
-    }
-
     Component {
         id: sectionHeading
         Rectangle {
             width: root.width
             height: sectionText.font.pixelSize*1.5
-            color: palette.midlight
+            color: Material.color(Material.Grey, Material.Shade400)
 
             Text {
                 id: sectionText
                 anchors.centerIn: parent
                 text: section
-                color: palette.buttonText
+                color: Material.color(Material.Grey, Material.Shade800)
                 font.bold: true
                 font.pointSize: fontPointSize * 1.2
             }
@@ -50,9 +46,9 @@ FocusScope {
             sourceComponent: MouseArea {
                 id: mouseArea
                 readonly property bool highlighted: mouseArea.containsMouse
-                readonly property color textColor: highlighted ? palette.highlightedText : palette.text
-                readonly property color standardBgColor: index % 2 === 0 ? palette.window : palette.alternateBase
-                readonly property color bgColor: highlighted ? palette.highlight : standardBgColor
+                readonly property color textColor: Material.color(Material.Grey, highlighted ? Material.Shade50 : Material.Shade900)
+                readonly property color standardBgColor: Material.color(Material.Grey, index % 2 === 0 ? Material.Shade100 : Material.Shade50)
+                readonly property color bgColor: highlighted ? Material.color(Material.LightBlue, Material.Shade800) : standardBgColor
 
                 height: row.implicitHeight
                 hoverEnabled: true
