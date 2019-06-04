@@ -55,11 +55,13 @@ Cras nec ante sit amet augue sodales iaculis. Aliquam erat volutpat. Nam aliquet
         Flickable {
             Layout.fillHeight: true
             Layout.fillWidth: true
+            Layout.preferredWidth: parent.width
             contentWidth: parent.width
             contentHeight: column.implicitHeight
             clip: true
 
             ScrollIndicator.vertical: ScrollIndicator {}
+
             ColumnLayout {
                 id: column
                 spacing: 12
@@ -67,13 +69,15 @@ Cras nec ante sit amet augue sodales iaculis. Aliquam erat volutpat. Nam aliquet
 
                 Text {
                     Layout.fillWidth: true
+                    Layout.fillHeight: true
                     id: header
                     textFormat: Text.AutoText
                     text: root.title
                     font.bold: true
                     wrapMode: Text.Wrap
                 }
-                Row {
+                RowLayout {
+                    Layout.alignment: Qt.AlignTop
                     Layout.fillWidth: true
                     spacing: 6
                     Label {
@@ -113,58 +117,66 @@ Cras nec ante sit amet augue sodales iaculis. Aliquam erat volutpat. Nam aliquet
                     }
                 }
 
-                Row {
+                RowLayout {
                     Layout.fillWidth: true
                     height: Layout.preferredHeight
                     spacing: 6
                     Label {
+                        Layout.alignment: Qt.AlignTop
                         text: qsTr("Date & Time:")
                         font.bold: true
                     }
                     Text {
-                        height: implicitHeight
+                        Layout.alignment: Qt.AlignTop
+                        Layout.fillWidth: true
                         text: root.dateTime
                         wrapMode: TextEdit.Wrap
                     }
                 }
 
-                Row {
+                RowLayout {
                     Layout.fillWidth: true
                     spacing: 6
                     visible: root.category.length > 0
                     Label {
+                        Layout.alignment: Qt.AlignTop
                         text: qsTr("Category:")
                         font.bold: true
                     }
                     Text {
+                        Layout.alignment: Qt.AlignTop
+                        Layout.fillWidth: true
                         text: root.category
                     }
                 }
-                Row {
+                RowLayout {
                     Layout.fillWidth: true
                     spacing: 6
                     Label {
+                        Layout.alignment: Qt.AlignTop
                         text: qsTr("Price:")
                         font.bold: true
                     }
                     Text {
+                        Layout.alignment: Qt.AlignTop
                         text: root.price
+                        Layout.fillWidth: true
                     }
                 }
-                Row {
+                RowLayout {
                     Layout.fillWidth: true
-                    onWidthChanged: {
-                        console.log("Width changed to %1".arg(width));
-                    }
-
                     spacing: 6
+
                     Label {
+                        Layout.alignment: Qt.AlignTop
                         text: qsTr("Address:")
                         font.bold: true
                     }
                     TextEdit {
+                        Layout.alignment: Qt.AlignTop
                         id: address
                         readOnly: true
+                        Layout.fillWidth: true
                         wrapMode: TextEdit.Wrap
                         text: root.locationAddress
                         MouseArea {
@@ -176,16 +188,19 @@ Cras nec ante sit amet augue sodales iaculis. Aliquam erat volutpat. Nam aliquet
                     }
                 }
 
-                Row {
+                RowLayout {
                     Layout.fillWidth: true
                     visible: root.directions.length > 0
                     spacing: 6
                     Label {
+                        Layout.alignment: Qt.AlignTop
                         text: qsTr("Directions:")
                         font.bold: true
                     }
 
                     TextEdit {
+                        Layout.alignment: Qt.AlignTop
+                        Layout.fillWidth: true
                         readOnly: true
                         text: root.directions
                         wrapMode: TextEdit.Wrap
