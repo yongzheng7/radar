@@ -18,6 +18,7 @@ Rectangle {
 
     signal linkActivated(string link)
     signal closeClicked()
+    signal locationActivated(string location)
 
     property string title: "Disco!"
     property string description: "<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras a nibh lorem. Donec in nisi nec nisi feugiat feugiat tincidunt ac libero. Proin maximus a purus vel facilisis. Aenean ac facilisis augue. Sed nec purus mollis, sollicitudin velit a, convallis magna. Sed lacinia ut nisl a facilisis. Nulla facilisi. Sed dapibus dui nec purus lobortis molestie. Duis pretium libero justo, et egestas metus blandit eget. Proin porttitor dolor nec nibh sagittis imperdiet. Curabitur pharetra consequat arcu, ac venenatis erat pulvinar a.
@@ -183,6 +184,7 @@ Cras nec ante sit amet augue sodales iaculis. Aliquam erat volutpat. Nam aliquet
                             anchors.fill: parent
                             onClicked: {
                                 console.log("Location: %1".arg(address.text));
+                                root.locationActivated(address.text);
                             }
                         }
                     }

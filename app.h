@@ -57,6 +57,7 @@ public:
     Q_INVOKABLE void selectEvent(int index);
     Q_INVOKABLE void openLink(const QString &link);
     Q_INVOKABLE void setCity(const QString &city);
+    Q_INVOKABLE void showLocation(const QString &location);
     EventsModel *eventsModel() const;
 
     const QString &title() const;

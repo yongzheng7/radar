@@ -118,6 +118,7 @@ ApplicationWindow {
                 eventPage.active = false;
             }
             onLinkActivated: App.openLink(link)
+            onLocationActivated: App.showLocation(location)
         }
 
         function updateEventInfo() {

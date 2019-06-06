@@ -334,6 +334,23 @@ void App::setCity(const QString &city)
     }
 }
 
+void App::showLocation(const QString &location)
+{
+    qDebug() << "Open location: " << location;
+#ifdef Q_OS_ANDROID
+    QString geoUrl = QStringLiteral("geo:0,0?q=%1")
+                         .arg(location.split(QChar(' '), QString::SplitBehavior::SkipEmptyParts).join(QChar('+')));
+    QAndroidJniObject geoJavaString = QAndroidJniObject::fromString(geoUrl);
+    QAndroidJniObject uri = QAndroidJniObject::callStaticObjectMethod(
+        "android/net/Uri", "parse", "(Ljava/lang/String;)Landroid/net/Uri;", geoJavaString.object< jobject >());
+
+    QAndroidJniObject activity = QtAndroid::androidActivity();
+    QAndroidIntent intent(QStringLiteral("android.intent.action.VIEW"));
+    intent.handle().callObjectMethod("setData", "(Landroid/net/Uri;)Landroid/content/Intent;", uri.object< jobject >());
+    QtAndroid::startActivity(intent.handle(), 0, nullptr);
+#endif
+}
+
 EventsModel *App::eventsModel() const
 {
     return m_eventsModel;
