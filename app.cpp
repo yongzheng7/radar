@@ -146,6 +146,7 @@ const QString &App::city() const
 void App::doReload()
 {
     qDebug() << "doReload...";
+    disconnect(m_networkAccessManager, &QNetworkAccessManager::finished, m_locationProvider, nullptr);
     disconnect(m_networkAccessManager, &QNetworkAccessManager::finished, this, nullptr);
     connect(m_networkAccessManager, &QNetworkAccessManager::finished, this, [this](QNetworkReply * reply) noexcept {
         qDebug() << "reply.error" << reply->error();
@@ -247,7 +248,7 @@ void App::doFiltering()
         return left.timeStart < right.timeStart;
     });
     m_eventsModel->setEvents(std::move(filtered));
-
+    m_locationProvider->setNetworkAccessManager(m_networkAccessManager);
     emit eventsModelChanged(QPrivateSignal());
     emit eventListFiltered(QPrivateSignal());
 }

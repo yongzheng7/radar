@@ -1,0 +1,90 @@
+#include "database.h"
+#include "locationprovider.h"
+#include <tuple>
+
+namespace DB
+{
+    QVariant insertLocation(const Location &location)
+    {
+        qDebug() << "Storing location wit uuid=" << location.uuid.toString();
+        QSqlQuery q;
+        q.prepare(QStringLiteral("insert into locations("
+                                 "uuid, name, country, locality, firstName, "
+                                 "lastName, postalCode, thoroughfare, "
+                                 "directions, latitude, longitude"
+                                 ") values("
+                                 "?, ?, ?, ?, ?, ?, ?, ?, ?, ? ,?"
+                                 ")"));
+        q.addBindValue(location.uuid);
+        q.addBindValue(location.name);
+        q.addBindValue(location.country);
+        q.addBindValue(location.locality);
+        q.addBindValue(location.firstName);
+        q.addBindValue(location.lastName);
+        q.addBindValue(location.postalCode);
+        q.addBindValue(location.thoroughfare);
+        q.addBindValue(location.directions);
+        q.addBindValue(location.latitude);
+        q.addBindValue(location.longitude);
+        q.exec();
+        return q.lastInsertId();
+    }
+
+    std::pair< bool, Location > findLocation(QUuid uuid)
+    {
+        qDebug() << "Loading location by uuid=" << uuid.toString();
+        QSqlQuery q;
+        q.prepare(QStringLiteral("select name, country, locality, firstName,"
+                                 " lastName, postalCode, thoroughfare, directions,"
+                                 " latitude, longitude from locations where uuid = :uuid"));
+        q.bindValue(QStringLiteral(":uuid"), uuid);
+        if (q.exec()) {
+            if (q.next()) {
+                Location result;
+                result.name = q.value(0).toString();
+                result.country = q.value(1).toString();
+                result.locality = q.value(2).toString();
+                result.firstName = q.value(3).toString();
+                result.lastName = q.value(4).toString();
+                result.postalCode = q.value(5).toInt();
+                result.thoroughfare = q.value(6).toString();
+                result.directions = q.value(7).toString();
+                result.latitude = q.value(8).toString();
+                result.longitude = q.value(9).toString();
+                result.uuid = uuid;
+                qDebug() << "found location with name " << result.name;
+                return {true, result};
+            }
+        }
+        qDebug() << "Location not found!";
+        return {false, {}};
+    }
+
+    QSqlError initDB()
+    {
+        QSqlDatabase db = QSqlDatabase::addDatabase(QStringLiteral("QSQLITE"));
+        db.setDatabaseName(QStringLiteral(":memory:"));
+
+        if (!db.open()) {
+            return db.lastError();
+        }
+
+        QStringList tables = db.tables();
+        if (tables.contains(QStringLiteral("locations"), Qt::CaseInsensitive)) {
+            qCritical() << "table LOCATIONS already exists!";
+            return QSqlError();
+        }
+
+        QSqlQuery q;
+        if (!q.exec(QStringLiteral("create table locations(id integer primary key,"
+                                   " uuid varchar, name varchar, country varchar,"
+                                   " locality varchar, firstName varchar,"
+                                   " lastName varchar, postalCode integer,"
+                                   " thoroughfare varchar, directions varchar,"
+                                   " latitude varchar, longitude varchar)"))) {
+            return q.lastError();
+        }
+
+        return QSqlError();
+    }
+}// namespace DB

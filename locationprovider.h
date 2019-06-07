@@ -45,9 +45,11 @@ public:
     std::pair<Location, bool> getLoadedLocation(const QUuid &uuid) const;
     void setLocationsToLoad(QSet< QUuid > &&locations);
     void doLoad(const QUuid &id);
+    void loadAllLocations();
 
 private:
     void onResponse(QNetworkReply *reply);
+    void requestLocationByUUID(const QUuid &id);
 
 signals:
     void locationAvailable(const QUuid &id, const Location &location);

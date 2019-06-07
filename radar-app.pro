@@ -14,6 +14,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
         app.cpp \
+        database.cpp \
         eventsmodel.cpp \
         locationprovider.cpp \
         main.cpp
@@ -39,6 +40,7 @@ QT += sql
 
 HEADERS += \
     app.h \
+    database.h \
     eventsmodel.h \
     locationprovider.h
 

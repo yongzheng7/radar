@@ -1,4 +1,6 @@
 #include "locationprovider.h"
+#include "database.h"
+
 #include <QJsonObject>
 #include <QJsonParseError>
 #include <QNetworkAccessManager>
@@ -50,7 +52,9 @@ void LocationProvider::onResponse(QNetworkReply *reply)
         QUuid uuid = QUuid::fromString(obj.value(QLatin1Literal("uuid")).toString());
         location.uuid = uuid;
 
+
         m_loadedLocations.insert(uuid, location);
+        DB::insertLocation(location);
         m_locationsToLoad.remove(uuid);
 
         emit locationAvailable(uuid, location);
@@ -68,10 +72,19 @@ void LocationProvider::setNetworkAccessManager(QNetworkAccessManager *networkAcc
 
 void LocationProvider::requestLocation(const QUuid &uuid)
 {
-    const auto foundIt = m_loadedLocations.constFind(uuid);
-    if (foundIt != m_loadedLocations.constEnd()) {
-        qDebug() << "Already loaded!";
-        emit locationAvailable(uuid, foundIt.value());
+// FIXME - use cache again after DB becomes persistant
+//    const auto foundIt = m_loadedLocations.constFind(uuid);
+//    if (foundIt != m_loadedLocations.constEnd()) {
+//        qDebug() << "Already loaded!";
+//        emit locationAvailable(uuid, foundIt.value());
+//        return;
+//    }
+    Location location;
+    bool found;
+    std::tie(found, location) = DB::findLocation(uuid);
+    if (found) {
+        qDebug() << "found in DB!";
+        emit locationAvailable(uuid, location);
         return;
     }
     qDebug() << "Download needed!";
@@ -102,14 +115,32 @@ void LocationProvider::setLocationsToLoad(QSet< QUuid > &&locations)
             ++it;
         }
     }
+    loadAllLocations();
 }
 
-void LocationProvider::doLoad(const QUuid &id)
+void LocationProvider::requestLocationByUUID(const QUuid &id)
 {
-    // load over network or from db
-    connect(m_networkAccessManager, &QNetworkAccessManager::finished, this, &LocationProvider::onResponse, Qt::UniqueConnection);
     QUrl requestUrl(QStringLiteral("https://radar.squat.net/api/1.2/location/%1.json").arg(id.toString(QUuid::WithoutBraces)));
     QNetworkRequest request(requestUrl);
     request.setRawHeader(QByteArrayLiteral("User-Agent"), QByteArrayLiteral("Radar App 1.0"));
     m_networkAccessManager->get(request);
 }
+
+void LocationProvider::doLoad(const QUuid &id)
+{
+    // load over network
+    connect(m_networkAccessManager, &QNetworkAccessManager::finished, this, &LocationProvider::onResponse,
+            Qt::UniqueConnection);
+    requestLocationByUUID(id);
+}
+
+void LocationProvider::loadAllLocations()
+{
+    connect(m_networkAccessManager, &QNetworkAccessManager::finished, this, &LocationProvider::onResponse,
+            Qt::UniqueConnection);
+    for (const auto &uuid : qAsConst(m_locationsToLoad)) {
+        requestLocationByUUID(uuid);
+    }
+}
+
+
