@@ -6,5 +6,6 @@
         <file>DateTimePage.qml</file>
         <file>ResultsPage.qml</file>
         <file>EventPage.qml</file>
+        <file>db.sqlite</file>
     </qresource>
 </RCC>

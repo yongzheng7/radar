@@ -63,7 +63,23 @@ namespace DB
     QSqlError initDB()
     {
         QSqlDatabase db = QSqlDatabase::addDatabase(QStringLiteral("QSQLITE"));
-        db.setDatabaseName(QStringLiteral(":memory:"));
+        QFile asset(QStringLiteral(":/db.sqlite"));
+        if (!asset.exists()) {
+            qCritical() << "No DB file in assets!";
+            return QSqlError();
+        }
+        const auto dir = QDir(QStandardPaths::writableLocation(QStandardPaths::DataLocation));
+        if (!dir.mkpath(dir.absolutePath())) {
+            qCritical() << "Can not create dir " << dir.absolutePath();
+            return QSqlError();
+        }
+        const auto targetPath = dir.filePath(QStringLiteral("radar-app.db"));
+        qDebug() << "targetPath: " << targetPath;
+        if (!dir.exists(targetPath) && !asset.copy(targetPath)) {
+            qCritical() << "Can not copy to " << targetPath;
+            return QSqlError();
+        }
+        db.setDatabaseName(targetPath);
 
         if (!db.open()) {
             return db.lastError();
