@@ -34,191 +34,191 @@ Cras nec ante sit amet augue sodales iaculis. Aliquam erat volutpat. Nam aliquet
     property string city: "Berlin"
     property string country: "Germany"
 
-    ColumnLayout {
+    Keys.onBackPressed: {
+        root.closeClicked();
+    }
+
+    Keys.onEscapePressed: root.closeClicked()
+
+    Flickable {
+        id: flickable
         anchors.fill: parent
         anchors.margins: 6
-        spacing: 6
 
-        Button {
-            id: closeButton
-            Layout.alignment: Qt.AlignTop | Qt.AlignTrailing
-            Layout.margins: 4
-            text: qsTr("Close")
-            onClicked: root.closeClicked()
-        }
+        contentWidth: parent.width - anchors.margins*2
+        contentHeight: column.implicitHeight
+        clip: true
 
-        Keys.onBackPressed: {
-            root.closeClicked();
-        }
+        ScrollIndicator.vertical: ScrollIndicator {}
 
-        Keys.onEscapePressed: root.closeClicked()
+        ColumnLayout {
+            id: column
+            spacing: 12
+            width: parent.width
 
-        Flickable {
-            Layout.fillHeight: true
-            Layout.fillWidth: true
-            Layout.preferredWidth: parent.width
-            contentWidth: parent.width
-            contentHeight: column.implicitHeight
-            clip: true
-
-            ScrollIndicator.vertical: ScrollIndicator {}
-
-            ColumnLayout {
-                id: column
-                spacing: 12
-                width: parent.width
-
-                Text {
-                    Layout.fillWidth: true
-                    Layout.fillHeight: true
-                    id: header
-                    textFormat: Text.AutoText
-                    text: root.title
+            Text {
+                Layout.fillWidth: true
+                Layout.fillHeight: true
+                id: header
+                textFormat: Text.AutoText
+                text: root.title
+                font.bold: true
+                wrapMode: Text.Wrap
+            }
+            RowLayout {
+                Layout.alignment: Qt.AlignTop
+                Layout.fillWidth: true
+                spacing: 6
+                Label {
+                    text: qsTr("at:")
                     font.bold: true
+                }
+                TextEdit {
+                    readOnly: true
+                    selectByMouse: true
+                    text: root.locationName
                     wrapMode: Text.Wrap
-                }
-                RowLayout {
-                    Layout.alignment: Qt.AlignTop
-                    Layout.fillWidth: true
-                    spacing: 6
-                    Label {
-                        text: qsTr("at:")
-                        font.bold: true
-                    }
-                    TextEdit {
-                        readOnly: true
-                        selectByMouse: true
-                        text: root.locationName
-                        wrapMode: Text.Wrap
-                    }
-                }
-                Text {
-                    Layout.fillWidth: true
-                    id: description
-                    wrapMode: Text.Wrap
-                    textFormat: Text.RichText
-                    text: root.description
-                    onLinkActivated: {
-                        root.linkActivated(link);
-                    }
-                    Loader {
-                        anchors.fill:parent
-
-                        active: Qt.platform.os !== "android"
-                        sourceComponent: MouseArea {
-                            hoverEnabled: true
-                            readonly property string hoveredLink: description.linkAt(mouseX,mouseY)
-                            cursorShape: hoveredLink !== "" ? Qt.PointingHandCursor : Qt.ArrowCursor
-                            onPressed: {
-                                if (hoveredLink !== "") {
-                                    root.linkActivated(hoveredLink);
-                                }
-                            }
-                        }
-                    }
-                }
-
-                RowLayout {
-                    Layout.fillWidth: true
-                    height: Layout.preferredHeight
-                    spacing: 6
-                    Label {
-                        Layout.alignment: Qt.AlignTop
-                        text: qsTr("Date & Time:")
-                        font.bold: true
-                    }
-                    Text {
-                        Layout.alignment: Qt.AlignTop
-                        Layout.fillWidth: true
-                        text: root.dateTime
-                        wrapMode: TextEdit.Wrap
-                    }
-                }
-
-                RowLayout {
-                    Layout.fillWidth: true
-                    spacing: 6
-                    visible: root.category.length > 0
-                    Label {
-                        Layout.alignment: Qt.AlignTop
-                        text: qsTr("Category:")
-                        font.bold: true
-                    }
-                    Text {
-                        Layout.alignment: Qt.AlignTop
-                        Layout.fillWidth: true
-                        text: root.category
-                    }
-                }
-                RowLayout {
-                    Layout.fillWidth: true
-                    spacing: 6
-                    Label {
-                        Layout.alignment: Qt.AlignTop
-                        text: qsTr("Price:")
-                        font.bold: true
-                    }
-                    Text {
-                        Layout.alignment: Qt.AlignTop
-                        text: root.price
-                        Layout.fillWidth: true
-                    }
-                }
-                RowLayout {
-                    Layout.fillWidth: true
-                    spacing: 6
-
-                    Label {
-                        Layout.alignment: Qt.AlignTop
-                        text: qsTr("Address:")
-                        font.bold: true
-                    }
-                    TextEdit {
-                        Layout.alignment: Qt.AlignTop
-                        id: address
-                        readOnly: true
-                        Layout.fillWidth: true
-                        wrapMode: TextEdit.Wrap
-                        text: root.locationAddress
-                        MouseArea {
-                            anchors.fill: parent
-                            onClicked: {
-                                console.log("Location: %1".arg(address.text));
-                                root.locationActivated(address.text);
-                            }
-                        }
-                    }
-                }
-
-                RowLayout {
-                    Layout.fillWidth: true
-                    visible: root.directions.length > 0
-                    spacing: 6
-                    Label {
-                        Layout.alignment: Qt.AlignTop
-                        text: qsTr("Directions:")
-                        font.bold: true
-                    }
-
-                    TextEdit {
-                        Layout.alignment: Qt.AlignTop
-                        Layout.fillWidth: true
-                        readOnly: true
-                        text: root.directions
-                        wrapMode: TextEdit.Wrap
-                    }
-                }
-
-                Label {
-                    Layout.fillWidth: true
-                    text: root.city
-                }
-
-                Label {
-                    Layout.fillWidth: true
-                    text: root.country
                 }
             }
+            Text {
+                Layout.fillWidth: true
+                id: description
+                wrapMode: Text.Wrap
+                textFormat: Text.RichText
+                text: root.description
+                onLinkActivated: {
+                    root.linkActivated(link);
+                }
+                Loader {
+                    anchors.fill:parent
+
+                    active: Qt.platform.os !== "android"
+                    sourceComponent: MouseArea {
+                        hoverEnabled: true
+                        readonly property string hoveredLink: description.linkAt(mouseX,mouseY)
+                        cursorShape: hoveredLink !== "" ? Qt.PointingHandCursor : Qt.ArrowCursor
+                        onPressed: {
+                            if (hoveredLink !== "") {
+                                root.linkActivated(hoveredLink);
+                            }
+                        }
+                    }
+                }
+            }
+
+            RowLayout {
+                Layout.fillWidth: true
+                height: Layout.preferredHeight
+                spacing: 6
+                Label {
+                    Layout.alignment: Qt.AlignTop
+                    text: qsTr("Date & Time:")
+                    font.bold: true
+                }
+                Text {
+                    Layout.alignment: Qt.AlignTop
+                    Layout.fillWidth: true
+                    text: root.dateTime
+                    wrapMode: TextEdit.Wrap
+                }
+            }
+
+            RowLayout {
+                Layout.fillWidth: true
+                spacing: 6
+                visible: root.category.length > 0
+                Label {
+                    Layout.alignment: Qt.AlignTop
+                    text: qsTr("Category:")
+                    font.bold: true
+                }
+                Text {
+                    Layout.alignment: Qt.AlignTop
+                    Layout.fillWidth: true
+                    text: root.category
+                }
+            }
+            RowLayout {
+                Layout.fillWidth: true
+                spacing: 6
+                Label {
+                    Layout.alignment: Qt.AlignTop
+                    text: qsTr("Price:")
+                    font.bold: true
+                }
+                Text {
+                    Layout.alignment: Qt.AlignTop
+                    text: root.price
+                    Layout.fillWidth: true
+                }
+            }
+            RowLayout {
+                Layout.fillWidth: true
+                spacing: 6
+
+                Label {
+                    Layout.alignment: Qt.AlignTop
+                    text: qsTr("Address:")
+                    font.bold: true
+                }
+                TextEdit {
+                    Layout.alignment: Qt.AlignTop
+                    id: address
+                    readOnly: true
+                    Layout.fillWidth: true
+                    wrapMode: TextEdit.Wrap
+                    text: root.locationAddress
+                    MouseArea {
+                        anchors.fill: parent
+                        onClicked: {
+                            console.log("Location: %1".arg(address.text));
+                            root.locationActivated(address.text);
+                        }
+                    }
+                }
+            }
+
+            RowLayout {
+                Layout.fillWidth: true
+                visible: root.directions.length > 0
+                spacing: 6
+                Label {
+                    Layout.alignment: Qt.AlignTop
+                    text: qsTr("Directions:")
+                    font.bold: true
+                }
+
+                TextEdit {
+                    Layout.alignment: Qt.AlignTop
+                    Layout.fillWidth: true
+                    readOnly: true
+                    text: root.directions
+                    wrapMode: TextEdit.Wrap
+                }
+            }
+
+            Label {
+                Layout.fillWidth: true
+                text: root.city
+            }
+
+            Label {
+                Layout.fillWidth: true
+                text: root.country
+            }
         }
+    }
+    Button {
+        id: closeButton
+
+        z: root.z + 1
+
+        anchors.right:  parent.right
+        anchors.bottom: parent.bottom
+        anchors.bottomMargin: 12
+        anchors.rightMargin:  12
+
+        text: qsTr("Close")
+        onClicked: root.closeClicked()
     }
 }

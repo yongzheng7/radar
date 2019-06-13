@@ -7,5 +7,6 @@
         <file>ResultsPage.qml</file>
         <file>EventPage.qml</file>
         <file>db.sqlite</file>
+        <file>map.qml</file>
     </qresource>
 </RCC>

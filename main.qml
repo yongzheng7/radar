@@ -21,7 +21,7 @@ ApplicationWindow {
     Shortcut {
         sequences: root.currentOSIsAndroid ? ["Esc", "Back"] : ["Esc"]
         onActivated: root.setPrevious()
-        enabled: swipeView.currentIndex > 0 && !eventPage.active
+        enabled: swipeView.currentIndex > 0 && !eventPage.active && !mapView.active
     }
 
     ColumnLayout {
@@ -60,6 +60,7 @@ ApplicationWindow {
                     onItemClicked: {
                         console.log("Setting event details for item %1".arg(index));
                         App.selectEvent(index);
+                        swipeView.enabled = false;
                         eventPage.active = true;
                     }
                 }
@@ -116,9 +117,17 @@ ApplicationWindow {
             target: eventPage.item
             onCloseClicked: {
                 eventPage.active = false;
+                swipeView.enabled = true;
             }
             onLinkActivated: App.openLink(link)
-            onLocationActivated: App.showLocation(location)
+            onLocationActivated: {
+                if (root.currentOSIsAndroid) {
+                    App.showLocation(location);
+                } else {
+                    mapView.active = true;
+                    eventPage.item.enabled = false;
+                }
+            }
         }
 
         function updateEventInfo() {
@@ -182,6 +191,26 @@ ApplicationWindow {
 
         visible: appState === AppStates.Loading ||
                  appState === AppStates.Filtering
+    }
+
+    Loader {
+        id: mapView
+        active: false
+        anchors.fill: parent
+        z: 2
+
+        Connections {
+            target: mapView.item
+
+            onCloseRequested: {
+                console.log("onCloseRequested");
+                mapView.active = false;
+                eventPage.active = true;
+                eventPage.item.enabled = true;
+            }
+        }
+
+        source: "qrc:/map.qml"
     }
 
     function setNext() {
