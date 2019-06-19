@@ -5,7 +5,6 @@
 #include <QtSql>
 
 #include "app.h"
-#include "database.h"
 
 static QObject *createAppInstance(QQmlEngine *qmlEngine, QJSEngine *jsEngine)
 {
@@ -43,11 +42,5 @@ int main(int argc, char *argv[])
                      },
                      Qt::QueuedConnection);
     engine.load(url);
-
-    QSqlError err = DB::initDB();
-    if (err.type() != QSqlError::NoError) {
-        qWarning() << err.text();
-        return 1;
-    }
     return app.exec();
 }

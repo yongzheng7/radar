@@ -9,6 +9,7 @@
 #include <QQmlEngine>
 #include <QStateMachine>
 
+#include "database.h"
 #include "eventsmodel.h"
 #include "locationprovider.h"
 
@@ -106,6 +107,7 @@ private:
 private:
     QNetworkAccessManager *const m_networkAccessManager;
     LocationProvider *const m_locationProvider;
+    DB *const m_db;
     Event m_currentEvent{};
     Location m_currentLocation{};
     QVector< Event > m_allEvents;

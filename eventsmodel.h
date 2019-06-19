@@ -16,6 +16,8 @@ struct Event {
     QString category;
 };
 
+Q_DECLARE_METATYPE(Event)
+
 class EventsModel : public QAbstractListModel
 {
 public:

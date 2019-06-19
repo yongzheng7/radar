@@ -31,6 +31,9 @@ struct Location {
     }
 };
 
+Q_DECLARE_METATYPE(Location)
+
+class DB;
 class QNetworkReply;
 class QNetworkAccessManager;
 class LocationProvider : public QObject
@@ -46,6 +49,7 @@ public:
     void setLocationsToLoad(QSet< QUuid > &&locations);
     void doLoad(const QUuid &id);
     void loadAllLocations();
+    void setDB(DB* db);
 
 private:
     void onResponse(QNetworkReply *reply);
@@ -58,4 +62,5 @@ private:
     QSet< QUuid > m_locationsToLoad;
     QHash< QUuid, Location > m_loadedLocations;
     QNetworkAccessManager *m_networkAccessManager{nullptr};
+    DB *m_db { nullptr };
 };

@@ -1,6 +1,7 @@
 #include "app.h"
 
 #include "locationprovider.h"
+#include "eventsmodel.h"
 
 #include <algorithm>
 
@@ -25,9 +26,19 @@ App::App(QObject *parent)
     : QObject(parent)
     , m_networkAccessManager(new QNetworkAccessManager(this))
     , m_locationProvider(new LocationProvider(this))
+    , m_db(new DB(this))
     , m_eventsModel(new EventsModel(this))
 {
+    qRegisterMetaType<Event>();
+    qRegisterMetaType<Location>();
     m_locationProvider->setNetworkAccessManager(m_networkAccessManager);
+    QSqlError err = m_db->initDB();
+    if (err.type() != QSqlError::NoError) {
+        qCritical() << err.text();
+        assert(!"Failed to init DB!");
+    }
+    m_locationProvider->setDB(m_db);
+
     initTimeRange();
     QSettings settings;
 

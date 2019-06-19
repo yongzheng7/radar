@@ -45,11 +45,11 @@ ApplicationWindow {
                 source: "qrc:/LocationPage.qml"
             }
 
-            Loader {
-                id: dateTime
-                active: SwipeView.isCurrentItem || SwipeView.isNextItem || SwipeView.isPreviousItem
-                source: "qrc:/DateTimePage.qml"
-            }
+//            Loader {
+//                id: dateTime
+//                active: SwipeView.isCurrentItem || SwipeView.isNextItem || SwipeView.isPreviousItem
+//                source: "qrc:/DateTimePage.qml"
+//            }
 
             Loader {
                 id: results
