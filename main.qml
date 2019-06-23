@@ -211,6 +211,10 @@ ApplicationWindow {
         }
 
         source: "qrc:/map.qml"
+        onLoaded: {
+            mapView.item.latitude = App.latitude;
+            mapView.item.longitude = App.longitude;
+        }
     }
 
     function setNext() {

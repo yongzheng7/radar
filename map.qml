@@ -8,8 +8,8 @@ Rectangle {
 
     anchors.fill: parent
 
-    property var latitude:  59.91
-    property var longitude: 10.75
+    property real latitude:  59.91
+    property real longitude: 10.75
 
     signal closeRequested()
 
@@ -38,10 +38,12 @@ Rectangle {
     }
 
     Map {
+        id: mapView
+
         anchors.fill: parent
         plugin: mapPlugin
         center: QtPositioning.coordinate(root.latitude, root.longitude)
-        zoomLevel: 14
+        zoomLevel: maximumZoomLevel - 1
     }
 
     Button {
@@ -56,6 +58,25 @@ Rectangle {
             console.log("Close!");
             root.closeRequested();
         }
+    }
+
+    MapQuickItem {
+        id: mapItem
+        anchorPoint.x: sourceItem.width /2
+        anchorPoint.y: sourceItem.height
+
+        coordinate: QtPositioning.coordinate(root.latitude, root.longitude)
+
+        sourceItem: Image {
+            id: image
+            source: "qrc:/icons/map-marker-icon.png"
+        }
+        Component.onCompleted: {
+            console.log("Image: %1x%2".arg(sourceItem.width).arg(sourceItem.height));
+        }
+    }
+    Component.onCompleted: {
+        mapView.addMapItem(mapItem);
     }
 }
 

@@ -8,5 +8,6 @@
         <file>EventPage.qml</file>
         <file>db.sqlite</file>
         <file>map.qml</file>
+        <file>icons/map-marker-icon.png</file>
     </qresource>
 </RCC>

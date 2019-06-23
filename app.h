@@ -44,6 +44,9 @@ class App : public QObject
     Q_PROPERTY(QString locationAddress READ locationAddress NOTIFY currentLocationChanged)
     Q_PROPERTY(QString directions READ directions NOTIFY currentLocationChanged)
 
+    Q_PROPERTY(QString latitude  READ latitude  NOTIFY currentLocationChanged)
+    Q_PROPERTY(QString longitude READ longitude NOTIFY currentLocationChanged)
+
 public:
     explicit App(QObject *parent = nullptr);
     ~App();
@@ -71,6 +74,9 @@ public:
     const QString &eventCity() const;
     const QString &eventCountry() const;
     QString directions() const;
+
+    QString longitude() const;
+    QString latitude() const;
 
 signals:
     void isLoadedChanged(QPrivateSignal);

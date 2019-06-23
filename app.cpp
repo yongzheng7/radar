@@ -433,3 +433,13 @@ QString App::directions() const
 {
     return m_currentLocation.directions;
 }
+
+QString App::longitude() const
+{
+    return m_currentLocation.longitude;
+}
+
+QString App::latitude() const
+{
+    return m_currentLocation.latitude;
+}
