@@ -1,7 +1,7 @@
 #include "app.h"
 
-#include "locationprovider.h"
 #include "eventsmodel.h"
+#include "locationprovider.h"
 
 #include <algorithm>
 
@@ -29,8 +29,8 @@ App::App(QObject *parent)
     , m_db(new DB(this))
     , m_eventsModel(new EventsModel(this))
 {
-    qRegisterMetaType<Event>();
-    qRegisterMetaType<Location>();
+    qRegisterMetaType< Event >();
+    qRegisterMetaType< Location >();
     m_locationProvider->setNetworkAccessManager(m_networkAccessManager);
     QSqlError err = m_db->initDB();
     if (err.type() != QSqlError::NoError) {
@@ -157,9 +157,17 @@ const QString &App::city() const
 void App::doReload()
 {
     qDebug() << "doReload...";
-    disconnect(m_networkAccessManager, &QNetworkAccessManager::finished, m_locationProvider, nullptr);
-    disconnect(m_networkAccessManager, &QNetworkAccessManager::finished, this, nullptr);
-    connect(m_networkAccessManager, &QNetworkAccessManager::finished, this, [this](QNetworkReply * reply) noexcept {
+    QNetworkRequest request;
+    QUrl requestUrl(m_eventsRequestUrlBase, QUrl::ParsingMode::TolerantMode);
+    QUrlQuery query;
+    query.addQueryItem(QStringLiteral("facets[city][]"), m_city);
+    requestUrl.setQuery(query);
+    qDebug() << "requestUrl=" << requestUrl.toString();
+    request.setUrl(requestUrl);
+    request.setRawHeader(QByteArrayLiteral("User-Agent"), QByteArrayLiteral("Radar App 1.0"));
+
+    auto reply = m_networkAccessManager->get(request);
+    connect(reply, &QNetworkReply::finished, this, [ this, reply ]() noexcept {
         qDebug() << "reply.error" << reply->error();
         qDebug() << "reply.isFinished = " << reply->isFinished();
         qDebug() << "reply.url" << reply->url();
@@ -177,20 +185,10 @@ void App::doReload()
             // qDebug() << "result: " << m_events;
             qDebug() << "loadCompleted!";
             emit this->loadCompleted(QPrivateSignal());
+            reply->close();
             reply->deleteLater();
         }
     });
-
-    QNetworkRequest request;
-    QUrl requestUrl(m_eventsRequestUrlBase, QUrl::ParsingMode::TolerantMode);
-    QUrlQuery query;
-    query.addQueryItem(QStringLiteral("facets[city][]"), m_city);
-    requestUrl.setQuery(query);
-    qDebug() << "requestUrl=" << requestUrl.toString();
-    request.setUrl(requestUrl);
-    request.setRawHeader(QByteArrayLiteral("User-Agent"), QByteArrayLiteral("Radar App 1.0"));
-
-    m_networkAccessManager->get(request);
 }
 
 void App::doExtract()
@@ -382,8 +380,8 @@ const QString App::dateTime() const
 {
     const auto dateTime = QDateTime::fromSecsSinceEpoch(m_currentEvent.timeStart);
     return QStringLiteral("%1, %2")
-            .arg(dateTime.date().toString(Qt::SystemLocaleLongDate))
-            .arg(dateTime.time().toString(QStringLiteral("HH:mm")));
+        .arg(dateTime.date().toString(Qt::SystemLocaleLongDate))
+        .arg(dateTime.time().toString(QStringLiteral("HH:mm")));
 }
 
 const QString &App::category() const
