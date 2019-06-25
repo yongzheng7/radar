@@ -27,7 +27,7 @@ App::App(QObject *parent)
     , m_networkAccessManager(new QNetworkAccessManager(this))
     , m_locationProvider(new LocationProvider(this))
     , m_db(new DB(this))
-    , m_eventsModel(new EventsModel(this))
+    , m_eventsModel(new EventsModel(m_locationProvider, this))
 {
     qRegisterMetaType< Event >();
     qRegisterMetaType< Location >();

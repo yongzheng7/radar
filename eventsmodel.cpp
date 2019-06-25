@@ -1,12 +1,17 @@
 #include "eventsmodel.h"
+#include "locationprovider.h"
 #include <tuple>
 
 #include <QDateTime>
 #include <QSize>
 
-EventsModel::EventsModel(QObject *parent)
+EventsModel::EventsModel(LocationProvider *locationProvider, QObject *parent)
     : QAbstractListModel(parent)
+    , m_locationProvider(locationProvider)
 {
+    Q_ASSERT(locationProvider);
+    connect(m_locationProvider, &LocationProvider::locationAvailable, this, &EventsModel::emitLocationDataChanged,
+            Qt::QueuedConnection);
 }
 
 EventsModel::~EventsModel()
@@ -61,8 +66,16 @@ QVariant EventsModel::data(const QModelIndex &index, int role) const
         return QDateTime::fromSecsSinceEpoch(m_events[pos].timeStart).toString(QStringLiteral("hh:mm"));
     case Category:
         return m_events[pos].category;
-//    case Qt::SizeHintRole:
-//        return QSize(400, 60);// FIXME
+    case LocationName: {
+        Location location;
+        bool exists;
+        std::tie(location, exists) = m_locationProvider->getLoadedLocation(m_events[pos].locationID);
+        if (!exists) {
+            m_locationProvider->requestLocation(m_events[pos].locationID);
+            return QString();
+        }
+        return location.name;
+    }
     default:
         return {};
     }
@@ -75,6 +88,18 @@ QHash< int, QByteArray > EventsModel::roleNames() const
                                           {Roles::Address, QByteArrayLiteral("address")},
                                           {Roles::Date, QByteArrayLiteral("date")},
                                           {Roles::StartDateTime, QByteArrayLiteral("startDateTime")},
-                                          {Roles::Category, QByteArrayLiteral("category")}};
+                                          {Roles::Category, QByteArrayLiteral("category")},
+                                          {Roles::LocationName, QByteArrayLiteral("locationName")}};
     return names;
+}
+
+void EventsModel::emitLocationDataChanged(const QUuid &uuid)
+{
+    const auto count = m_events.size();
+    for (int row = 0; row < count; ++row) {
+        if (m_events[row].locationID == uuid) {
+            auto idx = index(row);
+            emit dataChanged(idx, idx, {Roles::LocationName});
+        }
+    }
 }

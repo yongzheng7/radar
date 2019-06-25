@@ -50,7 +50,10 @@ FocusScope {
                 readonly property color standardBgColor: Material.color(Material.Grey, index % 2 === 0 ? Material.Shade100 : Material.Shade50)
                 readonly property color bgColor: highlighted ? Material.color(Material.LightBlue, Material.Shade800) : standardBgColor
 
-                height: row.implicitHeight
+                height: title.contentHeight +
+                        2 * title.anchors.margins +
+                        (location.visible ? (location.contentHeight + location.anchors.margins) : 0)
+
                 hoverEnabled: true
                 onClicked: {
                     console.log("index: " + index);
@@ -64,29 +67,48 @@ FocusScope {
                     color: mouseArea.bgColor
                 }
 
-                RowLayout {
-                    id: row
-                    width: root.width
-                    spacing: 6
-                    Text {
-                        text: model.startDateTime
-                        font.italic: true
-                        horizontalAlignment: Text.AlignLeft
-                        verticalAlignment: Text.AlignTop
-                        Layout.alignment: Qt.AlignLeading | Qt.AlignTop
-                        Layout.margins: 4
-                        color: mouseArea.textColor
-                    }
-                    Text {
-                        text: model.title
-                        font.bold: true
-                        wrapMode: Text.WordWrap
-                        horizontalAlignment: Text.AlignRight
-                        Layout.alignment: Qt.AlignTrailing
-                        Layout.fillWidth: true
-                        Layout.margins: 4
-                        color: mouseArea.textColor
-                    }
+                Text {
+                    id: date
+
+                    anchors.left: mouseArea.left
+                    anchors.top: mouseArea.top
+                    anchors.topMargin: 4
+                    anchors.leftMargin: 4
+
+                    text: model.startDateTime
+                    font.italic: true
+                    horizontalAlignment: Text.AlignLeft
+                    verticalAlignment: Text.AlignTop
+                    color: mouseArea.textColor
+                }
+                Text {
+                    id: title
+
+                    anchors.top: mouseArea.top
+                    anchors.right: mouseArea.right
+                    anchors.margins: 4
+                    anchors.bottom: location.visible ? location.top : mouseArea.bottom
+                    anchors.left: date.right
+
+                    text: model.title
+                    font.bold: true
+                    wrapMode: Text.WordWrap
+                    horizontalAlignment: Text.AlignRight
+                    color: mouseArea.textColor
+                }
+                Text {
+                    id: location
+
+                    visible: location.text !== ""
+
+                    anchors.margins: 4
+                    anchors.bottom: mouseArea.bottom
+                    anchors.right: mouseArea.right
+
+                    text: model.locationName
+                    wrapMode: Text.WordWrap
+                    horizontalAlignment: Text.AlignRight
+                    color: mouseArea.textColor
                 }
             }
         }
