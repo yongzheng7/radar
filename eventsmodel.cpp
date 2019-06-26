@@ -95,11 +95,6 @@ QHash< int, QByteArray > EventsModel::roleNames() const
 
 void EventsModel::emitLocationDataChanged(const QUuid &uuid)
 {
-    const auto count = m_events.size();
-    for (int row = 0; row < count; ++row) {
-        if (m_events[row].locationID == uuid) {
-            auto idx = index(row);
-            emit dataChanged(idx, idx, {Roles::LocationName});
-        }
-    }
+    Q_UNUSED(uuid);
+    emit dataChanged(index(0), index(m_events.size()-1), {Roles::LocationName});
 }
