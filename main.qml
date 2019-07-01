@@ -65,6 +65,14 @@ ApplicationWindow {
                     }
                 }
             }
+
+            onCurrentItemChanged: {
+                if (currentItem === results) {
+                    App.startUpdatePosition();
+                } else {
+                    App.stopUpdatePosition();
+                }
+            }
         }
 
         RowLayout {

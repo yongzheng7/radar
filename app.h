@@ -30,7 +30,7 @@ class App : public QObject
     Q_PROPERTY(QString country READ country NOTIFY countryChanged)
     Q_PROPERTY(QString city READ city WRITE setCity NOTIFY cityChanged)
     Q_PROPERTY(AppState::Values state READ state WRITE setState NOTIFY stateChanged)
-    Q_PROPERTY(QAbstractItemModel *eventsModel READ eventsModel NOTIFY eventsModelChanged)
+    Q_PROPERTY(QAbstractListModel *eventsModel READ eventsModel NOTIFY eventsModelChanged)
 
     Q_PROPERTY(QString title READ title NOTIFY currentEventChanged)
     Q_PROPERTY(QString description READ description NOTIFY currentEventChanged)
@@ -44,8 +44,8 @@ class App : public QObject
     Q_PROPERTY(QString locationAddress READ locationAddress NOTIFY currentLocationChanged)
     Q_PROPERTY(QString directions READ directions NOTIFY currentLocationChanged)
 
-    Q_PROPERTY(QString latitude  READ latitude  NOTIFY currentLocationChanged)
-    Q_PROPERTY(QString longitude READ longitude NOTIFY currentLocationChanged)
+    Q_PROPERTY(qreal latitude  READ latitude  NOTIFY currentLocationChanged)
+    Q_PROPERTY(qreal longitude READ longitude NOTIFY currentLocationChanged)
 
 public:
     explicit App(QObject *parent = nullptr);
@@ -62,7 +62,12 @@ public:
     Q_INVOKABLE void openLink(const QString &link);
     Q_INVOKABLE void setCity(const QString &city);
     Q_INVOKABLE void showLocation(const QString &location);
-    EventsModel *eventsModel() const;
+
+
+    Q_INVOKABLE void stopUpdatePosition();
+    Q_INVOKABLE void startUpdatePosition();
+
+    QAbstractListModel *eventsModel() const;
 
     const QString &title() const;
     const QString &description() const;
@@ -75,8 +80,8 @@ public:
     const QString &eventCountry() const;
     QString directions() const;
 
-    QString longitude() const;
-    QString latitude() const;
+    qreal longitude() const;
+    qreal latitude() const;
 
 signals:
     void isLoadedChanged(QPrivateSignal);

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QAbstractListModel>
+#include <QGeoCoordinate>
 #include <QHash>
 #include <QDate>
 #include <QUuid>
@@ -19,6 +20,7 @@ struct Event {
 Q_DECLARE_METATYPE(Event)
 
 class LocationProvider;
+class QGeoPositionInfoSource;
 
 class EventsModel : public QAbstractListModel
 {
@@ -26,7 +28,7 @@ public:
     EventsModel(LocationProvider *locationProvider, QObject *parent = nullptr);
     ~EventsModel() override;
 
-    enum Roles { Title = Qt::UserRole, Place, Address, Date, StartDateTime, Category, LocationName };
+    enum Roles { Title = Qt::UserRole, Place, Address, Date, StartDateTime, Category, LocationName, Distance };
 
 public:
     void setEvents(QVector< Event > &&events);
@@ -37,12 +39,18 @@ public:
     QVariant data(const QModelIndex &index, int role) const override;
     QHash< int, QByteArray > roleNames() const override;
 
+    void forceUpdatePosition();
+    void stopUpdatePosition();
+    void startUpdatePosition();
+
 private:
     void emitLocationDataChanged(const QUuid &uuid);
 private:
     Q_DISABLE_COPY(EventsModel)
     QVector< Event > m_events;
     LocationProvider * const m_locationProvider;
+    QGeoPositionInfoSource * const m_positionSource;
+    QGeoCoordinate m_latestPosition;
 };
 
 Q_DECLARE_METATYPE(QAbstractItemModel *);

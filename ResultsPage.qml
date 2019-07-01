@@ -99,6 +99,14 @@ FocusScope {
                     color: mouseArea.textColor
                 }
                 Text {
+                    id: distance
+                    text: model.distance
+                    anchors.margins: 4
+                    anchors.left: mouseArea.left
+                    anchors.bottom: mouseArea.bottom
+                    color: mouseArea.textColor
+                }
+                Text {
                     id: location
 
                     visible: location.text !== ""
@@ -106,6 +114,7 @@ FocusScope {
                     anchors.margins: 4
                     anchors.bottom: mouseArea.bottom
                     anchors.right: mouseArea.right
+                    anchors.left: distance.text !== "" ? distance.right : date.right
 
                     text: model.locationName
                     wrapMode: Text.WordWrap

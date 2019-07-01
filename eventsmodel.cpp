@@ -3,15 +3,33 @@
 #include <tuple>
 
 #include <QDateTime>
+#include <QDebug>
+#include <QGeoPositionInfoSource>
 #include <QSize>
 
 EventsModel::EventsModel(LocationProvider *locationProvider, QObject *parent)
     : QAbstractListModel(parent)
     , m_locationProvider(locationProvider)
+    , m_positionSource(QGeoPositionInfoSource::createDefaultSource(this))
 {
     Q_ASSERT(locationProvider);
     connect(m_locationProvider, &LocationProvider::locationAvailable, this, &EventsModel::emitLocationDataChanged,
             Qt::QueuedConnection);
+    qDebug() << "m_positionSource =" << m_positionSource;
+    if (m_positionSource) {
+        m_positionSource->setUpdateInterval(5000);
+        connect(m_positionSource, &QGeoPositionInfoSource::positionUpdated, this,
+                [this](const QGeoPositionInfo &newPos) noexcept {
+            qDebug() << "got new GeoPositionInfo!";
+            if (m_latestPosition.isValid() && m_latestPosition.distanceTo(newPos.coordinate()) - 1.0 <= 1.0) {
+                return;
+            }
+            m_latestPosition = newPos.coordinate();
+            const auto indexFirst = index(0);
+            const auto indexLast = index(m_events.size()-1);
+            emit dataChanged(indexFirst, indexLast, {Roles::Distance});
+        });
+    }
 }
 
 EventsModel::~EventsModel()
@@ -76,8 +94,24 @@ QVariant EventsModel::data(const QModelIndex &index, int role) const
         }
         return location.name;
     }
+    case Distance: {
+        if (!m_latestPosition.isValid()) {
+            return QString();
+        }
+        Location location;
+        bool exists;
+        std::tie(location, exists) = m_locationProvider->getLoadedLocation(m_events[pos].locationID);
+        if (!exists) {
+            m_locationProvider->requestLocation(m_events[pos].locationID);
+            return QString();
+        }
+        if (!location.coordinate.isValid()) {
+            return QString();
+        }
+        return tr("%1 m").arg(qRound(m_latestPosition.distanceTo(location.coordinate)));
+    }
     default:
-        return {};
+        return QString();
     }
 }
 
@@ -89,12 +123,36 @@ QHash< int, QByteArray > EventsModel::roleNames() const
                                           {Roles::Date, QByteArrayLiteral("date")},
                                           {Roles::StartDateTime, QByteArrayLiteral("startDateTime")},
                                           {Roles::Category, QByteArrayLiteral("category")},
-                                          {Roles::LocationName, QByteArrayLiteral("locationName")}};
+                                          {Roles::LocationName, QByteArrayLiteral("locationName")},
+                                          {Roles::Distance, QByteArrayLiteral("distance")}};
     return names;
+}
+
+void EventsModel::forceUpdatePosition()
+{
+    if (m_positionSource) {
+        m_positionSource->requestUpdate();
+    }
+}
+
+void EventsModel::stopUpdatePosition()
+{
+    if (m_positionSource) {
+        m_positionSource->stopUpdates();
+    }
+}
+
+void EventsModel::startUpdatePosition()
+{
+    if (m_positionSource) {
+        m_positionSource->startUpdates();
+    }
 }
 
 void EventsModel::emitLocationDataChanged(const QUuid &uuid)
 {
     Q_UNUSED(uuid);
-    emit dataChanged(index(0), index(m_events.size()-1), {Roles::LocationName});
+    const auto indexFirst = index(0);
+    const auto indexLast = index(m_events.size()-1);
+    emit dataChanged(indexFirst, indexLast, {Roles::LocationName, Roles::Distance});
 }

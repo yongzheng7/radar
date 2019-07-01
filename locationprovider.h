@@ -1,4 +1,5 @@
 #pragma once
+#include <QGeoCoordinate>
 #include <QHash>
 #include <QObject>
 #include <QSet>
@@ -18,8 +19,7 @@ struct Location {
     int postalCode{0};
     QString thoroughfare;
     QString directions;
-    QString latitude;
-    QString longitude;
+    QGeoCoordinate coordinate;
 
     QString toString() const
     {
@@ -28,7 +28,7 @@ struct Location {
                               "latitude: %9, longitude: %10")
             .arg(name, country, locality, firstName, lastName)
             .arg(postalCode)
-            .arg(thoroughfare, directions, latitude, longitude);
+            .arg(thoroughfare, directions, coordinate.toString(QGeoCoordinate::Degrees));
     }
 };
 

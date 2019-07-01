@@ -33,8 +33,13 @@ Location LocationProvider::extractLocationFromJSON(const QJsonDocument &json)
     location.directions = obj.value(QLatin1Literal("directions")).toString();
 
     const auto &map = obj.value(QLatin1Literal("map")).toObject();
-    location.latitude = map.value(QLatin1Literal("lat")).toString();
-    location.longitude = map.value(QLatin1Literal("lon")).toString();
+    bool okLon, okLat;
+    qreal latitude = map.value(QLatin1Literal("lat")).toString().toDouble(&okLat);
+    qreal longitude = map.value(QLatin1Literal("lon")).toString().toDouble(&okLon);
+    if (okLat && okLon) {
+        location.coordinate.setLatitude(latitude);
+        location.coordinate.setLongitude(longitude);
+    }
     qDebug() << "name: " << location.name << " address:" << location.thoroughfare;
     QUuid uuid = QUuid::fromString(obj.value(QLatin1Literal("uuid")).toString());
     location.uuid = uuid;

@@ -68,12 +68,17 @@ Cras nec ante sit amet augue sodales iaculis. Aliquam erat volutpat. Nam aliquet
             RowLayout {
                 Layout.alignment: Qt.AlignTop
                 Layout.fillWidth: true
+                height: Layout.preferredHeight
                 spacing: 6
                 Label {
+                    Layout.alignment: Qt.AlignTop
+
                     text: qsTr("at:")
                     font.bold: true
                 }
                 TextEdit {
+                    Layout.fillWidth: true
+
                     readOnly: true
                     selectByMouse: true
                     text: root.locationName

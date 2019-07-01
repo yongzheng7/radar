@@ -23,8 +23,13 @@ QVariant DB::insertLocation(const Location &location)
     q.addBindValue(location.postalCode);
     q.addBindValue(location.thoroughfare);
     q.addBindValue(location.directions);
-    q.addBindValue(location.latitude);
-    q.addBindValue(location.longitude);
+    if (location.coordinate.isValid()) {
+        q.addBindValue(location.coordinate.latitude());
+        q.addBindValue(location.coordinate.longitude());
+    } else {
+        q.addBindValue(QVariant(QVariant::Double));
+        q.addBindValue(QVariant(QVariant::Double));
+    }
     q.exec();
     return q.lastInsertId();
 }
@@ -40,7 +45,7 @@ std::pair< bool, Location > DB::findLocation(QUuid uuid)
     q.bindValue(QStringLiteral(":uuid"), uuid);
     if (q.exec()) {
         if (q.next()) {
-            Location result;
+            Location result{};
             result.name = q.value(0).toString();
             result.country = q.value(1).toString();
             result.locality = q.value(2).toString();
@@ -49,8 +54,11 @@ std::pair< bool, Location > DB::findLocation(QUuid uuid)
             result.postalCode = q.value(5).toInt();
             result.thoroughfare = q.value(6).toString();
             result.directions = q.value(7).toString();
-            result.latitude = q.value(8).toString();
-            result.longitude = q.value(9).toString();
+            if (!q.isNull(8) && !q.isNull(9)) {
+                qreal latitude = q.value(8).toDouble();
+                qreal longitude = q.value(9).toDouble();
+                result.coordinate = QGeoCoordinate(latitude, longitude);
+            }
             result.uuid = uuid;
             qDebug() << "found location with name " << result.name;
             return {true, result};

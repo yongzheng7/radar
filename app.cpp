@@ -361,7 +361,18 @@ void App::showLocation(const QString &location)
 #endif
 }
 
-EventsModel *App::eventsModel() const
+void App::stopUpdatePosition()
+{
+    m_eventsModel->stopUpdatePosition();
+}
+
+void App::startUpdatePosition()
+{
+    m_eventsModel->startUpdatePosition();
+    //m_eventsModel->forceUpdatePosition();
+}
+
+QAbstractListModel *App::eventsModel() const
 {
     return m_eventsModel;
 }
@@ -434,12 +445,12 @@ QString App::directions() const
     return m_currentLocation.directions;
 }
 
-QString App::longitude() const
+qreal App::longitude() const
 {
-    return m_currentLocation.longitude;
+    return m_currentLocation.coordinate.isValid() ? m_currentLocation.coordinate.longitude() : ::qQNaN();
 }
 
-QString App::latitude() const
+qreal App::latitude() const
 {
-    return m_currentLocation.latitude;
+    return m_currentLocation.coordinate.isValid() ? m_currentLocation.coordinate.latitude() : ::qQNaN();
 }
