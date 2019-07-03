@@ -17,18 +17,23 @@ EventsModel::EventsModel(LocationProvider *locationProvider, QObject *parent)
             Qt::QueuedConnection);
     qDebug() << "m_positionSource =" << m_positionSource;
     if (m_positionSource) {
-        m_positionSource->setUpdateInterval(5000);
-        connect(m_positionSource, &QGeoPositionInfoSource::positionUpdated, this,
-                [this](const QGeoPositionInfo &newPos) noexcept {
-            qDebug() << "got new GeoPositionInfo!";
-            if (m_latestPosition.isValid() && m_latestPosition.distanceTo(newPos.coordinate()) - 1.0 <= 1.0) {
-                return;
-            }
-            m_latestPosition = newPos.coordinate();
-            const auto indexFirst = index(0);
-            const auto indexLast = index(m_events.size()-1);
-            emit dataChanged(indexFirst, indexLast, {Roles::Distance});
+        connect(m_positionSource, QOverload<QGeoPositionInfoSource::Error>::of(&QGeoPositionInfoSource::error),
+                [this](QGeoPositionInfoSource::Error positioningError) noexcept {
+            m_geoError = positioningError;
+            emit this->hasGeoErrorChanged(QPrivateSignal());
         });
+        m_positionSource->setUpdateInterval(5000);
+        connect(m_positionSource, &QGeoPositionInfoSource::positionUpdated,
+                this, [this](const QGeoPositionInfo &newPos) noexcept {
+                    qDebug() << "got new GeoPositionInfo!";
+                    if (m_latestPosition.isValid() && m_latestPosition.distanceTo(newPos.coordinate()) - 1.0 <= 1.0) {
+                        return;
+                    }
+                    m_latestPosition = newPos.coordinate();
+                    const auto indexFirst = index(0);
+                    const auto indexLast = index(m_events.size() - 1);
+                    emit dataChanged(indexFirst, indexLast, {Roles::Distance});
+                });
     }
 }
 
@@ -149,10 +154,15 @@ void EventsModel::startUpdatePosition()
     }
 }
 
+bool EventsModel::hasGeoError() const
+{
+    return !m_positionSource || m_positionSource->error() != QGeoPositionInfoSource::Error::NoError;
+}
+
 void EventsModel::emitLocationDataChanged(const QUuid &uuid)
 {
     Q_UNUSED(uuid);
     const auto indexFirst = index(0);
-    const auto indexLast = index(m_events.size()-1);
+    const auto indexLast = index(m_events.size() - 1);
     emit dataChanged(indexFirst, indexLast, {Roles::LocationName, Roles::Distance});
 }

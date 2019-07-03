@@ -1,5 +1,6 @@
 #include "app.h"
 
+#include "all_countries.h"
 #include "eventsmodel.h"
 #include "locationprovider.h"
 
@@ -21,6 +22,7 @@
 namespace
 {
     const QString settingsCityKey{QStringLiteral("filter/city")};
+    const QString settingsCountryKey{QStringLiteral("filter/city")};
 }
 App::App(QObject *parent)
     : QObject(parent)
@@ -28,6 +30,7 @@ App::App(QObject *parent)
     , m_locationProvider(new LocationProvider(this))
     , m_db(new DB(this))
     , m_eventsModel(new EventsModel(m_locationProvider, this))
+    , m_allCountries(Countries::allCountries().keys())
 {
     qRegisterMetaType< Event >();
     qRegisterMetaType< Location >();
@@ -43,6 +46,7 @@ App::App(QObject *parent)
     QSettings settings;
 
     m_city = settings.value(settingsCityKey, QStringLiteral("Berlin")).toString();
+    m_country = settings.value(settingsCountryKey, QStringLiteral("Germany")).toString();
 
     qDebug() << __FUNCTION__;
     setupFSM();
@@ -66,12 +70,15 @@ App::~App()
 void App::setupFSM()
 {
     auto idle = addState(AppState::Values::Idle);
+    auto countryLoad = addState(AppState::Values::CountryLoad, &App::doLoadCountries);
+    auto countryFilter = addState(AppState::Values::CountryFilter, &App::doFilterCountries);
+    auto citiesLoad = addState(AppState::Values::CitiesLoad, &App::doLoadCities);
     auto loading = addState(AppState::Values::Loading, &App::doReload);
     auto extraction = addState(AppState::Values::Extraction, &App::doExtract);
     auto filtering = addState(AppState::Values::Filtering, &App::doFiltering);
 #ifdef Q_OS_ANDROID
     auto requestingPermissions = addState(AppState::Values::Permission, &App::getPermissions);
-    requestingPermissions->addTransition(this, &App::gotPermissions, loading);
+    requestingPermissions->addTransition(this, &App::gotPermissions, countryLoad);
     requestingPermissions->addTransition(this, &App::failedToGetPermissions, idle);
 #endif
     m_fsm.setInitialState(idle);
@@ -79,10 +86,14 @@ void App::setupFSM()
     connect(&m_fsm, &QStateMachine::runningChanged, this, [](bool running) { qDebug() << "runningChanged to " << running; });
 
 #ifndef Q_OS_ANDROID
-    idle->addTransition(this, &App::reloadRequested, loading);
+    idle->addTransition(this, &App::reloadRequested, countryLoad);
 #else
     idle->addTransition(this, &App::reloadRequested, requestingPermissions);
 #endif
+    countryLoad->addTransition(this, &App::loadCompleted, countryFilter);
+    countryFilter->addTransition(this, &App::countriesFiltered, citiesLoad);
+    citiesLoad->addTransition(this, &App::allCitiesLoaded, idle);
+    idle->addTransition(this, &App::reloadEventsRequested, loading);
     loading->addTransition(this, &App::loadCompleted, extraction);
     extraction->addTransition(this, &App::eventListReady, filtering);
     filtering->addTransition(this, &App::eventListFiltered, idle);
@@ -191,9 +202,146 @@ void App::doReload()
     });
 }
 
+void App::doLoadCountries()
+{
+    qDebug() << "doLoadCountries...";
+    QNetworkRequest request;
+    QUrl requestUrl(m_groupsRequestUrl, QUrl::ParsingMode::TolerantMode);
+    qDebug() << "requestUrl=" << requestUrl.toString();
+    request.setUrl(requestUrl);
+    request.setRawHeader(QByteArrayLiteral("User-Agent"), QByteArrayLiteral("Radar App 1.0"));
+
+    auto reply = m_networkAccessManager->get(request);
+    connect(reply, &QNetworkReply::finished, this, [ this, reply ]() noexcept {
+        qDebug() << "reply.error" << reply->error();
+        qDebug() << "reply.isFinished = " << reply->isFinished();
+        qDebug() << "reply.url" << reply->url();
+        qDebug() << "reply.size:" << reply->size();
+        qDebug() << "Content-Type" << reply->header(QNetworkRequest::KnownHeaders::ContentTypeHeader);
+        if (reply->isFinished()) {
+            QByteArray buf = reply->readAll();
+            qDebug() << buf;
+            QJsonParseError err;
+            QJsonDocument json = QJsonDocument::fromJson(buf, &err);
+            if (json.isNull()) {
+                qCritical() << "Json parse error:" << err.errorString();
+                emit loadFailed(QPrivateSignal());
+            }
+            m_groups = json.object();
+            qDebug() << "loadCompleted!";
+            emit this->loadCompleted(QPrivateSignal());
+            reply->close();
+            reply->deleteLater();
+        }
+    });
+}
+
+void App::doLoadCities()
+{
+    m_citiesByCountryCode.clear();
+    const auto &countryCodes = Countries::allCountries();
+    qDebug() << m_allCountries;
+    QStringList allCodes;
+    allCodes.reserve(countryCodes.size());
+    for (const auto &country : qAsConst(m_allCountries)) {
+        allCodes.push_back(Countries::countryCode(country));
+    }
+    m_countriesToLoad = QSet<QString>::fromList(allCodes);
+
+    for (const auto &code : qAsConst(allCodes)) {
+        const auto countryCode = code.toUpper();
+        QUrl requestUrl(m_cityRequestUrlBase.arg(countryCode));
+        qDebug() << "Request URL:" << requestUrl.toString();
+        QNetworkRequest request;
+        request.setUrl(requestUrl);
+        request.setRawHeader(QByteArrayLiteral("User-Agent"), QByteArrayLiteral("Radar App 1.0"));
+        auto reply = m_networkAccessManager->get(request);
+        connect(reply, &QNetworkReply::finished, this, [ this, reply, countryCode ]() noexcept {
+            qDebug() << "reply.error" << reply->error();
+            qDebug() << "reply.isFinished = " << reply->isFinished();
+            qDebug() << "reply.url" << reply->url();
+            qDebug() << "reply.size:" << reply->size();
+            qDebug() << "Content-Type" << reply->header(QNetworkRequest::KnownHeaders::ContentTypeHeader);
+            if (reply->isFinished()) {
+                m_countriesToLoad.remove(countryCode);
+                qDebug() << "Remaining countries:" << m_countriesToLoad;
+                QByteArray buf = reply->readAll();
+                QJsonParseError err;
+                QJsonDocument json = QJsonDocument::fromJson(buf, &err);
+                if (json.isNull()) {
+                    qCritical() << "Json parse error:" << err.errorString();
+                    emit loadFailed(QPrivateSignal());
+                }
+                const auto &cities = json.object();
+                const auto facets = cities.constFind(QLatin1Literal("facets"));
+                if (facets != cities.constEnd()) {
+                    const auto &facetsObj = facets->toObject();
+                    const auto cityArray = facetsObj.constFind(QLatin1Literal("city"));
+                    if (cityArray != facetsObj.constEnd()) {
+                        QStringList citiesForCountry;
+                        const auto &jsonArray = cityArray->toArray();
+                        citiesForCountry.reserve(jsonArray.size());
+                        for (const auto &city : jsonArray) {
+                            const auto &cityObj = city.toObject();
+                            citiesForCountry.push_back(cityObj.value(QLatin1Literal("filter")).toString());
+                        }
+                        qDebug() << "Country: " << countryCode << " Cities:" << citiesForCountry;
+                        m_citiesByCountryCode.insert(countryCode, citiesForCountry);
+                    }
+                }
+                reply->close();
+                reply->deleteLater();
+                if (m_countriesToLoad.empty()) {
+                    qDebug() << "cities by country:" << m_citiesByCountryCode;
+                    emit this->allCitiesLoaded(QPrivateSignal());
+                }
+            }
+        });
+
+    }
+}
+
+void App::doFilterCountries()
+{
+    qDebug() << __PRETTY_FUNCTION__;
+    const auto &constEnd = m_groups.constEnd();
+    const auto &facets = m_groups.constFind(QLatin1Literal("facets"));
+    QSet<QString> codes;
+    if (facets != constEnd) {
+        const auto &facetsObj = facets->toObject();
+        const auto &countriesIter = facetsObj.constFind(QLatin1Literal("country"));
+        if (countriesIter != facetsObj.constEnd()) {
+            const auto &countriesArray = countriesIter->toArray();
+            codes.reserve(countriesArray.size());
+            for (auto it = countriesArray.constBegin(), cend = countriesArray.constEnd();it != cend; ++it) {
+                const auto countryObj = *it;
+                const auto code = countryObj.toObject().value(QLatin1Literal("filter")).toString();
+                codes.insert(code);
+            }
+        } else {
+            qCritical() << "No 'country'";
+        }
+    } else {
+        qCritical() << "No 'facets'";
+    }
+    const auto countryMap = Countries::allCountries();
+    m_allCountries.clear();
+    m_allCountries.reserve(codes.size());
+    auto it = countryMap.constBegin();
+    auto end = countryMap.constEnd();
+    while (it != end) {
+        if (codes.contains(it.value())) {
+            m_allCountries.push_back(it.key());
+        }
+        ++it;
+    }
+    qDebug() << "loaded codes:" << codes;
+    emit countriesChanged(QPrivateSignal());
+    emit countriesFiltered(QPrivateSignal());
+}
+
 void App::doExtract()
 {
-    disconnect(m_networkAccessManager, nullptr, this, nullptr);
     QVector< Event > events;
     QSet< QUuid > locationIDs;
     const auto &constEnd = m_events.constEnd();
@@ -306,12 +454,30 @@ void App::reload()
     if (!m_fsm.isRunning()) {
         connect(&m_fsm, &QStateMachine::runningChanged, this, [this](bool running) {
             if (running) {
+                qDebug() << "requesting reload!";
                 emit this->reloadRequested(QPrivateSignal());
                 disconnect(&m_fsm, &QStateMachine::runningChanged, this, nullptr);
             }
         });
     } else {
+        qDebug() << "requesting reload!";
         emit reloadRequested(QPrivateSignal());
+    }
+}
+
+void App::reloadEvents()
+{
+    if (!m_fsm.isRunning()) {
+        connect(&m_fsm, &QStateMachine::runningChanged, this, [this](bool running) {
+            if (running) {
+                qDebug() << "requesting reloadEvents!";
+                emit this->reloadEventsRequested(QPrivateSignal());
+                disconnect(&m_fsm, &QStateMachine::runningChanged, this, nullptr);
+            }
+        });
+    } else {
+        qDebug() << "requesting reloadEvents!";
+        emit reloadEventsRequested(QPrivateSignal());
     }
 }
 
@@ -335,12 +501,13 @@ void App::openLink(const QString &link)
 void App::setCity(const QString &city)
 {
     qDebug() << "setCity:" << city;
+    qDebug() << "m_city:" << m_city;
     if (m_city != city) {
         m_city = city;
         QSettings settings;
         settings.setValue(settingsCityKey, city);
         emit cityChanged(QPrivateSignal());
-        reload();
+        reloadEvents();
     }
 }
 
@@ -453,4 +620,26 @@ qreal App::longitude() const
 qreal App::latitude() const
 {
     return m_currentLocation.coordinate.isValid() ? m_currentLocation.coordinate.latitude() : ::qQNaN();
+}
+
+QStringList App::countries() const
+{
+    return m_allCountries;
+}
+
+void App::setCountry(const QString &country)
+{
+    if (m_country != country) {
+        qDebug() << "Changing country to " << country;
+        m_country = country;
+        emit countryChanged(QPrivateSignal());
+        emit citiesChanged(QPrivateSignal());
+    }
+}
+
+QStringList App::cities() const
+{
+    auto cities = m_citiesByCountryCode.value(Countries::countryCode(m_country), {});
+    std::sort(cities.begin(), cities.end());
+    return cities;
 }

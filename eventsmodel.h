@@ -1,15 +1,16 @@
 #pragma once
 
 #include <QAbstractListModel>
-#include <QGeoCoordinate>
-#include <QHash>
 #include <QDate>
+#include <QGeoCoordinate>
+#include <QGeoPositionInfoSource>
+#include <QHash>
 #include <QUuid>
 
 struct Event {
     QString title;
     QString description;
-    QUuid locationID; //replace with 16-byte integer
+    QUuid locationID;// replace with 16-byte integer
     QString rawAddress;
     QDate date;
     qint64 timeStart;
@@ -20,10 +21,10 @@ struct Event {
 Q_DECLARE_METATYPE(Event)
 
 class LocationProvider;
-class QGeoPositionInfoSource;
 
 class EventsModel : public QAbstractListModel
 {
+    Q_OBJECT
 public:
     EventsModel(LocationProvider *locationProvider, QObject *parent = nullptr);
     ~EventsModel() override;
@@ -42,15 +43,21 @@ public:
     void forceUpdatePosition();
     void stopUpdatePosition();
     void startUpdatePosition();
+    bool hasGeoError() const;
+
+signals:
+    void hasGeoErrorChanged(QPrivateSignal);
 
 private:
     void emitLocationDataChanged(const QUuid &uuid);
+
 private:
     Q_DISABLE_COPY(EventsModel)
     QVector< Event > m_events;
-    LocationProvider * const m_locationProvider;
-    QGeoPositionInfoSource * const m_positionSource;
+    LocationProvider *const m_locationProvider;
+    QGeoPositionInfoSource *const m_positionSource;
     QGeoCoordinate m_latestPosition;
+    QGeoPositionInfoSource::Error m_geoError {QGeoPositionInfoSource::NoError};
 };
 
 Q_DECLARE_METATYPE(QAbstractItemModel *);

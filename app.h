@@ -16,7 +16,18 @@
 namespace AppState
 {
     Q_NAMESPACE
-    enum class Values { StartupCheck, NoConnection, Permission, Loading, Extraction, Filtering, Idle };
+    enum class Values {
+        StartupCheck,
+        NoConnection,
+        Permission,
+        CountryLoad,
+        CountryFilter,
+        CitiesLoad,
+        Loading,
+        Extraction,
+        Filtering,
+        Idle
+    };
     Q_ENUM_NS(Values)
 }// namespace AppState
 
@@ -27,7 +38,7 @@ class App : public QObject
     Q_OBJECT
     Q_PROPERTY(bool isLoaded READ isLoaded NOTIFY isLoadedChanged)
     Q_PROPERTY(bool isConnected READ isConnected NOTIFY isConnectedChanged)
-    Q_PROPERTY(QString country READ country NOTIFY countryChanged)
+    Q_PROPERTY(QString country READ country WRITE setCountry NOTIFY countryChanged)
     Q_PROPERTY(QString city READ city WRITE setCity NOTIFY cityChanged)
     Q_PROPERTY(AppState::Values state READ state WRITE setState NOTIFY stateChanged)
     Q_PROPERTY(QAbstractListModel *eventsModel READ eventsModel NOTIFY eventsModelChanged)
@@ -44,8 +55,10 @@ class App : public QObject
     Q_PROPERTY(QString locationAddress READ locationAddress NOTIFY currentLocationChanged)
     Q_PROPERTY(QString directions READ directions NOTIFY currentLocationChanged)
 
-    Q_PROPERTY(qreal latitude  READ latitude  NOTIFY currentLocationChanged)
+    Q_PROPERTY(qreal latitude READ latitude NOTIFY currentLocationChanged)
     Q_PROPERTY(qreal longitude READ longitude NOTIFY currentLocationChanged)
+    Q_PROPERTY(QStringList countries READ countries NOTIFY countriesChanged)
+    Q_PROPERTY(QStringList cities READ cities NOTIFY citiesChanged)
 
 public:
     explicit App(QObject *parent = nullptr);
@@ -58,11 +71,12 @@ public:
     const QString &country() const;
     const QString &city() const;
     Q_INVOKABLE void reload();
+    Q_INVOKABLE void reloadEvents();
+
     Q_INVOKABLE void selectEvent(int index);
     Q_INVOKABLE void openLink(const QString &link);
     Q_INVOKABLE void setCity(const QString &city);
     Q_INVOKABLE void showLocation(const QString &location);
-
 
     Q_INVOKABLE void stopUpdatePosition();
     Q_INVOKABLE void startUpdatePosition();
@@ -83,7 +97,15 @@ public:
     qreal longitude() const;
     qreal latitude() const;
 
+    QStringList countries() const;
+    void setCountry(const QString &country);
+    QStringList cities() const;
+
 signals:
+    void countriesChanged(QPrivateSignal);
+    void allCitiesLoaded(QPrivateSignal);
+    void citiesChanged(QPrivateSignal);
+
     void isLoadedChanged(QPrivateSignal);
     void isConnectedChanged(QPrivateSignal);
     void countryChanged(QPrivateSignal);
@@ -91,9 +113,11 @@ signals:
     void stateChanged(QPrivateSignal);
 
     void reloadRequested(QPrivateSignal);
+    void reloadEventsRequested(QPrivateSignal);
     void loadCompleted(QPrivateSignal);
     void loadFailed(QPrivateSignal);
 
+    void countriesFiltered(QPrivateSignal);
     void eventListReady(QPrivateSignal);
     void eventListFiltered(QPrivateSignal);
     void eventsModelChanged(QPrivateSignal);
@@ -111,6 +135,9 @@ private:
     QState *addState(AppState::Values stateEnumVal, std::function< void() > onEnter);
     QState *addState(AppState::Values stateEnumVal, MemberFunc onEnter);
     void doReload();
+    void doLoadCountries();
+    void doLoadCities();
+    void doFilterCountries();
     void doExtract();
     void doFiltering();
     void getPermissions();
@@ -127,10 +154,17 @@ private:
     AppState::Values m_state{AppState::Values::StartupCheck};
     bool m_isLoaded{false};
     bool m_isConnected{false};
+    QStringList m_allCountries;
     QString m_country;
     QString m_city;
+    QMap< QString, QStringList > m_citiesByCountryCode;
+    QSet< QString > m_countriesToLoad;
     QString m_eventsRequestUrlBase = QStringLiteral("https://radar.squat.net/api/1.2/search/events.json");
+    QString m_groupsRequestUrl = QStringLiteral("https://radar.squat.net/api/1.1/search/groups.json?fields[]=uuid&limit=1");
+    QString m_cityRequestUrlBase = QStringLiteral("https://radar.squat.net/api/1.2/search/events.json?fields[]=uuid&limit=1&facets[country][]=%1");
+
     QJsonObject m_events;
+    QJsonObject m_groups;
 
     QDateTime m_start;
     QDateTime m_end;

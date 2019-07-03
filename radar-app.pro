@@ -13,6 +13,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+        all_countries.cpp \
         app.cpp \
         database.cpp \
         eventsmodel.cpp \
@@ -39,6 +40,7 @@ android {
 QT += sql
 
 HEADERS += \
+    all_countries.h \
     app.h \
     database.h \
     eventsmodel.h \
