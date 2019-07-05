@@ -198,7 +198,11 @@ ApplicationWindow {
         }
 
         visible: appState === AppStates.Loading ||
-                 appState === AppStates.Filtering
+                 appState === AppStates.Filtering ||
+                 appState === AppStates.CountryLoad ||
+                 appState === AppStates.CountryFilter ||
+                 appState === AppStates.CitiesLoad ||
+                 appState === AppStates.Extraction
     }
 
     Loader {

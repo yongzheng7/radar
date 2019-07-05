@@ -22,7 +22,7 @@
 namespace
 {
     const QString settingsCityKey{QStringLiteral("filter/city")};
-    const QString settingsCountryKey{QStringLiteral("filter/city")};
+    const QString settingsCountryKey{QStringLiteral("filter/country")};
 }
 App::App(QObject *parent)
     : QObject(parent)
@@ -61,6 +61,7 @@ App::App(QObject *parent)
                 m_currentLocation = location;
                 emit this->currentLocationChanged(QPrivateSignal());
             });
+    setCountry(m_country);
 }
 
 App::~App()
@@ -171,7 +172,11 @@ void App::doReload()
     QNetworkRequest request;
     QUrl requestUrl(m_eventsRequestUrlBase, QUrl::ParsingMode::TolerantMode);
     QUrlQuery query;
-    query.addQueryItem(QStringLiteral("facets[city][]"), m_city);
+    if (m_city.isEmpty()) {
+        query.addQueryItem(QStringLiteral("facets[country][]"), Countries::countryCode(m_country));
+    } else {
+        query.addQueryItem(QStringLiteral("facets[city][]"), m_city);
+    }
     requestUrl.setQuery(query);
     qDebug() << "requestUrl=" << requestUrl.toString();
     request.setUrl(requestUrl);
@@ -632,8 +637,14 @@ void App::setCountry(const QString &country)
     if (m_country != country) {
         qDebug() << "Changing country to " << country;
         m_country = country;
+        QSettings settings;
+        settings.setValue(settingsCountryKey, m_country);
         emit countryChanged(QPrivateSignal());
         emit citiesChanged(QPrivateSignal());
+        const auto &citiesForCountry = cities();
+        setCity(citiesForCountry.empty() ? QString() : citiesForCountry.constFirst());
+        emit cityChanged(QPrivateSignal());
+        reloadEvents();
     }
 }
 

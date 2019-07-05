@@ -22,6 +22,9 @@ Item {
             onActivated: {
                 App.country = model[index];
             }
+            onModelChanged: {
+                countries.currentIndex = find(App.country);
+            }
         }
 
         Text {

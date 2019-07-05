@@ -54,7 +54,8 @@ FocusScope {
 
                 height: title.contentHeight +
                         2 * title.anchors.margins +
-                        (location.visible ? (location.contentHeight + location.anchors.margins) : 0)
+                        Math.max((location.visible ? (location.contentHeight + location.anchors.margins) : 0),
+                                 (distance.visible ? (distance.contentHeight + distance.anchors.margins) : 0))
 
                 hoverEnabled: true
                 onClicked: {
@@ -102,8 +103,10 @@ FocusScope {
                     id: distance
                     text: model.distance
                     anchors.margins: 4
+                    anchors.top: date.bottom
                     anchors.left: mouseArea.left
                     anchors.bottom: mouseArea.bottom
+                    verticalAlignment: Text.AlignBottom
                     color: mouseArea.textColor
                 }
                 Text {
