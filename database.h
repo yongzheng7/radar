@@ -4,6 +4,7 @@
 #include <QtSql>
 #include <QObject>
 #include <QSet>
+#include <QVector>
 
 class DB : QObject
 {
@@ -15,4 +16,7 @@ public:
     QVariant insertLocation(const Location &location);
     std::pair< bool, Location > findLocation(QUuid uuid);
     QSet<QUuid> getAllUUIDs();
+    QStringList getAllCountries();
+    QMap<QString, QStringList> getAllCities();
+    QVariant insertCountry(const QString &code, const QString &name, const QStringList &cities);
 };

@@ -74,6 +74,7 @@ void App::setupFSM()
     auto countryLoad = addState(AppState::Values::CountryLoad, &App::doLoadCountries);
     auto countryFilter = addState(AppState::Values::CountryFilter, &App::doFilterCountries);
     auto citiesLoad = addState(AppState::Values::CitiesLoad, &App::doLoadCities);
+    auto checkCurrentLocation = addState(AppState::Values::CurrentLocationCheck, &App::doCurrentLocationCheck);
     auto loading = addState(AppState::Values::Loading, &App::doReload);
     auto extraction = addState(AppState::Values::Extraction, &App::doExtract);
     auto filtering = addState(AppState::Values::Filtering, &App::doFiltering);
@@ -91,9 +92,14 @@ void App::setupFSM()
 #else
     idle->addTransition(this, &App::reloadRequested, requestingPermissions);
 #endif
+    countryLoad->addTransition(this, &App::countriesAlreadyLoaded, citiesLoad);
     countryLoad->addTransition(this, &App::loadCompleted, countryFilter);
     countryFilter->addTransition(this, &App::countriesFiltered, citiesLoad);
-    citiesLoad->addTransition(this, &App::allCitiesLoaded, idle);
+    citiesLoad->addTransition(this, &App::citiesAlreadyLoaded, checkCurrentLocation);
+    checkCurrentLocation->addTransition(this, &App::noEvents, loading);
+    checkCurrentLocation->addTransition(this, &App::eventsExist, idle);
+    auto transition = citiesLoad->addTransition(this, &App::allCitiesLoaded, idle);
+    connect(transition, &QAbstractTransition::triggered, this, &App::updateCurrentLocation);
     idle->addTransition(this, &App::reloadEventsRequested, loading);
     loading->addTransition(this, &App::loadCompleted, extraction);
     extraction->addTransition(this, &App::eventListReady, filtering);
@@ -210,6 +216,11 @@ void App::doReload()
 void App::doLoadCountries()
 {
     qDebug() << "doLoadCountries...";
+    updateAllCountries(m_db->getAllCountries());
+    if (!m_allCountries.empty()) {
+        emit this->countriesAlreadyLoaded(QPrivateSignal());
+        return;
+    }
     QNetworkRequest request;
     QUrl requestUrl(m_groupsRequestUrl, QUrl::ParsingMode::TolerantMode);
     qDebug() << "requestUrl=" << requestUrl.toString();
@@ -244,6 +255,12 @@ void App::doLoadCountries()
 void App::doLoadCities()
 {
     m_citiesByCountryCode.clear();
+    m_citiesByCountryCode = m_db->getAllCities();
+    if (!m_citiesByCountryCode.empty()) {
+        emit citiesAlreadyLoaded(QPrivateSignal());
+        updateCurrentLocation();
+        return;
+    }
     const auto &countryCodes = Countries::allCountries();
     qDebug() << m_allCountries;
     QStringList allCodes;
@@ -298,6 +315,9 @@ void App::doLoadCities()
                 reply->deleteLater();
                 if (m_countriesToLoad.empty()) {
                     qDebug() << "cities by country:" << m_citiesByCountryCode;
+                    for(auto it = m_citiesByCountryCode.constBegin(), end = m_citiesByCountryCode.constEnd(); it != end; ++it) {
+                        m_db->insertCountry(it.key(), Countries::allCountries().key(it.key()), it.value());
+                    }
                     emit this->allCitiesLoaded(QPrivateSignal());
                 }
             }
@@ -343,6 +363,15 @@ void App::doFilterCountries()
     qDebug() << "loaded codes:" << codes;
     emit countriesChanged(QPrivateSignal());
     emit countriesFiltered(QPrivateSignal());
+}
+
+void App::doCurrentLocationCheck()
+{
+    if (m_events.isEmpty()) {
+        emit noEvents(QPrivateSignal());
+        return;
+    }
+    emit eventsExist(QPrivateSignal());
 }
 
 void App::doExtract()
@@ -549,6 +578,11 @@ QAbstractListModel *App::eventsModel() const
     return m_eventsModel;
 }
 
+bool App::noEventsFound() const
+{
+    return m_eventsModel->rowCount(QModelIndex()) > 0;
+}
+
 const QString &App::title() const
 {
     return m_currentEvent.title;
@@ -632,19 +666,35 @@ QStringList App::countries() const
     return m_allCountries;
 }
 
+void App::forceSetCountry(const QString &country)
+{
+    m_country = country;
+    QSettings settings;
+    settings.setValue(settingsCountryKey, m_country);
+    emit countryChanged(QPrivateSignal());
+    emit citiesChanged(QPrivateSignal());
+    const auto &citiesForCountry = cities();
+
+    setCity(citiesForCountry.empty() ? QString()
+                                     : (citiesForCountry.contains(m_city) ? m_city
+                                                                          : citiesForCountry.constFirst()));
+    emit cityChanged(QPrivateSignal());
+    reloadEvents();
+}
+
+void App::updateAllCountries(const QStringList &countries)
+{
+    if (m_allCountries != countries) {
+        m_allCountries = countries;
+        emit countriesChanged(QPrivateSignal());
+    }
+}
+
 void App::setCountry(const QString &country)
 {
     if (m_country != country) {
         qDebug() << "Changing country to " << country;
-        m_country = country;
-        QSettings settings;
-        settings.setValue(settingsCountryKey, m_country);
-        emit countryChanged(QPrivateSignal());
-        emit citiesChanged(QPrivateSignal());
-        const auto &citiesForCountry = cities();
-        setCity(citiesForCountry.empty() ? QString() : citiesForCountry.constFirst());
-        emit cityChanged(QPrivateSignal());
-        reloadEvents();
+        forceSetCountry(country);
     }
 }
 
@@ -653,4 +703,15 @@ QStringList App::cities() const
     auto cities = m_citiesByCountryCode.value(Countries::countryCode(m_country), {});
     std::sort(cities.begin(), cities.end());
     return cities;
+}
+
+void App::updateCurrentLocation()
+{
+    if (!m_allCountries.contains(m_country)) {
+        if (m_allCountries.empty()) {
+            return;
+        }
+        m_country = m_allCountries.at(0);
+    }
+    forceSetCountry(m_country);
 }

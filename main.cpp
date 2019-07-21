@@ -21,7 +21,7 @@ int main(int argc, char *argv[])
     QGuiApplication app(argc, argv);
     app.setOrganizationName(QStringLiteral("UnknownDeveloper"));
     app.setOrganizationDomain(QStringLiteral("unknownsoft.org"));
-    app.setApplicationName(QStringLiteral("Radar App"));
+    app.setApplicationName(QStringLiteral("Radar-App"));
     app.setApplicationDisplayName(QStringLiteral("Radar Application"));
 
     auto font = app.font();

@@ -23,6 +23,7 @@ namespace AppState
         CountryLoad,
         CountryFilter,
         CitiesLoad,
+        CurrentLocationCheck,
         Loading,
         Extraction,
         Filtering,
@@ -42,6 +43,7 @@ class App : public QObject
     Q_PROPERTY(QString city READ city WRITE setCity NOTIFY cityChanged)
     Q_PROPERTY(AppState::Values state READ state WRITE setState NOTIFY stateChanged)
     Q_PROPERTY(QAbstractListModel *eventsModel READ eventsModel NOTIFY eventsModelChanged)
+    Q_PROPERTY(bool noEventsFound READ noEventsFound NOTIFY eventsModelChanged)
 
     Q_PROPERTY(QString title READ title NOTIFY currentEventChanged)
     Q_PROPERTY(QString description READ description NOTIFY currentEventChanged)
@@ -82,6 +84,7 @@ public:
     Q_INVOKABLE void startUpdatePosition();
 
     QAbstractListModel *eventsModel() const;
+    bool noEventsFound() const;
 
     const QString &title() const;
     const QString &description() const;
@@ -101,10 +104,13 @@ public:
     void setCountry(const QString &country);
     QStringList cities() const;
 
+    void updateCurrentLocation();
+
 signals:
     void countriesChanged(QPrivateSignal);
     void allCitiesLoaded(QPrivateSignal);
     void citiesChanged(QPrivateSignal);
+    void citiesAlreadyLoaded(QPrivateSignal);
 
     void isLoadedChanged(QPrivateSignal);
     void isConnectedChanged(QPrivateSignal);
@@ -117,6 +123,7 @@ signals:
     void loadCompleted(QPrivateSignal);
     void loadFailed(QPrivateSignal);
 
+    void countriesAlreadyLoaded(QPrivateSignal);
     void countriesFiltered(QPrivateSignal);
     void eventListReady(QPrivateSignal);
     void eventListFiltered(QPrivateSignal);
@@ -128,6 +135,9 @@ signals:
     void gotPermissions(QPrivateSignal);
     void failedToGetPermissions(QPrivateSignal);
 
+    void noEvents(QPrivateSignal);
+    void eventsExist(QPrivateSignal);
+
 private:
     using MemberFunc = void (App::*)();
     void setupFSM();
@@ -138,9 +148,15 @@ private:
     void doLoadCountries();
     void doLoadCities();
     void doFilterCountries();
+    void doCurrentLocationCheck();
     void doExtract();
     void doFiltering();
     void getPermissions();
+
+    void initTimeRange();
+    void forceSetCountry(const QString &country);
+
+    void updateAllCountries(const QStringList &countries);
 
 private:
     QNetworkAccessManager *const m_networkAccessManager;
@@ -170,5 +186,4 @@ private:
     QDateTime m_end;
 
     Q_DISABLE_COPY(App)
-    void initTimeRange();
 };
