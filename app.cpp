@@ -580,7 +580,7 @@ QAbstractListModel *App::eventsModel() const
 
 bool App::noEventsFound() const
 {
-    return m_eventsModel->rowCount(QModelIndex()) > 0;
+    return m_eventsModel->rowCount(QModelIndex()) == 0;
 }
 
 const QString &App::title() const

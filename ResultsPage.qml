@@ -30,10 +30,24 @@ FocusScope {
         }
     }
 
+    Text {
+        id: noResults
+
+        visible: App.noEventsFound
+        anchors.fill: parent
+
+        wrapMode: Text.WordWrap
+        horizontalAlignment: Text.AlignHCenter
+        verticalAlignment: Text.AlignVCenter
+        text: qsTr("Nothing found for %1 %2".arg(App.country).arg(App.city))
+
+    }
     ListView {
         id: resultsList
 
         activeFocusOnTab: true
+
+        visible: !App.noEventsFound
 
         anchors.fill: parent
         model: App.eventsModel
