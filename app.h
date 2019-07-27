@@ -79,6 +79,7 @@ public:
     Q_INVOKABLE void openLink(const QString &link);
     Q_INVOKABLE void setCity(const QString &city);
     Q_INVOKABLE void showLocation(const QString &location);
+    Q_INVOKABLE void addToCalendar();
 
     Q_INVOKABLE void stopUpdatePosition();
     Q_INVOKABLE void startUpdatePosition();

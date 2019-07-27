@@ -23,7 +23,7 @@ namespace
 {
     const QString settingsCityKey{QStringLiteral("filter/city")};
     const QString settingsCountryKey{QStringLiteral("filter/country")};
-}
+}// namespace
 App::App(QObject *parent)
     : QObject(parent)
     , m_networkAccessManager(new QNetworkAccessManager(this))
@@ -268,7 +268,7 @@ void App::doLoadCities()
     for (const auto &country : qAsConst(m_allCountries)) {
         allCodes.push_back(Countries::countryCode(country));
     }
-    m_countriesToLoad = QSet<QString>::fromList(allCodes);
+    m_countriesToLoad = QSet< QString >::fromList(allCodes);
 
     for (const auto &code : qAsConst(allCodes)) {
         const auto countryCode = code.toUpper();
@@ -315,14 +315,14 @@ void App::doLoadCities()
                 reply->deleteLater();
                 if (m_countriesToLoad.empty()) {
                     qDebug() << "cities by country:" << m_citiesByCountryCode;
-                    for(auto it = m_citiesByCountryCode.constBegin(), end = m_citiesByCountryCode.constEnd(); it != end; ++it) {
+                    for (auto it = m_citiesByCountryCode.constBegin(), end = m_citiesByCountryCode.constEnd(); it != end;
+                         ++it) {
                         m_db->insertCountry(it.key(), Countries::allCountries().key(it.key()), it.value());
                     }
                     emit this->allCitiesLoaded(QPrivateSignal());
                 }
             }
         });
-
     }
 }
 
@@ -331,14 +331,14 @@ void App::doFilterCountries()
     qDebug() << __PRETTY_FUNCTION__;
     const auto &constEnd = m_groups.constEnd();
     const auto &facets = m_groups.constFind(QLatin1Literal("facets"));
-    QSet<QString> codes;
+    QSet< QString > codes;
     if (facets != constEnd) {
         const auto &facetsObj = facets->toObject();
         const auto &countriesIter = facetsObj.constFind(QLatin1Literal("country"));
         if (countriesIter != facetsObj.constEnd()) {
             const auto &countriesArray = countriesIter->toArray();
             codes.reserve(countriesArray.size());
-            for (auto it = countriesArray.constBegin(), cend = countriesArray.constEnd();it != cend; ++it) {
+            for (auto it = countriesArray.constBegin(), cend = countriesArray.constEnd(); it != cend; ++it) {
                 const auto countryObj = *it;
                 const auto code = countryObj.toObject().value(QLatin1Literal("filter")).toString();
                 codes.insert(code);
@@ -555,9 +555,48 @@ void App::showLocation(const QString &location)
     QAndroidJniObject uri = QAndroidJniObject::callStaticObjectMethod(
         "android/net/Uri", "parse", "(Ljava/lang/String;)Landroid/net/Uri;", geoJavaString.object< jobject >());
 
-    QAndroidJniObject activity = QtAndroid::androidActivity();
     QAndroidIntent intent(QStringLiteral("android.intent.action.VIEW"));
     intent.handle().callObjectMethod("setData", "(Landroid/net/Uri;)Landroid/content/Intent;", uri.object< jobject >());
+    QtAndroid::startActivity(intent.handle(), 0, nullptr);
+#endif
+}
+
+void App::addToCalendar()
+{
+    qDebug() << __PRETTY_FUNCTION__;
+#ifdef Q_OS_ANDROID
+    auto getCalendarContractStaticField = [](const char *field, const char *sig) {
+        return QAndroidJniObject::getStaticObjectField("android/provider/CalendarContract$Events", field, sig);
+    };
+    QAndroidIntent intent(QStringLiteral("android.intent.action.INSERT"));
+    auto contentUri = getCalendarContractStaticField("CONTENT_URI", "Landroid/net/Uri;");
+    intent.handle().callObjectMethod("setData", "(Landroid/net/Uri;)Landroid/content/Intent;",
+                                     contentUri.object< jobject >());
+    auto eventTitleJniObject = getCalendarContractStaticField("TITLE", "Ljava/lang/String;");
+    auto titleJniObject = QAndroidJniObject::fromString(QStringLiteral("%1 at %2").arg(m_currentEvent.title, locationName()));
+    qDebug() << "Setting event title to " << m_currentEvent.title;
+    intent.handle().callObjectMethod("putExtra", "(Ljava/lang/String;Ljava/lang/String;)Landroid/content/Intent;",
+                                     eventTitleJniObject.object< jobject >(), titleJniObject.object< jobject >());
+    auto beginTimeExtra = QAndroidJniObject::getStaticObjectField("android/provider/CalendarContract",
+                                                                  "EXTRA_EVENT_BEGIN_TIME", "Ljava/lang/String;");
+    intent.handle().callObjectMethod("putExtra", "(Ljava/lang/String;J)Landroid/content/Intent;",
+                                     beginTimeExtra.object< jobject >(), m_currentEvent.timeStart*1000ll);
+    auto endTimeExtra = QAndroidJniObject::getStaticObjectField("android/provider/CalendarContract", "EXTRA_EVENT_END_TIME",
+                                                                "Ljava/lang/String;");
+    intent.handle().callObjectMethod("putExtra", "(Ljava/lang/String;J)Landroid/content/Intent;",
+                                     endTimeExtra.object< jobject >(), m_currentEvent.timeEnd*1000ll);
+    auto descriptionExtra = getCalendarContractStaticField("DESCRIPTION", "Ljava/lang/String;");
+    intent.handle().callObjectMethod("putExtra", "(Ljava/lang/String;Ljava/lang/String;)Landroid/content/Intent;",
+                                     descriptionExtra.object< jobject >(),
+                                     QAndroidJniObject::fromString(m_currentEvent.description).object< jobject >());
+
+    auto locationExtra = getCalendarContractStaticField("EVENT_LOCATION", "Ljava/lang/String;");
+    intent.handle().callObjectMethod("putExtra", "(Ljava/lang/String;Ljava/lang/String;)Landroid/content/Intent;",
+                                     locationExtra.object< jobject >(),
+                                     QAndroidJniObject::fromString(locationAddress()).object< jobject >());
+    intent.handle().callObjectMethod("putExtra", "(Ljava/lang/String;Ljava/lang/String;)Landroid/content/Intent;",
+                                     QAndroidJniObject::fromString(QStringLiteral("eventLocation")).object< jobject >(),
+                                     QAndroidJniObject::fromString(locationAddress()).object< jobject >());
     QtAndroid::startActivity(intent.handle(), 0, nullptr);
 #endif
 }
@@ -570,7 +609,7 @@ void App::stopUpdatePosition()
 void App::startUpdatePosition()
 {
     m_eventsModel->startUpdatePosition();
-    //m_eventsModel->forceUpdatePosition();
+    // m_eventsModel->forceUpdatePosition();
 }
 
 QAbstractListModel *App::eventsModel() const
@@ -676,8 +715,7 @@ void App::forceSetCountry(const QString &country)
     const auto &citiesForCountry = cities();
 
     setCity(citiesForCountry.empty() ? QString()
-                                     : (citiesForCountry.contains(m_city) ? m_city
-                                                                          : citiesForCountry.constFirst()));
+                                     : (citiesForCountry.contains(m_city) ? m_city : citiesForCountry.constFirst()));
     emit cityChanged(QPrivateSignal());
     reloadEvents();
 }

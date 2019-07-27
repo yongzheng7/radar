@@ -136,6 +136,7 @@ ApplicationWindow {
                     eventPage.item.enabled = false;
                 }
             }
+            onAddToCalendarClicked: App.addToCalendar()
         }
 
         function updateEventInfo() {
