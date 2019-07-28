@@ -9,6 +9,7 @@
 #include <QtDebug>
 
 #include <QJsonObject>
+#include <QTextDocument>
 #include <QUrl>
 #include <QtNetwork>
 
@@ -398,6 +399,7 @@ void App::doExtract()
             event.timeEnd = dateTime.value(QLatin1Literal("value2")).toString().toLongLong();
             event.date = QDateTime::fromSecsSinceEpoch(event.timeStart).date();
             event.description = memberObj.value(QLatin1Literal("body")).toObject().value(QLatin1Literal("value")).toString();
+            event.radarUrl = memberObj.value(QLatin1String("url")).toString();
             const auto &offline = memberObj.value(QLatin1Literal("offline")).toArray();
             if (!offline.empty()) {
                 const auto &offline0 = offline.first().toObject();
@@ -573,18 +575,19 @@ void App::addToCalendar()
     intent.handle().callObjectMethod("setData", "(Landroid/net/Uri;)Landroid/content/Intent;",
                                      contentUri.object< jobject >());
     auto eventTitleJniObject = getCalendarContractStaticField("TITLE", "Ljava/lang/String;");
-    auto titleJniObject = QAndroidJniObject::fromString(QStringLiteral("%1 at %2").arg(m_currentEvent.title, locationName()));
+    auto titleJniObject
+        = QAndroidJniObject::fromString(QStringLiteral("%1 at %2").arg(m_currentEvent.title, locationName()));
     qDebug() << "Setting event title to " << m_currentEvent.title;
     intent.handle().callObjectMethod("putExtra", "(Ljava/lang/String;Ljava/lang/String;)Landroid/content/Intent;",
                                      eventTitleJniObject.object< jobject >(), titleJniObject.object< jobject >());
     auto beginTimeExtra = QAndroidJniObject::getStaticObjectField("android/provider/CalendarContract",
                                                                   "EXTRA_EVENT_BEGIN_TIME", "Ljava/lang/String;");
     intent.handle().callObjectMethod("putExtra", "(Ljava/lang/String;J)Landroid/content/Intent;",
-                                     beginTimeExtra.object< jobject >(), m_currentEvent.timeStart*1000ll);
+                                     beginTimeExtra.object< jobject >(), m_currentEvent.timeStart * 1000ll);
     auto endTimeExtra = QAndroidJniObject::getStaticObjectField("android/provider/CalendarContract", "EXTRA_EVENT_END_TIME",
                                                                 "Ljava/lang/String;");
     intent.handle().callObjectMethod("putExtra", "(Ljava/lang/String;J)Landroid/content/Intent;",
-                                     endTimeExtra.object< jobject >(), m_currentEvent.timeEnd*1000ll);
+                                     endTimeExtra.object< jobject >(), m_currentEvent.timeEnd * 1000ll);
     auto descriptionExtra = getCalendarContractStaticField("DESCRIPTION", "Ljava/lang/String;");
     intent.handle().callObjectMethod("putExtra", "(Ljava/lang/String;Ljava/lang/String;)Landroid/content/Intent;",
                                      descriptionExtra.object< jobject >(),
@@ -610,6 +613,45 @@ void App::startUpdatePosition()
 {
     m_eventsModel->startUpdatePosition();
     // m_eventsModel->forceUpdatePosition();
+}
+
+void App::share()
+{
+    qDebug() << "Sharing event " << m_currentEvent.title << " with URL " << eventUrl();
+#ifndef Q_OS_ANDROID
+    {
+        QUrl url;
+        url.setScheme(QStringLiteral("mailto"));
+        QUrlQuery query;
+        query.setQueryItems({
+            {QStringLiteral("subject"), title()},
+            {QStringLiteral("body"), sharableBody()},
+        });
+        url.setQuery(query);
+        QDesktopServices::openUrl(url);
+    }
+#else
+    auto action
+        = QAndroidJniObject::getStaticObjectField("android/content/Intent", "ACTION_SEND", "Ljava/lang/String;").toString();
+    qDebug() << "action=" << action;
+    auto extraSubject
+        = QAndroidJniObject::getStaticObjectField("android/content/Intent", "EXTRA_SUBJECT", "Ljava/lang/String;");
+    auto extraText = QAndroidJniObject::getStaticObjectField("android/content/Intent", "EXTRA_TEXT", "Ljava/lang/String;");
+    QAndroidIntent intent(action);
+    intent.handle().callObjectMethod("putExtra", "(Ljava/lang/String;Ljava/lang/String;)Landroid/content/Intent;",
+                                     extraSubject.object< jstring >(),
+                                     QAndroidJniObject::fromString(title()).object< jstring >());
+    intent.handle().callObjectMethod("putExtra", "(Ljava/lang/String;Ljava/lang/String;)Landroid/content/Intent;",
+                                     extraText.object< jstring >(),
+                                     QAndroidJniObject::fromString(sharableBody()).object< jstring >());
+    intent.handle().callObjectMethod("setType", "(Ljava/lang/String;)Landroid/content/Intent;",
+                                     QAndroidJniObject::fromString(QStringLiteral("text/plain")).object< jstring >());
+    auto chooser = QAndroidJniObject::callStaticObjectMethod(
+        "android/content/Intent", "createChooser",
+        "(Landroid/content/Intent;Ljava/lang/CharSequence;)Landroid/content/Intent;", intent.handle().object(),
+        QAndroidJniObject::fromString(QStringLiteral("Share URL")).object< jstring >());
+    QtAndroid::startActivity(chooser, 0, nullptr);
+#endif
 }
 
 QAbstractListModel *App::eventsModel() const
@@ -690,6 +732,11 @@ QString App::directions() const
     return m_currentLocation.directions;
 }
 
+QString App::eventUrl() const
+{
+    return m_currentEvent.radarUrl;
+}
+
 qreal App::longitude() const
 {
     return m_currentLocation.coordinate.isValid() ? m_currentLocation.coordinate.longitude() : ::qQNaN();
@@ -726,6 +773,14 @@ void App::updateAllCountries(const QStringList &countries)
         m_allCountries = countries;
         emit countriesChanged(QPrivateSignal());
     }
+}
+
+QString App::sharableBody() const
+{
+    QTextDocument message;
+    message.setHtml(description());
+    return tr("%1\nDate: %2\n%3\n\nLink: %4")
+            .arg(title(), dateTime(), message.toPlainText(), eventUrl());
 }
 
 void App::setCountry(const QString &country)

@@ -20,6 +20,8 @@ Rectangle {
     signal closeClicked()
     signal locationActivated(string location)
     signal addToCalendarClicked()
+    signal openUrlRequested()
+    signal shareRequested()
 
     property string title: "Disco!"
     property string description: "<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras a nibh lorem. Donec in nisi nec nisi feugiat feugiat tincidunt ac libero. Proin maximus a purus vel facilisis. Aenean ac facilisis augue. Sed nec purus mollis, sollicitudin velit a, convallis magna. Sed lacinia ut nisl a facilisis. Nulla facilisi. Sed dapibus dui nec purus lobortis molestie. Duis pretium libero justo, et egestas metus blandit eget. Proin porttitor dolor nec nibh sagittis imperdiet. Curabitur pharetra consequat arcu, ac venenatis erat pulvinar a.
@@ -34,6 +36,7 @@ Cras nec ante sit amet augue sodales iaculis. Aliquam erat volutpat. Nam aliquet
     property string directions: "near SBhf Brandenburger Tor"
     property string city: "Berlin"
     property string country: "Germany"
+    property bool urlProvided: true
 
     Keys.onBackPressed: {
         root.closeClicked();
@@ -207,6 +210,20 @@ Cras nec ante sit amet augue sodales iaculis. Aliquam erat volutpat. Nam aliquet
                 id: addToCalendar
                 text: qsTr("Add to calendar")
                 onClicked: root.addToCalendarClicked()
+                Layout.alignment: Qt.AlignHCenter
+            }
+            Button {
+                id: show
+                visible: root.urlProvided
+                text: qsTr("Show in Browser")
+                onClicked: root.openUrlRequested()
+                Layout.alignment: Qt.AlignHCenter
+            }
+            Button {
+                id: share
+                visible: root.urlProvided
+                text: qsTr("Share...")
+                onClicked: root.shareRequested()
                 Layout.alignment: Qt.AlignHCenter
             }
         }

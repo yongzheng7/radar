@@ -49,6 +49,7 @@ class App : public QObject
     Q_PROPERTY(QString description READ description NOTIFY currentEventChanged)
     Q_PROPERTY(QString dateTime READ dateTime NOTIFY currentEventChanged)
     Q_PROPERTY(QString category READ category NOTIFY currentEventChanged)
+    Q_PROPERTY(QString url READ eventUrl NOTIFY currentEventChanged)
     Q_PROPERTY(QString price READ price NOTIFY currentEventChanged)
     Q_PROPERTY(QString eventCity READ eventCity NOTIFY currentEventChanged)
     Q_PROPERTY(QString eventCountry READ eventCountry NOTIFY currentEventChanged)
@@ -83,6 +84,7 @@ public:
 
     Q_INVOKABLE void stopUpdatePosition();
     Q_INVOKABLE void startUpdatePosition();
+    Q_INVOKABLE void share();
 
     QAbstractListModel *eventsModel() const;
     bool noEventsFound() const;
@@ -97,6 +99,7 @@ public:
     const QString &eventCity() const;
     const QString &eventCountry() const;
     QString directions() const;
+    QString eventUrl() const;
 
     qreal longitude() const;
     qreal latitude() const;
@@ -158,6 +161,8 @@ private:
     void forceSetCountry(const QString &country);
 
     void updateAllCountries(const QStringList &countries);
+
+    QString sharableBody() const;
 
 private:
     QNetworkAccessManager *const m_networkAccessManager;

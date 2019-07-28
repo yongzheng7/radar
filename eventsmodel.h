@@ -16,6 +16,7 @@ struct Event {
     qint64 timeStart;
     qint64 timeEnd;
     QString category;
+    QString radarUrl;
 };
 
 Q_DECLARE_METATYPE(Event)
@@ -29,7 +30,7 @@ public:
     EventsModel(LocationProvider *locationProvider, QObject *parent = nullptr);
     ~EventsModel() override;
 
-    enum Roles { Title = Qt::UserRole, Place, Address, Date, StartDateTime, Category, LocationName, Distance };
+    enum Roles { Title = Qt::UserRole, Place, Address, Date, StartDateTime, Category, LocationName, Distance, Url };
 
 public:
     void setEvents(QVector< Event > &&events);

@@ -137,6 +137,8 @@ ApplicationWindow {
                 }
             }
             onAddToCalendarClicked: App.addToCalendar()
+            onShareRequested: App.share()
+            onOpenUrlRequested: Qt.openUrlExternally(App.url)
         }
 
         function updateEventInfo() {
@@ -152,6 +154,7 @@ ApplicationWindow {
                 eventPage.item.city = App.eventCity;
                 eventPage.item.country = App.eventCountry;
                 eventPage.item.directions = App.directions;
+                eventPage.item.urlProvided = App.url !== ""
             }
         }
         function updateLocationInfo() {

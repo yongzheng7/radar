@@ -115,6 +115,8 @@ QVariant EventsModel::data(const QModelIndex &index, int role) const
         }
         return tr("%1 m").arg(qRound(m_latestPosition.distanceTo(location.coordinate)));
     }
+    case Url:
+        return m_events[pos].radarUrl;
     default:
         return QString();
     }
@@ -129,7 +131,8 @@ QHash< int, QByteArray > EventsModel::roleNames() const
                                           {Roles::StartDateTime, QByteArrayLiteral("startDateTime")},
                                           {Roles::Category, QByteArrayLiteral("category")},
                                           {Roles::LocationName, QByteArrayLiteral("locationName")},
-                                          {Roles::Distance, QByteArrayLiteral("distance")}};
+                                          {Roles::Distance, QByteArrayLiteral("distance")},
+                                          {Roles::Url, QByteArrayLiteral("url")}};
     return names;
 }
 
