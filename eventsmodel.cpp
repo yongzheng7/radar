@@ -17,11 +17,11 @@ EventsModel::EventsModel(LocationProvider *locationProvider, QObject *parent)
             Qt::QueuedConnection);
     qDebug() << "m_positionSource =" << m_positionSource;
     if (m_positionSource) {
-        connect(m_positionSource, QOverload<QGeoPositionInfoSource::Error>::of(&QGeoPositionInfoSource::error),
+        connect(m_positionSource, QOverload< QGeoPositionInfoSource::Error >::of(&QGeoPositionInfoSource::error),
                 [this](QGeoPositionInfoSource::Error positioningError) noexcept {
-            m_geoError = positioningError;
-            emit this->hasGeoErrorChanged(QPrivateSignal());
-        });
+                    m_geoError = positioningError;
+                    emit this->hasGeoErrorChanged(QPrivateSignal());
+                });
         m_positionSource->setUpdateInterval(5000);
         connect(m_positionSource, &QGeoPositionInfoSource::positionUpdated,
                 this, [this](const QGeoPositionInfo &newPos) noexcept {
@@ -37,9 +37,7 @@ EventsModel::EventsModel(LocationProvider *locationProvider, QObject *parent)
     }
 }
 
-EventsModel::~EventsModel()
-{
-}
+EventsModel::~EventsModel() = default;
 
 void EventsModel::setEvents(QVector< Event > &&events)
 {

@@ -12,9 +12,7 @@ LocationProvider::LocationProvider(QObject *parent)
 {
 }
 
-LocationProvider::~LocationProvider()
-{
-}
+LocationProvider::~LocationProvider() = default;
 
 Location LocationProvider::extractLocationFromJSON(const QJsonDocument &json)
 {
@@ -63,7 +61,7 @@ void LocationProvider::processFinishedReply(QNetworkReply *reply)
         return;
     }
     QByteArray buf = reply->readAll();
-    QJsonParseError err;
+    QJsonParseError err{};
     QJsonDocument json = QJsonDocument::fromJson(buf, &err);
     if (json.isNull()) {
         qCritical() << "Json parse error:" << err.errorString();

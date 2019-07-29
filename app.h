@@ -65,7 +65,7 @@ class App : public QObject
 
 public:
     explicit App(QObject *parent = nullptr);
-    ~App();
+    ~App() override;
 
     AppState::Values state() const;
     void setState(AppState::Values state);

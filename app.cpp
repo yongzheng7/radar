@@ -14,6 +14,7 @@
 #include <QtNetwork>
 
 #include <QtGlobal>
+#include <utility>
 
 #ifdef Q_OS_ANDROID
 #include <QtAndroid>
@@ -39,7 +40,7 @@ App::App(QObject *parent)
     QSqlError err = m_db->initDB();
     if (err.type() != QSqlError::NoError) {
         qCritical() << err.text();
-        assert(!"Failed to init DB!");
+        qFatal("Failed to init DB!");
     }
     m_locationProvider->setDB(m_db);
 
@@ -65,9 +66,7 @@ App::App(QObject *parent)
     setCountry(m_country);
 }
 
-App::~App()
-{
-}
+App::~App() = default;
 
 void App::setupFSM()
 {
@@ -117,7 +116,7 @@ QState *App::addState(AppState::Values stateEnumVal)
 QState *App::addState(AppState::Values stateEnumVal, std::function< void() > onEnter)
 {
     auto state = addState(stateEnumVal);
-    connect(state, &QState::entered, this, onEnter);
+    connect(state, &QState::entered, this, std::move(onEnter));
     return state;
 }
 
@@ -198,7 +197,7 @@ void App::doReload()
         qDebug() << "Content-Type" << reply->header(QNetworkRequest::KnownHeaders::ContentTypeHeader);
         if (reply->isFinished()) {
             QByteArray buf = reply->readAll();
-            QJsonParseError err;
+            QJsonParseError err{};
             QJsonDocument json = QJsonDocument::fromJson(buf, &err);
             if (json.isNull()) {
                 qCritical() << "Json parse error:" << err.errorString();
@@ -238,7 +237,7 @@ void App::doLoadCountries()
         if (reply->isFinished()) {
             QByteArray buf = reply->readAll();
             qDebug() << buf;
-            QJsonParseError err;
+            QJsonParseError err{};
             QJsonDocument json = QJsonDocument::fromJson(buf, &err);
             if (json.isNull()) {
                 qCritical() << "Json parse error:" << err.errorString();
@@ -289,7 +288,7 @@ void App::doLoadCities()
                 m_countriesToLoad.remove(countryCode);
                 qDebug() << "Remaining countries:" << m_countriesToLoad;
                 QByteArray buf = reply->readAll();
-                QJsonParseError err;
+                QJsonParseError err{};
                 QJsonDocument json = QJsonDocument::fromJson(buf, &err);
                 if (json.isNull()) {
                     qCritical() << "Json parse error:" << err.errorString();
@@ -677,9 +676,8 @@ const QString &App::description() const
 const QString App::dateTime() const
 {
     const auto dateTime = QDateTime::fromSecsSinceEpoch(m_currentEvent.timeStart);
-    return QStringLiteral("%1, %2")
-        .arg(dateTime.date().toString(Qt::SystemLocaleLongDate))
-        .arg(dateTime.time().toString(QStringLiteral("HH:mm")));
+    return QStringLiteral("%1, %2").arg(dateTime.date().toString(Qt::SystemLocaleLongDate),
+                                        dateTime.time().toString(QStringLiteral("HH:mm")));
 }
 
 const QString &App::category() const
@@ -708,9 +706,8 @@ QString App::locationAddress() const
         return QStringLiteral("%1, %2, %3")
             .arg(m_currentLocation.postalCode)
             .arg(m_currentLocation.locality, m_currentLocation.thoroughfare);
-    } else {
-        return QStringLiteral("%1, %2").arg(m_currentLocation.locality, m_currentLocation.thoroughfare);
     }
+    return QStringLiteral("%1, %2").arg(m_currentLocation.locality, m_currentLocation.thoroughfare);
 }
 
 const QString &App::eventCity() const
@@ -779,8 +776,7 @@ QString App::sharableBody() const
 {
     QTextDocument message;
     message.setHtml(description());
-    return tr("%1\nDate: %2\n%3\n\nLink: %4")
-            .arg(title(), dateTime(), message.toPlainText(), eventUrl());
+    return tr("%1\nDate: %2\n%3\n\nLink: %4").arg(title(), dateTime(), message.toPlainText(), eventUrl());
 }
 
 void App::setCountry(const QString &country)

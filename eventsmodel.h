@@ -13,8 +13,8 @@ struct Event {
     QUuid locationID;// replace with 16-byte integer
     QString rawAddress;
     QDate date;
-    qint64 timeStart;
-    qint64 timeEnd;
+    qint64 timeStart{};
+    qint64 timeEnd{};
     QString category;
     QString radarUrl;
 };
@@ -58,7 +58,7 @@ private:
     LocationProvider *const m_locationProvider;
     QGeoPositionInfoSource *const m_positionSource;
     QGeoCoordinate m_latestPosition;
-    QGeoPositionInfoSource::Error m_geoError {QGeoPositionInfoSource::NoError};
+    QGeoPositionInfoSource::Error m_geoError{QGeoPositionInfoSource::NoError};
 };
 
 Q_DECLARE_METATYPE(QAbstractItemModel *);

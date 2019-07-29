@@ -42,7 +42,7 @@ class LocationProvider : public QObject
     Q_OBJECT
 public:
     LocationProvider(QObject *parent = nullptr);
-    ~LocationProvider();
+    ~LocationProvider() override;
 
     void setNetworkAccessManager(QNetworkAccessManager *networkAccessManager);
     void requestLocation(const QUuid &uuid);
@@ -53,6 +53,7 @@ public:
     void setDB(DB *db);
 
 private:
+    Q_DISABLE_COPY(LocationProvider)
     void processFinishedReply(QNetworkReply *reply);
     QNetworkReply *requestLocationByUUID(const QUuid &id);
     Location extractLocationFromJSON(const QJsonDocument &json);

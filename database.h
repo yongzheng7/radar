@@ -11,7 +11,7 @@ class DB : QObject
     Q_OBJECT
 public:
     explicit DB(QObject *parent = nullptr);
-    virtual ~DB();
+    ~DB() override;
     QSqlError initDB();
     QVariant insertLocation(const Location &location);
     std::pair< bool, Location > findLocation(QUuid uuid);
@@ -19,4 +19,6 @@ public:
     QStringList getAllCountries();
     QMap<QString, QStringList> getAllCities();
     QVariant insertCountry(const QString &code, const QString &name, const QStringList &cities);
+private:
+    Q_DISABLE_COPY(DB)
 };
