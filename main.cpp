@@ -1,6 +1,7 @@
-#include <QGuiApplication>
-#include <QQmlApplicationEngine>
 #include <QFont>
+#include <QGuiApplication>
+#include <QIcon>
+#include <QQmlApplicationEngine>
 #include <QQmlContext>
 #include <QtSql>
 
@@ -23,6 +24,7 @@ int main(int argc, char *argv[])
     QGuiApplication::setOrganizationDomain(QStringLiteral("unknownsoft.org"));
     QGuiApplication::setApplicationName(QStringLiteral("Radar-App"));
     QGuiApplication::setApplicationDisplayName(QStringLiteral("Radar Application"));
+    QGuiApplication::setWindowIcon(QIcon(QStringLiteral("qrc:/icons/app-xhdpi.png")));
 
     auto font = QGuiApplication::font();
     font.setPointSize(16);
