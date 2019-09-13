@@ -34,17 +34,21 @@ Item {
         ComboBox {
             id: cities
             width: parent.width
-            //textRole: "name"
             model: App.cities
 
             onActivated: {
                 App.city = model[index];
             }
+
+            onModelChanged: {
+                cities.currentIndex = find(App.city);
+            }
         }
         CheckBox {
             id: remember
-            checked: false
+            checked: App.isRememberLocationOn
             text: qsTr("Remember location")
+            onToggled: App.toggleRememberLocation()
         }
     }
 

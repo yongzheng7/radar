@@ -44,6 +44,7 @@ class App : public QObject
     Q_PROPERTY(AppState::Values state READ state WRITE setState NOTIFY stateChanged)
     Q_PROPERTY(QAbstractListModel *eventsModel READ eventsModel NOTIFY eventsModelChanged)
     Q_PROPERTY(bool noEventsFound READ noEventsFound NOTIFY eventsModelChanged)
+    Q_PROPERTY(bool isRememberLocationOn READ isRememberLocationOn NOTIFY rememberLocationChanged)
 
     Q_PROPERTY(QString title READ title NOTIFY currentEventChanged)
     Q_PROPERTY(QString description READ description NOTIFY currentEventChanged)
@@ -71,6 +72,8 @@ public:
     void setState(AppState::Values state);
     bool isLoaded() const;
     bool isConnected() const;
+    bool isRememberLocationOn() const;
+
     const QString &country() const;
     const QString &city() const;
     Q_INVOKABLE void reload();
@@ -86,6 +89,8 @@ public:
     Q_INVOKABLE void startUpdatePosition();
     Q_INVOKABLE void share();
 
+    Q_INVOKABLE void toggleRememberLocation();
+
     QAbstractListModel *eventsModel() const;
     bool noEventsFound() const;
 
@@ -96,8 +101,8 @@ public:
     const QString &price() const;
     QString locationName() const;
     QString locationAddress() const;
-    const QString &eventCity() const;
-    const QString &eventCountry() const;
+    QString eventCity() const;
+    QString eventCountry() const;
     QString directions() const;
     QString eventUrl() const;
 
@@ -120,6 +125,7 @@ signals:
     void isConnectedChanged(QPrivateSignal);
     void countryChanged(QPrivateSignal);
     void cityChanged(QPrivateSignal);
+    void rememberLocationChanged(QPrivateSignal);
     void stateChanged(QPrivateSignal);
 
     void reloadRequested(QPrivateSignal);
@@ -161,6 +167,7 @@ private:
     void forceSetCountry(const QString &country);
 
     void updateAllCountries(const QStringList &countries);
+    void assignIsLoaded(bool loaded);
 
     QString sharableBody() const;
 
@@ -176,6 +183,7 @@ private:
     AppState::Values m_state{AppState::Values::StartupCheck};
     bool m_isLoaded{false};
     bool m_isConnected{false};
+    bool m_isRememberLocationOn{false};
     QStringList m_allCountries;
     QString m_country;
     QString m_city;
@@ -192,4 +200,5 @@ private:
     QDateTime m_end;
 
     Q_DISABLE_COPY(App)
+    void rememberSelectedLocation();
 };

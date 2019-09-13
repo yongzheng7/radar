@@ -103,7 +103,14 @@ void App::setupFSM()
     idle->addTransition(this, &App::reloadEventsRequested, loading);
     loading->addTransition(this, &App::loadCompleted, extraction);
     extraction->addTransition(this, &App::eventListReady, filtering);
-    filtering->addTransition(this, &App::eventListFiltered, idle);
+
+    auto getEventsFinished = filtering->addTransition(this, &App::eventListFiltered, idle);
+    connect(getEventsFinished, &QAbstractTransition::triggered, this, [this]() noexcept {
+        assignIsLoaded(true);
+        if (isRememberLocationOn()) {
+            rememberSelectedLocation();
+        }
+    });
 }
 
 QState *App::addState(AppState::Values stateEnumVal)
@@ -162,6 +169,11 @@ bool App::isConnected() const
     return m_isConnected;
 }
 
+bool App::isRememberLocationOn() const
+{
+    return m_isRememberLocationOn;
+}
+
 const QString &App::country() const
 {
     return m_country;
@@ -175,6 +187,7 @@ const QString &App::city() const
 void App::doReload()
 {
     qDebug() << "doReload...";
+    assignIsLoaded(false);
     QNetworkRequest request;
     QUrl requestUrl(m_eventsRequestUrlBase, QUrl::ParsingMode::TolerantMode);
     QUrlQuery query;
@@ -533,14 +546,19 @@ void App::openLink(const QString &link)
     QDesktopServices::openUrl(QUrl(link));
 }
 
+void App::rememberSelectedLocation()
+{
+    QSettings settings;
+    settings.setValue(settingsCountryKey, m_country);
+    settings.setValue(settingsCityKey, m_city);
+}
+
 void App::setCity(const QString &city)
 {
     qDebug() << "setCity:" << city;
     qDebug() << "m_city:" << m_city;
-    if (m_city != city) {
+    if (!isLoaded() || m_city != city) {
         m_city = city;
-        QSettings settings;
-        settings.setValue(settingsCityKey, city);
         emit cityChanged(QPrivateSignal());
         reloadEvents();
     }
@@ -653,6 +671,15 @@ void App::share()
 #endif
 }
 
+void App::toggleRememberLocation()
+{
+    m_isRememberLocationOn = !m_isRememberLocationOn;
+    if (m_isRememberLocationOn && m_isLoaded) {
+        rememberSelectedLocation();
+    }
+    emit rememberLocationChanged(QPrivateSignal());
+}
+
 QAbstractListModel *App::eventsModel() const
 {
     return m_eventsModel;
@@ -710,18 +737,14 @@ QString App::locationAddress() const
     return QStringLiteral("%1, %2").arg(m_currentLocation.locality, m_currentLocation.thoroughfare);
 }
 
-const QString &App::eventCity() const
+QString App::eventCity() const
 {
-    // FIXME
-    static QString empty;
-    return empty;
+    return m_currentLocation.locality;
 }
 
-const QString &App::eventCountry() const
+QString App::eventCountry() const
 {
-    // FIXME
-    static QString empty;
-    return empty;
+    return m_currentLocation.country;
 }
 
 QString App::directions() const
@@ -752,14 +775,12 @@ QStringList App::countries() const
 void App::forceSetCountry(const QString &country)
 {
     m_country = country;
-    QSettings settings;
-    settings.setValue(settingsCountryKey, m_country);
     emit countryChanged(QPrivateSignal());
-    emit citiesChanged(QPrivateSignal());
     const auto &citiesForCountry = cities();
 
     setCity(citiesForCountry.empty() ? QString()
                                      : (citiesForCountry.contains(m_city) ? m_city : citiesForCountry.constFirst()));
+    emit citiesChanged(QPrivateSignal());
     emit cityChanged(QPrivateSignal());
     reloadEvents();
 }
@@ -769,6 +790,14 @@ void App::updateAllCountries(const QStringList &countries)
     if (m_allCountries != countries) {
         m_allCountries = countries;
         emit countriesChanged(QPrivateSignal());
+    }
+}
+
+void App::assignIsLoaded(bool loaded)
+{
+    if (m_isLoaded != loaded) {
+        m_isLoaded = loaded;
+        emit isLoadedChanged(QPrivateSignal());
     }
 }
 
