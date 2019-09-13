@@ -14,7 +14,9 @@
 #include <QtNetwork>
 
 #include <QtGlobal>
+#include <chrono>
 #include <utility>
+
 
 #ifdef Q_OS_ANDROID
 #include <QtAndroid>
@@ -36,6 +38,9 @@ App::App(QObject *parent)
 {
     qRegisterMetaType< Event >();
     qRegisterMetaType< Location >();
+    auto configuration = m_networkAccessManager->configuration();
+    configuration.setConnectTimeout(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::seconds(30)).count());
+    m_networkAccessManager->setConfiguration(configuration);
     m_locationProvider->setNetworkAccessManager(m_networkAccessManager);
     QSqlError err = m_db->initDB();
     if (err.type() != QSqlError::NoError) {
@@ -62,6 +67,14 @@ App::App(QObject *parent)
                 qDebug() << "Location:" << location.toString();
                 m_currentLocation = location;
                 emit this->currentLocationChanged(QPrivateSignal());
+            });
+
+    connect(m_networkAccessManager, &QNetworkAccessManager::networkAccessibleChanged, this,
+            [this] (const QNetworkAccessManager::NetworkAccessibility accessible) noexcept {
+                qDebug() << "m_networkAccessManager = " << accessible;
+                if (!isLoaded() && accessible == QNetworkAccessManager::NetworkAccessibility::Accessible) {
+                    emit this->reloadEventsRequested(QPrivateSignal());
+                }
             });
     setCountry(m_country);
 }
@@ -101,10 +114,15 @@ void App::setupFSM()
     auto transition = citiesLoad->addTransition(this, &App::allCitiesLoaded, idle);
     connect(transition, &QAbstractTransition::triggered, this, &App::updateCurrentLocation);
     idle->addTransition(this, &App::reloadEventsRequested, loading);
+    loading->addTransition(this, &App::userCancelled, idle);
     loading->addTransition(this, &App::loadCompleted, extraction);
+    loading->addTransition(this, &App::loadFailed, idle); //FIXME
     extraction->addTransition(this, &App::eventListReady, filtering);
+    extraction->addTransition(this, &App::userCancelled, idle);
 
-    auto getEventsFinished = filtering->addTransition(this, &App::eventListFiltered, idle);
+    filtering->addTransition(this, &App::userCancelled, idle);
+    auto getEventsFinished =
+            filtering->addTransition(this, &App::eventListFiltered, idle);
     connect(getEventsFinished, &QAbstractTransition::triggered, this, [this]() noexcept {
         assignIsLoaded(true);
         if (isRememberLocationOn()) {
@@ -117,6 +135,9 @@ QState *App::addState(AppState::Values stateEnumVal)
 {
     auto state = new QState(&m_fsm);
     state->assignProperty(this, "state", QVariant::fromValue< AppState::Values >(stateEnumVal));
+    connect(state, &QAbstractState::entered, this, [stateEnumVal]() noexcept {
+        qDebug() << "FSM State:" << QMetaEnum::fromType<AppState::Values>().valueToKey(static_cast<int>(stateEnumVal));
+    });
     return state;
 }
 
@@ -188,6 +209,11 @@ void App::doReload()
 {
     qDebug() << "doReload...";
     assignIsLoaded(false);
+    if (m_networkAccessManager->networkAccessible() != QNetworkAccessManager::NetworkAccessibility::Accessible) {
+        qDebug() << "Network is not accessible!";
+        emit loadFailed(QPrivateSignal());
+        return;
+    }
     QNetworkRequest request;
     QUrl requestUrl(m_eventsRequestUrlBase, QUrl::ParsingMode::TolerantMode);
     QUrlQuery query;
@@ -208,6 +234,13 @@ void App::doReload()
         qDebug() << "reply.url" << reply->url();
         qDebug() << "reply.size:" << reply->size();
         qDebug() << "Content-Type" << reply->header(QNetworkRequest::KnownHeaders::ContentTypeHeader);
+        if (reply->isFinished() && reply->error() != QNetworkReply::NetworkError::NoError) {
+            qDebug() << "reply failed, removing it...";
+            emit this->loadFailed(QPrivateSignal());
+            reply->close();
+            reply->deleteLater();
+            return;
+        }
         if (reply->isFinished()) {
             QByteArray buf = reply->readAll();
             QJsonParseError err{};
@@ -224,6 +257,12 @@ void App::doReload()
             reply->deleteLater();
         }
     });
+    using SignalType = void (QNetworkReply::*)(QNetworkReply::NetworkError);
+    connect(reply, static_cast< SignalType >(&QNetworkReply::error),
+            this, [this](QNetworkReply::NetworkError error) noexcept {
+                qDebug() << "Network error: " << error;
+                emit this->loadFailed(QPrivateSignal());
+            });
 }
 
 void App::doLoadCountries()
@@ -678,6 +717,11 @@ void App::toggleRememberLocation()
         rememberSelectedLocation();
     }
     emit rememberLocationChanged(QPrivateSignal());
+}
+
+void App::cancelOperation()
+{
+    emit userCancelled(QPrivateSignal());
 }
 
 QAbstractListModel *App::eventsModel() const

@@ -187,6 +187,7 @@ ApplicationWindow {
         width: contentItem.implicitWidth + 20
         height: contentItem.implicitHeight + 20
 
+        focus: true
         modal: true
         contentItem: Row {
             spacing: 6
@@ -207,6 +208,8 @@ ApplicationWindow {
                  appState === AppStates.CountryFilter ||
                  appState === AppStates.CitiesLoad ||
                  appState === AppStates.Extraction
+
+        onClosed: App.cancelOperation()
     }
 
     Loader {

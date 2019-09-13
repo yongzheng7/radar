@@ -90,6 +90,7 @@ public:
     Q_INVOKABLE void share();
 
     Q_INVOKABLE void toggleRememberLocation();
+    Q_INVOKABLE void cancelOperation();
 
     QAbstractListModel *eventsModel() const;
     bool noEventsFound() const;
@@ -147,6 +148,8 @@ signals:
 
     void noEvents(QPrivateSignal);
     void eventsExist(QPrivateSignal);
+
+    void userCancelled(QPrivateSignal);
 
 private:
     using MemberFunc = void (App::*)();
