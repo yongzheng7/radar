@@ -18,7 +18,7 @@ Rectangle {
 
     signal linkActivated(string link)
     signal closeClicked()
-    signal locationActivated(string location)
+    signal locationActivated()
     signal addToCalendarClicked()
     signal openUrlRequested()
     signal shareRequested()
@@ -177,11 +177,12 @@ Cras nec ante sit amet augue sodales iaculis. Aliquam erat volutpat. Nam aliquet
                     Layout.fillWidth: true
                     wrapMode: TextEdit.Wrap
                     text: root.locationAddress
+                    font.underline: true
                     MouseArea {
                         anchors.fill: parent
                         onClicked: {
                             console.log("Location: %1".arg(address.text));
-                            root.locationActivated(address.text);
+                            root.locationActivated();
                         }
                     }
                 }

@@ -603,12 +603,26 @@ void App::setCity(const QString &city)
     }
 }
 
-void App::showLocation(const QString &location)
+void App::showLocation()
 {
-    qDebug() << "Open location: " << location;
+    qDebug() << "Location Address:" << locationAddress() << "Location Name:" << locationName();
 #ifdef Q_OS_ANDROID
-    QString geoUrl = QStringLiteral("geo:0,0?q=%1")
-                         .arg(location.split(QChar(' '), QString::SplitBehavior::SkipEmptyParts).join(QChar('+')));
+    QString geoUrl = m_currentLocation.coordinate.isValid()
+                         ? QStringLiteral("geo:%1,%2?q=%1,%2").arg(latitude()).arg(longitude())
+                         : QStringLiteral("geo:0,0");
+    if (!m_currentLocation.coordinate.isValid()) {
+        QUrl url = QUrl(geoUrl);
+        QUrlQuery query;
+        const auto locationQuery = locationAddress()
+                                       .replace(QChar(','), QChar(' '))
+                                       .split(QChar(' '), QString::SplitBehavior::SkipEmptyParts)
+                                       .join(QChar('+'));
+        query.addQueryItem(QStringLiteral("q"), locationQuery);
+        url.setQuery(query);
+        qDebug() << "url=" << url;
+        geoUrl = url.toString();
+    }
+    qDebug() << "geoURL=" << geoUrl;
     QAndroidJniObject geoJavaString = QAndroidJniObject::fromString(geoUrl);
     QAndroidJniObject uri = QAndroidJniObject::callStaticObjectMethod(
         "android/net/Uri", "parse", "(Ljava/lang/String;)Landroid/net/Uri;", geoJavaString.object< jobject >());
@@ -778,7 +792,10 @@ QString App::locationAddress() const
             .arg(m_currentLocation.postalCode)
             .arg(m_currentLocation.locality, m_currentLocation.thoroughfare);
     }
-    return QStringLiteral("%1, %2").arg(m_currentLocation.locality, m_currentLocation.thoroughfare);
+    if (m_currentLocation.thoroughfare.length() > 0) {
+        return QStringLiteral("%1, %2").arg(m_currentLocation.locality, m_currentLocation.thoroughfare);
+    }
+    return tr("%1, %2").arg(QObject::tr(qPrintable(Countries::countryByCode(m_currentLocation.country))), m_currentLocation.locality);
 }
 
 QString App::eventCity() const

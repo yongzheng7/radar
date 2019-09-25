@@ -130,7 +130,7 @@ ApplicationWindow {
             onLinkActivated: App.openLink(link)
             onLocationActivated: {
                 if (root.currentOSIsAndroid) {
-                    App.showLocation(location);
+                    App.showLocation();
                 } else {
                     mapView.active = true;
                     eventPage.item.enabled = false;

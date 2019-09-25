@@ -1,5 +1,10 @@
 #include "all_countries.h"
 
+#include <QtDebug>
+#include <QLocale>
+
+#include <QMetaEnum>
+
 QMap< QString, QString > Countries::allCountries()
 {
     static QMap< QString, QString > countries{
@@ -258,4 +263,36 @@ QMap< QString, QString > Countries::allCountries()
 QString Countries::countryCode(const QString &country)
 {
     return allCountries().value(country, QString());
+}
+
+namespace  {
+QHash<QString, QLocale::Country> countryByCodeMap()
+{
+    const auto metaEnum = QMetaEnum::fromType<QLocale::Country>();
+//    qDebug() << "Enum Name:" << metaEnum.enumName();
+    QHash<QString, QLocale::Country> result;
+    result.reserve(metaEnum.keyCount());
+    for (int i = 0, count = metaEnum.keyCount(); i < count; i++) {
+//        qDebug() << "idx=" << i << ", key=" << metaEnum.key(i) << ", value=" << metaEnum.value(i);
+        QLocale locale(QLocale::Language::AnyLanguage, static_cast<QLocale::Country>(metaEnum.value(i)));
+//        qDebug() << "locale name:" << locale.name();
+        const auto code = locale.name().split(QChar('_')).last();
+        if (code.isEmpty()) {
+            continue;
+        }
+        result.insert(code, locale.country());
+//        qDebug() << "MAPPING:" << code << "->" << locale.country();
+    }
+    return result;
+}
+}
+
+QString Countries::countryByCode(const QString &code)
+{
+    static auto mapping = countryByCodeMap();
+    auto foundIt = mapping.constFind(code);
+    if (mapping.cend() != foundIt) {
+        return QLocale::countryToString(foundIt.value());
+    }
+    return allCountries().key(code, code);
 }
