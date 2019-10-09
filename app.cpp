@@ -1,3 +1,21 @@
+/*
+ *   Copyright (c) 2019 <xandyx_at_riseup dot net>
+ *
+ *   This file is part of Radar-App.
+ *
+ *   Radar-App is free software: you can redistribute it and/or modify
+ *   it under the terms of the GNU General Public License as published by
+ *   the Free Software Foundation, either version 3 of the License, or
+ *   (at your option) any later version.
+ *
+ *   Radar-App is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *   GNU General Public License for more details.
+ *
+ *   You should have received a copy of the GNU General Public License
+ *   along with Radar-App.  If not, see <https://www.gnu.org/licenses/>.
+ */
 #include "app.h"
 
 #include "all_countries.h"
@@ -39,9 +57,10 @@ App::App(QObject *parent)
     qRegisterMetaType< Event >();
     qRegisterMetaType< Location >();
     auto configuration = m_networkAccessManager->configuration();
-    configuration.setConnectTimeout(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::seconds(30)).count());
+    constexpr auto timeout = 30;
+    configuration.setConnectTimeout(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::seconds(timeout)).count());
     m_networkAccessManager->setConfiguration(configuration);
-    m_locationProvider->setNetworkAccessManager(m_networkAccessManager);
+    //m_locationProvider->setNetworkAccessManager(m_networkAccessManager);
     QSqlError err = m_db->initDB();
     if (err.type() != QSqlError::NoError) {
         qCritical() << err.text();
@@ -173,7 +192,7 @@ AppState::Values App::state() const
 
 void App::setState(AppState::Values state)
 {
-    qDebug() << __PRETTY_FUNCTION__;
+    qDebug() << __PRETTY_FUNCTION__ << "state=" << state;
     if (m_state != state) {
         m_state = state;
         emit stateChanged(QPrivateSignal());
@@ -205,10 +224,19 @@ const QString &App::city() const
     return m_city;
 }
 
+void App::clearEventsModel()
+{
+    m_allEvents.clear();
+    m_eventsModel->setEvents({});
+    emit todayFoundEventsChanged(QPrivateSignal());
+    emit totalFoundEventsChanged(QPrivateSignal());
+}
+
 void App::doReload()
 {
     qDebug() << "doReload...";
     assignIsLoaded(false);
+    clearEventsModel();
     if (m_networkAccessManager->networkAccessible() != QNetworkAccessManager::NetworkAccessibility::Accessible) {
         qDebug() << "Network is not accessible!";
         emit loadFailed(QPrivateSignal());
@@ -220,7 +248,9 @@ void App::doReload()
     if (m_city.isEmpty()) {
         query.addQueryItem(QStringLiteral("facets[country][]"), Countries::countryCode(m_country));
     } else {
-        query.addQueryItem(QStringLiteral("facets[city][]"), m_city);
+        auto capitalized = m_city;
+        capitalized[0] = capitalized[0].toUpper();
+        query.addQueryItem(QStringLiteral("facets[city][]"), capitalized);
     }
     requestUrl.setQuery(query);
     qDebug() << "requestUrl=" << requestUrl.toString();
@@ -229,6 +259,7 @@ void App::doReload()
 
     auto reply = m_networkAccessManager->get(request);
     connect(reply, &QNetworkReply::finished, this, [ this, reply ]() noexcept {
+        qDebug() << "============== Events request reply =============";
         qDebug() << "reply.error" << reply->error();
         qDebug() << "reply.isFinished = " << reply->isFinished();
         qDebug() << "reply.url" << reply->url();
@@ -288,7 +319,7 @@ void App::doLoadCountries()
         qDebug() << "Content-Type" << reply->header(QNetworkRequest::KnownHeaders::ContentTypeHeader);
         if (reply->isFinished()) {
             QByteArray buf = reply->readAll();
-            qDebug() << buf;
+            //qDebug() << buf;
             QJsonParseError err{};
             QJsonDocument json = QJsonDocument::fromJson(buf, &err);
             if (json.isNull()) {
@@ -465,6 +496,7 @@ void App::doExtract()
     locationIDs.squeeze();
     qDebug() << "Locations count:" << locationIDs.size();
     m_allEvents = std::move(events);
+    m_locationProvider->setNetworkAccessManager(m_networkAccessManager);
     m_locationProvider->setLocationsToLoad(std::move(locationIDs));
     emit eventListReady(QPrivateSignal());
 }
@@ -492,9 +524,10 @@ void App::doFiltering()
         return left.timeStart < right.timeStart;
     });
     m_eventsModel->setEvents(std::move(filtered));
-    m_locationProvider->setNetworkAccessManager(m_networkAccessManager);
     emit eventsModelChanged(QPrivateSignal());
     emit eventListFiltered(QPrivateSignal());
+    emit totalFoundEventsChanged(QPrivateSignal());
+    emit todayFoundEventsChanged(QPrivateSignal());
 }
 
 void App::getPermissions()
@@ -758,7 +791,7 @@ const QString &App::description() const
     return m_currentEvent.description;
 }
 
-const QString App::dateTime() const
+QString App::dateTime() const
 {
     const auto dateTime = QDateTime::fromSecsSinceEpoch(m_currentEvent.timeStart);
     return QStringLiteral("%1, %2").arg(dateTime.date().toString(Qt::SystemLocaleLongDate),
@@ -882,6 +915,16 @@ QStringList App::cities() const
     auto cities = m_citiesByCountryCode.value(Countries::countryCode(m_country), {});
     std::sort(cities.begin(), cities.end());
     return cities;
+}
+
+int App::totalFoundEvents() const
+{
+    return m_eventsModel->rowCount(QModelIndex());
+}
+
+int App::todayFoundEvents() const
+{
+    return m_eventsModel->todayEventsCount();
 }
 
 void App::updateCurrentLocation()

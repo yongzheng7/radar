@@ -1,3 +1,21 @@
+/*
+ *   Copyright (c) 2019 <xandyx_at_riseup dot net>
+ *
+ *   This file is part of Radar-App.
+ *
+ *   Radar-App is free software: you can redistribute it and/or modify
+ *   it under the terms of the GNU General Public License as published by
+ *   the Free Software Foundation, either version 3 of the License, or
+ *   (at your option) any later version.
+ *
+ *   Radar-App is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *   GNU General Public License for more details.
+ *
+ *   You should have received a copy of the GNU General Public License
+ *   along with Radar-App.  If not, see <https://www.gnu.org/licenses/>.
+ */
 #include <QFont>
 #include <QGuiApplication>
 #include <QIcon>
@@ -27,7 +45,8 @@ int main(int argc, char *argv[])
     QGuiApplication::setWindowIcon(QIcon(QStringLiteral("qrc:/icons/app-xhdpi.png")));
 
     auto font = QGuiApplication::font();
-    font.setPointSize(16);
+    constexpr auto fontSizePt = 16;
+    font.setPointSize(fontSizePt);
     QGuiApplication::setFont(font);
 
     qRegisterMetaType< QAbstractItemModel * >();

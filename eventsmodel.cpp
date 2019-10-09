@@ -1,3 +1,21 @@
+/*
+ *   Copyright (c) 2019 <xandyx_at_riseup dot net>
+ *
+ *   This file is part of Radar-App.
+ *
+ *   Radar-App is free software: you can redistribute it and/or modify
+ *   it under the terms of the GNU General Public License as published by
+ *   the Free Software Foundation, either version 3 of the License, or
+ *   (at your option) any later version.
+ *
+ *   Radar-App is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *   GNU General Public License for more details.
+ *
+ *   You should have received a copy of the GNU General Public License
+ *   along with Radar-App.  If not, see <https://www.gnu.org/licenses/>.
+ */
 #include "eventsmodel.h"
 #include "locationprovider.h"
 #include <tuple>
@@ -22,7 +40,8 @@ EventsModel::EventsModel(LocationProvider *locationProvider, QObject *parent)
                     m_geoError = positioningError;
                     emit this->hasGeoErrorChanged(QPrivateSignal());
                 });
-        m_positionSource->setUpdateInterval(5000);
+        constexpr auto updateIntervalMSec = 5000;
+        m_positionSource->setUpdateInterval(updateIntervalMSec);
         connect(m_positionSource, &QGeoPositionInfoSource::positionUpdated,
                 this, [this](const QGeoPositionInfo &newPos) noexcept {
                     qDebug() << "got new GeoPositionInfo!";
@@ -65,6 +84,14 @@ int EventsModel::rowCount(const QModelIndex &parent) const
         return 0;
     }
     return m_events.size();
+}
+
+int EventsModel::todayEventsCount() const
+{
+    QDate today = QDate::currentDate();
+    return static_cast<int>(std::count_if(m_events.cbegin(), m_events.cend(), [today](const Event &event) noexcept {
+        return event.date == today;
+    }));
 }
 
 QVariant EventsModel::data(const QModelIndex &index, int role) const

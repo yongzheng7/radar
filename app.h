@@ -1,3 +1,21 @@
+/*
+ *   Copyright (c) 2019 <xandyx_at_riseup dot net>
+ *
+ *   This file is part of Radar-App.
+ *
+ *   Radar-App is free software: you can redistribute it and/or modify
+ *   it under the terms of the GNU General Public License as published by
+ *   the Free Software Foundation, either version 3 of the License, or
+ *   (at your option) any later version.
+ *
+ *   Radar-App is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *   GNU General Public License for more details.
+ *
+ *   You should have received a copy of the GNU General Public License
+ *   along with Radar-App.  If not, see <https://www.gnu.org/licenses/>.
+ */
 #pragma once
 
 #include <QDateTime>
@@ -64,6 +82,9 @@ class App : public QObject
     Q_PROPERTY(QStringList countries READ countries NOTIFY countriesChanged)
     Q_PROPERTY(QStringList cities READ cities NOTIFY citiesChanged)
 
+    Q_PROPERTY(int totalFoundEvents READ totalFoundEvents NOTIFY totalFoundEventsChanged)
+    Q_PROPERTY(int todayFoundEvents READ todayFoundEvents NOTIFY todayFoundEventsChanged)
+
 public:
     explicit App(QObject *parent = nullptr);
     ~App() override;
@@ -97,7 +118,7 @@ public:
 
     const QString &title() const;
     const QString &description() const;
-    const QString dateTime() const;
+    QString dateTime() const;
     const QString &category() const;
     const QString &price() const;
     QString locationName() const;
@@ -113,6 +134,9 @@ public:
     QStringList countries() const;
     void setCountry(const QString &country);
     QStringList cities() const;
+
+    int totalFoundEvents() const;
+    int todayFoundEvents() const;
 
     void updateCurrentLocation();
 
@@ -150,6 +174,8 @@ signals:
     void eventsExist(QPrivateSignal);
 
     void userCancelled(QPrivateSignal);
+    void totalFoundEventsChanged(QPrivateSignal);
+    void todayFoundEventsChanged(QPrivateSignal);
 
 private:
     using MemberFunc = void (App::*)();
@@ -192,9 +218,10 @@ private:
     QString m_city;
     QMap< QString, QStringList > m_citiesByCountryCode;
     QSet< QString > m_countriesToLoad;
-    QString m_eventsRequestUrlBase = QStringLiteral("https://radar.squat.net/api/1.2/search/events.json");
-    QString m_groupsRequestUrl = QStringLiteral("https://radar.squat.net/api/1.1/search/groups.json?fields[]=uuid&limit=1");
-    QString m_cityRequestUrlBase = QStringLiteral("https://radar.squat.net/api/1.2/search/events.json?fields[]=uuid&limit=1&facets[country][]=%1");
+    const QString m_eventsRequestUrlBase = QStringLiteral("https://radar.squat.net/api/1.2/search/events.json");
+    const QString m_groupsRequestUrl = QStringLiteral("https://radar.squat.net/api/1.1/search/groups.json?fields[]=uuid&limit=1");
+    //QString m_cityRequestUrlBase = QStringLiteral("https://radar.squat.net/api/1.2/search/events.json?fields[]=uuid&limit=1&facets[country][]=%1");
+    const QString m_cityRequestUrlBase = QStringLiteral("https://radar.squat.net/api/1.2/search/groups.json?fields[]=uuid&limit=1&facets[country][]=%1");
 
     QJsonObject m_events;
     QJsonObject m_groups;
@@ -204,4 +231,5 @@ private:
 
     Q_DISABLE_COPY(App)
     void rememberSelectedLocation();
+    void clearEventsModel();
 };

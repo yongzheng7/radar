@@ -1,3 +1,21 @@
+/*
+ *   Copyright (c) 2019 <xandyx_at_riseup dot net>
+ *
+ *   This file is part of Radar-App.
+ *
+ *   Radar-App is free software: you can redistribute it and/or modify
+ *   it under the terms of the GNU General Public License as published by
+ *   the Free Software Foundation, either version 3 of the License, or
+ *   (at your option) any later version.
+ *
+ *   Radar-App is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *   GNU General Public License for more details.
+ *
+ *   You should have received a copy of the GNU General Public License
+ *   along with Radar-App.  If not, see <https://www.gnu.org/licenses/>.
+ */
 #include "database.h"
 #include "locationprovider.h"
 #include <tuple>
@@ -30,6 +48,41 @@ QVariant DB::insertLocation(const Location &location)
         q.addBindValue(QVariant(QVariant::Double));
     }
     q.exec();
+    return q.lastInsertId();
+}
+
+QVariant DB::insertLocations(const QVector<Location> &locations)
+{
+    if (locations.empty()) {
+        return {};
+    }
+    QSqlQuery q;
+    q.prepare(QStringLiteral("insert or replace into locations("
+                             "uuid, name, country, locality, firstName, "
+                             "lastName, postalCode, thoroughfare, "
+                             "directions, latitude, longitude"
+                             ") values("
+                             "?, ?, ?, ?, ?, ?, ?, ?, ?, ? ,?"
+                             ")"));
+    for (const auto &location : qAsConst(locations)) {
+        q.addBindValue(location.uuid.toRfc4122());
+        q.addBindValue(location.name);
+        q.addBindValue(location.country);
+        q.addBindValue(location.locality);
+        q.addBindValue(location.firstName);
+        q.addBindValue(location.lastName);
+        q.addBindValue(location.postalCode);
+        q.addBindValue(location.thoroughfare);
+        q.addBindValue(location.directions);
+        if (location.coordinate.isValid()) {
+            q.addBindValue(location.coordinate.latitude());
+            q.addBindValue(location.coordinate.longitude());
+        } else {
+            q.addBindValue(QVariant(QVariant::Double));
+            q.addBindValue(QVariant(QVariant::Double));
+        }
+        q.exec();
+    }
     return q.lastInsertId();
 }
 
@@ -128,10 +181,9 @@ QVariant DB::insertCountry(const QString &code, const QString &name, const QStri
         return {};
     }
     int countryId = q.lastInsertId().toInt();
-    qDebug() << "Primary Key=" << countryId;
 
+    q.prepare(QStringLiteral("INSERT OR REPLACE INTO cities(countryId, name) VALUES(:countryId, :name)"));
     for (const auto &city : qAsConst(cities)) {
-        q.prepare(QStringLiteral("INSERT OR REPLACE INTO cities(countryId, name) VALUES(:countryId, :name)"));
         q.bindValue(QStringLiteral(":countryId"), countryId);
         q.bindValue(QStringLiteral(":name"), city);
         q.exec();

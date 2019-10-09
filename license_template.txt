@@ -1,5 +1,5 @@
 /*
- *   Copyright (c) 2019 <xandyx_at_riseup dot net>
+ *   Copyright (c) %YEAR% <xandyx_at_riseup dot net>
  *
  *   This file is part of Radar-App.
  *
@@ -16,16 +16,4 @@
  *   You should have received a copy of the GNU General Public License
  *   along with Radar-App.  If not, see <https://www.gnu.org/licenses/>.
  */
-#pragma once
 
-#include <QMap>
-#include <QString>
-
-namespace Countries
-{
-
-    QMap< QString, QString > allCountries();
-
-    QString countryCode(const QString &country);
-    QString countryByCode(const QString &code);
-}// namespace Countries

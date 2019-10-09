@@ -1,3 +1,21 @@
+/*
+ *   Copyright (c) 2019 <xandyx_at_riseup dot net>
+ *
+ *   This file is part of Radar-App.
+ *
+ *   Radar-App is free software: you can redistribute it and/or modify
+ *   it under the terms of the GNU General Public License as published by
+ *   the Free Software Foundation, either version 3 of the License, or
+ *   (at your option) any later version.
+ *
+ *   Radar-App is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *   GNU General Public License for more details.
+ *
+ *   You should have received a copy of the GNU General Public License
+ *   along with Radar-App.  If not, see <https://www.gnu.org/licenses/>.
+ */
 #include "locationprovider.h"
 #include "database.h"
 
@@ -17,7 +35,7 @@ LocationProvider::~LocationProvider() = default;
 Location LocationProvider::extractLocationFromJSON(const QJsonDocument &json)
 {
     QJsonObject obj = json.object();
-    qDebug() << "obj: " << obj.toVariantMap();
+    //qDebug() << "obj: " << obj.toVariantMap();
     Location location{};
     const auto &address = obj.value(QLatin1Literal("address")).toObject();
     location.country = address.value(QLatin1Literal("country")).toString();
@@ -31,7 +49,8 @@ Location LocationProvider::extractLocationFromJSON(const QJsonDocument &json)
     location.directions = obj.value(QLatin1Literal("directions")).toString();
 
     const auto &map = obj.value(QLatin1Literal("map")).toObject();
-    bool okLon, okLat;
+    bool okLon = false;
+    bool okLat = false;
     qreal latitude = map.value(QLatin1Literal("lat")).toString().toDouble(&okLat);
     qreal longitude = map.value(QLatin1Literal("lon")).toString().toDouble(&okLon);
     if (okLat && okLon) {
@@ -46,41 +65,59 @@ Location LocationProvider::extractLocationFromJSON(const QJsonDocument &json)
 
 void LocationProvider::processFinishedReply(QNetworkReply *reply)
 {
-    qDebug() << "reply.error" << reply->error();
-    qDebug() << "reply.isFinished = " << reply->isFinished();
-    qDebug() << "reply.url" << reply->url();
-    qDebug() << "reply.size:" << reply->size();
-    qDebug() << "Content-Type" << reply->header(QNetworkRequest::KnownHeaders::ContentTypeHeader);
+    if (reply == nullptr) {
+        return;
+    }
+    if (!reply->url().toString().startsWith(locationUrlBase)) {
+        return;
+    }
+    qDebug() << __PRETTY_FUNCTION__;
+    //qDebug() << "reply.error" << reply->error();
+    //qDebug() << "reply.isFinished = " << reply->isFinished();
+    //qDebug() << "reply.size:" << reply->size();
+    //qDebug() << "Content-Type" << reply->header(QNetworkRequest::KnownHeaders::ContentTypeHeader);
     if (!reply->isFinished()) {
         return;
     }
+    qDebug() << "reply.url" << reply->url();
     if (reply->error() != QNetworkReply::NoError) {
         qCritical() << "Error processing request " << reply->request().url() << " Error:" << reply->error();
     }
     if (!reply->isFinished()) {
         return;
     }
-    QByteArray buf = reply->readAll();
-    QJsonParseError err{};
-    QJsonDocument json = QJsonDocument::fromJson(buf, &err);
-    if (json.isNull()) {
-        qCritical() << "Json parse error:" << err.errorString();
-        return;
-    }
-    auto location = extractLocationFromJSON(json);
 
-    m_loadedLocations.insert(location.uuid, location);
-    m_db->insertLocation(location);
-    m_locationsToLoad.remove(location.uuid);
-
-    emit locationAvailable(location.uuid, location);
+    auto processReply = [this, buf = reply->readAll()]() noexcept {
+        QJsonParseError err{};
+        QJsonDocument json = QJsonDocument::fromJson(buf, &err);
+        if (json.isNull()) {
+            qCritical() << "Json parse error:" << err.errorString();
+            return;
+        }
+        auto location = extractLocationFromJSON(json);
+        m_locationsToLoad.remove(location.uuid);
+        m_loadedLocations.insert(location.uuid, location);
+        m_locationsToInsert.push_back(location);
+        emit locationAvailable(location.uuid, location);
+        if (m_locationsToLoad.isEmpty()) {
+            qDebug() << "ALL LOCATIONS LOADED!";
+            m_db->insertLocations(m_locationsToInsert);
+            m_locationsToInsert.clear();
+        }
+    };
     reply->close();
     reply->deleteLater();
+    processReply();
 }
 
 void LocationProvider::setNetworkAccessManager(QNetworkAccessManager *networkAccessManager)
 {
+    if (m_networkAccessManager) {
+        disconnect(m_networkAccessManager, &QNetworkAccessManager::finished, this, &LocationProvider::processFinishedReply);
+    }
     m_networkAccessManager = networkAccessManager;
+    connect(m_networkAccessManager, &QNetworkAccessManager::finished, this, &LocationProvider::processFinishedReply,
+            Qt::ConnectionType::UniqueConnection);
 }
 
 void LocationProvider::requestLocation(const QUuid &uuid)
@@ -101,6 +138,11 @@ void LocationProvider::requestLocation(const QUuid &uuid)
         return;
     }
     qDebug() << "Download needed!";
+    auto iter = m_locationsToLoad.constFind(uuid);
+    if (iter != m_locationsToLoad.constEnd()) {
+        qDebug() << "Already in load queue!";
+        return;
+    }
     m_locationsToLoad.insert(uuid);
     doLoad(uuid);
 }
@@ -116,6 +158,7 @@ std::pair< Location, bool > LocationProvider::getLoadedLocation(const QUuid &uui
 
 void LocationProvider::setLocationsToLoad(QSet< QUuid > &&locations)
 {
+    m_locationsToInsert.clear();
     m_locationsToLoad = std::move(locations);
     auto it = m_locationsToLoad.begin();
     const auto loadedEnd = m_loadedLocations.cend();
@@ -129,13 +172,13 @@ void LocationProvider::setLocationsToLoad(QSet< QUuid > &&locations)
         }
     }
     m_locationsToLoad.subtract(m_db->getAllUUIDs());
+    m_locationsToInsert.reserve(m_locationsToLoad.size());
     loadAllLocations();
 }
 
 QNetworkReply *LocationProvider::requestLocationByUUID(const QUuid &id)
 {
-    QUrl requestUrl(
-        QStringLiteral("https://radar.squat.net/api/1.2/location/%1.json").arg(id.toString(QUuid::WithoutBraces)));
+    QUrl requestUrl(QStringLiteral("%1%2.json").arg(locationUrlBase, id.toString(QUuid::WithoutBraces)));
     QNetworkRequest request(requestUrl);
     request.setRawHeader(QByteArrayLiteral("User-Agent"), QByteArrayLiteral("Radar App 1.0"));
     qDebug() << "[Network] Requesting location " << id;
@@ -145,13 +188,13 @@ QNetworkReply *LocationProvider::requestLocationByUUID(const QUuid &id)
 void LocationProvider::doLoad(const QUuid &id)
 {
     // load over network
-    auto reply = requestLocationByUUID(id);
-    connect(reply, &QNetworkReply::finished, this, [ this, reply ]() noexcept { this->processFinishedReply(reply); });
+    requestLocationByUUID(id);
 }
 
 void LocationProvider::loadAllLocations()
 {
     qDebug() << "Locations remained to load from network=" << m_locationsToLoad.size();
+    qDebug() << "Locations to load: " << m_locationsToLoad;
     for (const auto &uuid : qAsConst(m_locationsToLoad)) {
         doLoad(uuid);
     }
