@@ -67,6 +67,7 @@ class App : public QObject
     Q_PROPERTY(QString title READ title NOTIFY currentEventChanged)
     Q_PROPERTY(QString description READ description NOTIFY currentEventChanged)
     Q_PROPERTY(QString dateTime READ dateTime NOTIFY currentEventChanged)
+    Q_PROPERTY(QString duration READ duration NOTIFY currentEventChanged)
     Q_PROPERTY(QString category READ category NOTIFY currentEventChanged)
     Q_PROPERTY(QString url READ eventUrl NOTIFY currentEventChanged)
     Q_PROPERTY(QString price READ price NOTIFY currentEventChanged)
@@ -119,6 +120,7 @@ public:
     const QString &title() const;
     const QString &description() const;
     QString dateTime() const;
+    QString duration() const;
     const QString &category() const;
     const QString &price() const;
     QString locationName() const;
@@ -222,6 +224,7 @@ private:
     const QString m_groupsRequestUrl = QStringLiteral("https://radar.squat.net/api/1.1/search/groups.json?fields[]=uuid&limit=1");
     //QString m_cityRequestUrlBase = QStringLiteral("https://radar.squat.net/api/1.2/search/events.json?fields[]=uuid&limit=1&facets[country][]=%1");
     const QString m_cityRequestUrlBase = QStringLiteral("https://radar.squat.net/api/1.2/search/groups.json?fields[]=uuid&limit=1&facets[country][]=%1");
+    //Locations in city: https://radar.squat.net/api/1.2/search/location.json?facets[country][]=DE&facets[locality][]=Berlin&fields[]=directions&fields[]=title&fields[]=address&fields[]=uuid&fields[]=map
 
     QJsonObject m_events;
     QJsonObject m_groups;

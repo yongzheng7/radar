@@ -47,6 +47,7 @@ Rectangle {
 Cras nec ante sit amet augue sodales iaculis. Aliquam erat volutpat. Nam aliquet quis ipsum nec varius. Integer rutrum lacus eu est ullamcorper, bibendum egestas lorem posuere. Aliquam bibendum ligula in convallis bibendum. Donec efficitur, lacus at aliquam feugiat, risus turpis consequat lorem, ut placerat dolor est a magna. Cras lorem erat, malesuada a nunc tempor, gravida elementum dolor. Duis pharetra lobortis sapien. Quisque vulputate diam et magna facilisis, ac auctor dolor consequat. Praesent aliquam nunc est, id egestas risus iaculis ut. Curabitur pharetra enim eu arcu pretium finibus. Suspendisse potenti. Duis semper turpis enim, nec vulputate ligula fringilla pharetra.</p>"
 
     property string dateTime: "Sonntag, 12. Mai, 14:00"
+    property string duration: ""
     property string category: "Party"
     property string price: "free"
     property string locationName: "US Embassy"
@@ -151,6 +152,25 @@ Cras nec ante sit amet augue sodales iaculis. Aliquam erat volutpat. Nam aliquet
             }
 
             RowLayout {
+                id: durationLayout
+                visible: root.duration !== ""
+                Layout.fillWidth: true
+                height: Layout.preferredHeight
+                spacing: 6
+                Label {
+                    Layout.alignment: Qt.AlignTop
+                    text: qsTr("Duration:")
+                    font.bold: true
+                }
+                Text {
+                    Layout.alignment: Qt.AlignTop
+                    Layout.fillWidth: true
+                    text: root.duration
+                    wrapMode: TextEdit.Wrap
+                }
+            }
+
+            RowLayout {
                 Layout.fillWidth: true
                 spacing: 6
                 visible: root.category.length > 0
@@ -225,25 +245,32 @@ Cras nec ante sit amet augue sodales iaculis. Aliquam erat volutpat. Nam aliquet
                 }
             }
 
-            Button {
-                id: addToCalendar
-                text: qsTr("Add to calendar")
-                onClicked: root.addToCalendarClicked()
+            Column {
                 Layout.alignment: Qt.AlignHCenter
-            }
-            Button {
-                id: show
-                visible: root.urlProvided
-                text: qsTr("Show in Browser")
-                onClicked: root.openUrlRequested()
-                Layout.alignment: Qt.AlignHCenter
-            }
-            Button {
-                id: share
-                visible: root.urlProvided
-                text: qsTr("Share...")
-                onClicked: root.shareRequested()
-                Layout.alignment: Qt.AlignHCenter
+                width: Math.max(addToCalendar.contentItem.implicitWidth, Math.max(show.implicitWidth, share.implicitWidth))
+                Button {
+                    id: addToCalendar
+                    text: qsTr("Add to calendar")
+                    onClicked: root.addToCalendarClicked()
+                    anchors.left: parent.left
+                    anchors.right: parent.right
+                }
+                Button {
+                    id: show
+                    visible: root.urlProvided
+                    text: qsTr("Show in Browser")
+                    onClicked: root.openUrlRequested()
+                    anchors.left: parent.left
+                    anchors.right: parent.right
+                }
+                Button {
+                    id: share
+                    visible: root.urlProvided
+                    text: qsTr("Share...")
+                    onClicked: root.shareRequested()
+                    anchors.left: parent.left
+                    anchors.right: parent.right
+                }
             }
         }
     }

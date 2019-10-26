@@ -166,6 +166,7 @@ ApplicationWindow {
                 eventPage.item.description = App.description;
                 eventPage.item.category = App.category;
                 eventPage.item.dateTime = App.dateTime;
+                eventPage.item.duration = App.duration
                 eventPage.item.price = App.price;
                 eventPage.item.locationName = App.locationName;
                 eventPage.item.locationAddress = App.locationAddress;

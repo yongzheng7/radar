@@ -79,7 +79,8 @@ FocusScope {
             width: root.width
             sourceComponent: MouseArea {
                 id: mouseArea
-                readonly property bool highlighted: mouseArea.containsPress || (!root.currentOSIsAndroid && mouseArea.containsMouse)
+                readonly property bool highlighted: resultsList.currentIndex === index ||
+                                                    (!root.currentOSIsAndroid && mouseArea.containsMouse)
                 readonly property color textColor: Material.color(Material.Grey, highlighted ? Material.Shade50 : Material.Shade900)
                 readonly property color standardBgColor: Material.color(Material.Grey, index % 2 === 0 ? Material.Shade100 : Material.Shade50)
                 readonly property color bgColor: highlighted ? Material.color(Material.LightBlue, Material.Shade800) : standardBgColor

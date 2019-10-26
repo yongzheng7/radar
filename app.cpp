@@ -798,6 +798,15 @@ QString App::dateTime() const
                                         dateTime.time().toString(QStringLiteral("HH:mm")));
 }
 
+QString App::duration() const
+{
+    if (m_currentEvent.timeStart == m_currentEvent.timeEnd) {
+        return QString();
+    }
+    return QDateTime::fromTime_t(
+                static_cast<uint>(m_currentEvent.timeEnd - m_currentEvent.timeStart)).toUTC().toString();
+}
+
 const QString &App::category() const
 {
     return m_currentEvent.category;
