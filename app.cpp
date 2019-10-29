@@ -800,11 +800,15 @@ QString App::dateTime() const
 
 QString App::duration() const
 {
-    if (m_currentEvent.timeStart == m_currentEvent.timeEnd) {
+    if (m_currentEvent.timeStart >= m_currentEvent.timeEnd) {
         return QString();
     }
-    return QDateTime::fromTime_t(
-                static_cast<uint>(m_currentEvent.timeEnd - m_currentEvent.timeStart)).toUTC().toString();
+    auto start = m_currentEvent.timeStart;
+    auto end = m_currentEvent.timeEnd;
+    auto secsTo = end - start;
+    auto hours = secsTo / 3600;
+    auto minutes = static_cast<qulonglong>((secsTo - (hours * 3600)) / 60);
+    return tr("%1:%2").arg(hours).arg(minutes, 2, 10, QLatin1Char('0'));
 }
 
 const QString &App::category() const

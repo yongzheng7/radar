@@ -18,6 +18,10 @@
  */
 import QtQuick 2.12
 import QtQuick.Controls 2.12
+import QtQuick.Controls.Material 2.12
+import QtQuick.Controls.Universal 2.12
+import Qt.labs.settings 1.0
+
 import QtQuick.Layouts 1.11
 
 import org.radar.app 1.0
@@ -40,6 +44,84 @@ ApplicationWindow {
         sequences: root.currentOSIsAndroid ? ["Esc", "Back"] : ["Esc"]
         onActivated: root.setPrevious()
         enabled: swipeView.currentIndex > 0 && !eventPage.active && !mapView.active
+    }
+
+    header: ToolBar {
+        Material.foreground: "white"
+        Material.background: "tomato"
+
+        RowLayout {
+            spacing: 20
+            anchors.fill: parent
+
+            ToolButton {
+                icon.name: swipeView.currentIndex > 0 ? "back" : ""
+                enabled: icon.name !== ""
+                //text: icon.name === "" ? "☰" : ""
+                onClicked: {
+                    if (eventPage.active) {
+                        eventPage.active = false;
+                        swipeView.enabled = true;
+                        return;
+                    }
+
+                    if (swipeView.currentIndex > 0) {
+                        root.setPrevious();
+                    } else {
+                        //drawer.open()
+                    }
+                }
+            }
+
+            Label {
+                id: titleLabel
+                text: /*listView.currentItem ? listView.currentItem.text :*/ qsTr("Radar App")
+                font.pixelSize: 20
+                elide: Label.ElideRight
+                horizontalAlignment: Qt.AlignHCenter
+                verticalAlignment: Qt.AlignVCenter
+                Layout.fillWidth: true
+            }
+
+            ToolButton {
+                text: "⋮"
+                onClicked: optionsMenu.open()
+
+                Menu {
+                    id: optionsMenu
+                    x: parent.width - width
+                    transformOrigin: Menu.TopRight
+
+//                    MenuItem {
+//                        text: "Settings"
+//                        //onTriggered: settingsDialog.open()
+//                    }
+                    MenuItem {
+                        text: "About"
+                        onTriggered: aboutDialog.open()
+                    }
+                }
+            }
+        }
+    }
+
+    Dialog {
+        anchors.centerIn: parent
+        id: aboutDialog
+//        width: Math.min(contentWidth, root.width - 20)
+
+        title: qsTr("Radar App")
+
+        Label {
+            anchors.fill: parent
+            wrapMode: Text.WordWrap
+            textFormat: Text.RichText
+            text: qsTr("<p>Copyright © 2019</p>" +
+                       "<p>This program comes with ABSOLUTELY NO WARRANTY.</p>" +
+                       "<p>This is free software, and you are welcome to redistribute it under certain conditions.</p>"+
+                       "<a href=\"https://www.gnu.org/licenses/gpl-3.0.en.html\">Details…</a>")
+            onLinkActivated: App.openLink(link)
+        }
     }
 
     ColumnLayout {
@@ -215,9 +297,29 @@ ApplicationWindow {
                 anchors.verticalCenter: parent.verticalCenter
             }
 
-            Text {
+            Column {
                 anchors.verticalCenter: parent.verticalCenter
-                text: qsTr("Loading...")
+                spacing: 6
+                Text {
+                    text: qsTr("Please wait…")
+                }
+                Text {
+                    visible: text !== ""
+                    text: {
+                        switch (appState) {
+                        case AppStates.Loading:
+                            return qsTr("Getting events");
+                        case AppStates.Filtering:
+                            return qsTr("Filtering events");
+                        case AppStates.CountryLoad:
+                            return qsTr("Loading coutries");
+                        case AppStates.CitiesLoad:
+                            return qsTr("Loading cities");
+                        default:
+                            return "";
+                        }
+                    }
+                }
             }
         }
 
