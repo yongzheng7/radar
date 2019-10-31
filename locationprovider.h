@@ -66,7 +66,7 @@ public:
     void setNetworkAccessManager(QNetworkAccessManager *networkAccessManager);
     void requestLocation(const QUuid &uuid);
     std::pair< Location, bool > getLoadedLocation(const QUuid &uuid) const;
-    void setLocationsToLoad(QSet< QUuid > &&locations);
+    void setLocationsToLoad(QSet< QUuid > &&locations, const QString &countryCode, const QString &city);
     void doLoad(const QUuid &id);
     void loadAllLocations();
     void setDB(DB *db);
@@ -87,4 +87,7 @@ private:
     QNetworkAccessManager *m_networkAccessManager{nullptr};
     DB *m_db{nullptr};
     const QString locationUrlBase {QStringLiteral("https://radar.squat.net/api/1.2/location/")};
+    //Locations in city: https://radar.squat.net/api/1.2/search/location.json?facets[country][]=DE&facets[locality][]=Berlin&fields[]=directions&fields[]=title&fields[]=address&fields[]=uuid&fields[]=map
+    QString m_countryCode;
+    QString m_city;
 };

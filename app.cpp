@@ -497,7 +497,11 @@ void App::doExtract()
     qDebug() << "Locations count:" << locationIDs.size();
     m_allEvents = std::move(events);
     m_locationProvider->setNetworkAccessManager(m_networkAccessManager);
-    m_locationProvider->setLocationsToLoad(std::move(locationIDs));
+
+    auto capitalized = m_city;
+    capitalized[0] = capitalized[0].toUpper();
+
+    m_locationProvider->setLocationsToLoad(std::move(locationIDs), Countries::countryCode(m_country), capitalized);
     emit eventListReady(QPrivateSignal());
 }
 

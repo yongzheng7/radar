@@ -34,6 +34,7 @@ public:
     QVariant insertLocation(const Location &location);
     QVariant insertLocations(const QVector< Location > &locations);
     std::pair< bool, Location > findLocation(QUuid uuid);
+    QVector< Location > getLocations(const QString &countryCode, const QString &city);
     QSet<QUuid> getAllUUIDs();
     QStringList getAllCountries();
     QMap<QString, QStringList> getAllCities();

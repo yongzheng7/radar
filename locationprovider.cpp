@@ -156,8 +156,10 @@ std::pair< Location, bool > LocationProvider::getLoadedLocation(const QUuid &uui
     return {*found, true};
 }
 
-void LocationProvider::setLocationsToLoad(QSet< QUuid > &&locations)
+void LocationProvider::setLocationsToLoad(QSet< QUuid > &&locations, const QString &countryCode, const QString &city)
 {
+    m_countryCode = countryCode;
+    m_city = city;
     m_locationsToInsert.clear();
     m_locationsToLoad = std::move(locations);
     auto it = m_locationsToLoad.begin();
@@ -170,6 +172,10 @@ void LocationProvider::setLocationsToLoad(QSet< QUuid > &&locations)
         } else {
             ++it;
         }
+    }
+    const auto &locationsForCity = m_db->getLocations(m_countryCode, m_city);
+    for (const auto &location : qAsConst(locationsForCity)) {
+        m_loadedLocations.insert(location.uuid, location);
     }
     m_locationsToLoad.subtract(m_db->getAllUUIDs());
     m_locationsToInsert.reserve(m_locationsToLoad.size());

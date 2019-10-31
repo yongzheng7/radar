@@ -86,6 +86,7 @@ QVariant DB::insertLocations(const QVector<Location> &locations)
     return q.lastInsertId();
 }
 
+
 std::pair< bool, Location > DB::findLocation(QUuid uuid)
 {
     qDebug() << "Loading location by uuid=" << uuid.toString(QUuid::WithoutBraces);
@@ -117,6 +118,43 @@ std::pair< bool, Location > DB::findLocation(QUuid uuid)
     }
     qDebug() << "Location not found!";
     return {false, {}};
+}
+
+QVector< Location > DB::getLocations(const QString &countryCode, const QString &city)
+{
+    QVector< Location > results;
+    qDebug() << "Loading location for " << countryCode << "/" << city;
+    QSqlQuery q;
+    q.prepare(QStringLiteral("select uuid, name, firstName,"
+                             " lastName, postalCode, thoroughfare, directions,"
+                             " latitude, longitude from locations where country = :country AND locality = :city"));
+    q.bindValue(QStringLiteral(":country"), countryCode);
+    q.bindValue(QStringLiteral(":city"), city);
+    if (q.exec()) {
+        if (q.size() > 0) {
+            results.reserve(q.size());
+        }
+        while (q.next()) {
+            Location result{};
+            result.uuid = QUuid::fromRfc4122(q.value(0).toByteArray());//
+            result.name = q.value(1).toString();
+            result.country = countryCode;
+            result.locality = city;
+            result.firstName = q.value(2).toString();
+            result.lastName = q.value(3).toString();
+            result.postalCode = q.value(4).toInt();
+            result.thoroughfare = q.value(5).toString();
+            result.directions = q.value(6).toString();
+            if (!q.isNull(7) && !q.isNull(8)) {
+                qreal latitude = q.value(7).toDouble();
+                qreal longitude = q.value(8).toDouble();
+                result.coordinate = QGeoCoordinate(latitude, longitude);
+            }
+            results.push_back(std::move(result));
+        }
+    }
+    qDebug() << "Loaded " << results.size() << " entries for " << city;
+    return results;
 }
 
 QSet< QUuid > DB::getAllUUIDs()
