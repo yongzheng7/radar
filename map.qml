@@ -24,8 +24,6 @@ import QtQuick.Controls 2.12
 Rectangle {
     id: root
 
-    anchors.fill: parent
-
     property real latitude:  59.91
     property real longitude: 10.75
 
@@ -39,8 +37,6 @@ Rectangle {
         }
         enabled: root.visible
     }
-
-    focus: true
 
     Keys.onBackPressed: root.closeRequested()
     Keys.onEscapePressed: root.closeRequested()

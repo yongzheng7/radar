@@ -57,10 +57,7 @@ Cras nec ante sit amet augue sodales iaculis. Aliquam erat volutpat. Nam aliquet
     property string country: "Germany"
     property bool urlProvided: true
 
-    Keys.onBackPressed: {
-        root.closeClicked();
-    }
-
+    Keys.onBackPressed: root.closeClicked();
     Keys.onEscapePressed: root.closeClicked()
 
     Flickable {

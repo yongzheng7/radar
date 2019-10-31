@@ -41,6 +41,7 @@ ApplicationWindow {
     readonly property bool currentOSIsAndroid: Qt.platform.os === "android"
 
     Shortcut {
+        id: backShortcut
         sequences: root.currentOSIsAndroid ? ["Esc", "Back"] : ["Esc"]
         onActivated: root.setPrevious()
         enabled: swipeView.currentIndex > 0 && !eventPage.active && !mapView.active
@@ -56,12 +57,16 @@ ApplicationWindow {
 
             ToolButton {
                 icon.name: swipeView.currentIndex > 0 ? "back" : ""
-                enabled: icon.name !== ""
+                enabled: swipeView.currentIndex > 0
                 //text: icon.name === "" ? "☰" : ""
                 onClicked: {
+                    if (mapView.active) {
+                        mapView.closeView();
+                        return;
+                    }
+
                     if (eventPage.active) {
-                        eventPage.active = false;
-                        swipeView.enabled = true;
+                        eventPage.closePage();
                         return;
                     }
 
@@ -221,12 +226,13 @@ ApplicationWindow {
         active: false
         source: "qrc:/EventPage.qml"
 
+        function closePage() {
+            eventPage.active = false;
+            swipeView.enabled = true;
+        }
         Connections {
             target: eventPage.item
-            onCloseClicked: {
-                eventPage.active = false;
-                swipeView.enabled = true;
-            }
+            onCloseClicked: eventPage.closePage()
             onLinkActivated: App.openLink(link)
             onLocationActivated: {
                 if (root.currentOSIsAndroid) {
@@ -234,6 +240,9 @@ ApplicationWindow {
                 } else {
                     mapView.active = true;
                     eventPage.item.enabled = false;
+                    if (mapView.item) {
+                        mapView.updateCoordinates();
+                    }
                 }
             }
             onAddToCalendarClicked: App.addToCalendar()
@@ -342,16 +351,19 @@ ApplicationWindow {
         Connections {
             target: mapView.item
 
-            onCloseRequested: {
-                console.log("onCloseRequested");
-                mapView.active = false;
-                eventPage.active = true;
-                eventPage.item.enabled = true;
-            }
+            onCloseRequested: mapView.closeView()
+        }
+
+        function closeView() {
+            console.log("closeView()");
+            mapView.active = false;
+            eventPage.active = true;
+            eventPage.item.enabled = true;
         }
 
         source: "qrc:/map.qml"
-        onLoaded: {
+        onLoaded: updateCoordinates()
+        function updateCoordinates() {
             mapView.item.latitude = App.latitude;
             mapView.item.longitude = App.longitude;
         }
