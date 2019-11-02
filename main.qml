@@ -36,7 +36,7 @@ ApplicationWindow {
     visible: true
     width: 800
     height: 600
-    title: qsTr("Radar")
+    title: qsTr("Radar App")
 
     readonly property bool currentOSIsAndroid: Qt.platform.os === "android"
 
@@ -80,7 +80,22 @@ ApplicationWindow {
 
             Label {
                 id: titleLabel
-                text: /*listView.currentItem ? listView.currentItem.text :*/ qsTr("Radar App")
+                text: {
+                    if (mapView.active) {
+                        return qsTr("Event on Map");
+                    }
+                    if (eventPage.active) {
+                        return qsTr("Event");
+                    }
+                    switch (swipeView.currentItem) {
+                    case location:
+                        return qsTr("Location");
+                    case results:
+                        return qsTr("Ongoing events");
+                    default:
+                        return qsTr("Radar")
+                    }
+                }
                 font.pixelSize: 20
                 elide: Label.ElideRight
                 horizontalAlignment: Qt.AlignHCenter
