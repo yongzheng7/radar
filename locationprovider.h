@@ -44,7 +44,7 @@ struct Location {
     {
         return QStringLiteral("name: %1, country %2, locality: %3, firstName: %4, lastName: %5,"
                               "postalCode: %6, thoroughfare: %7, directions: %8,"
-                              "latitude: %9, longitude: %10")
+                              "coordinates: %9")
             .arg(name, country, locality, firstName, lastName)
             .arg(postalCode)
             .arg(thoroughfare, directions, coordinate.toString(QGeoCoordinate::Degrees));
@@ -74,8 +74,10 @@ public:
 private:
     Q_DISABLE_COPY(LocationProvider)
     void processFinishedReply(QNetworkReply *reply);
+    void processBatchReply(QNetworkReply *reply);
     QNetworkReply *requestLocationByUUID(const QUuid &id);
-    Location extractLocationFromJSON(const QJsonDocument &json);
+    Location extractLocationFromJSONDocument(const QJsonDocument &json);
+    Location extractLocationFromJSONObject(const QJsonObject &obj);
 
 signals:
     void locationAvailable(const QUuid &id, const Location &location);
@@ -86,8 +88,8 @@ private:
     QHash< QUuid, Location > m_loadedLocations;
     QNetworkAccessManager *m_networkAccessManager{nullptr};
     DB *m_db{nullptr};
-    const QString locationUrlBase {QStringLiteral("https://radar.squat.net/api/1.2/location/")};
-    //Locations in city: https://radar.squat.net/api/1.2/search/location.json?facets[country][]=DE&facets[locality][]=Berlin&fields[]=directions&fields[]=title&fields[]=address&fields[]=uuid&fields[]=map
+    const QString m_locationUrlBase {QStringLiteral("https://radar.squat.net/api/1.2/location/")};
+    const QString m_locationsInCity {QStringLiteral("https://radar.squat.net/api/1.2/search/location.json?facets[country][]=%1&facets[locality][]=%2&fields[]=directions&fields[]=title&fields[]=address&fields[]=uuid&fields[]=map")};
     QString m_countryCode;
     QString m_city;
 };

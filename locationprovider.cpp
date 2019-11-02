@@ -32,10 +32,15 @@ LocationProvider::LocationProvider(QObject *parent)
 
 LocationProvider::~LocationProvider() = default;
 
-Location LocationProvider::extractLocationFromJSON(const QJsonDocument &json)
+Location LocationProvider::extractLocationFromJSONDocument(const QJsonDocument &json)
 {
     QJsonObject obj = json.object();
     //qDebug() << "obj: " << obj.toVariantMap();
+    return extractLocationFromJSONObject(obj);
+}
+
+Location LocationProvider::extractLocationFromJSONObject(const QJsonObject &obj)
+{
     Location location{};
     const auto &address = obj.value(QLatin1Literal("address")).toObject();
     location.country = address.value(QLatin1Literal("country")).toString();
@@ -68,18 +73,16 @@ void LocationProvider::processFinishedReply(QNetworkReply *reply)
     if (reply == nullptr) {
         return;
     }
-    if (!reply->url().toString().startsWith(locationUrlBase)) {
-        return;
-    }
-    qDebug() << __PRETTY_FUNCTION__;
-    //qDebug() << "reply.error" << reply->error();
-    //qDebug() << "reply.isFinished = " << reply->isFinished();
-    //qDebug() << "reply.size:" << reply->size();
-    //qDebug() << "Content-Type" << reply->header(QNetworkRequest::KnownHeaders::ContentTypeHeader);
-    if (!reply->isFinished()) {
+    // qDebug() << __PRETTY_FUNCTION__;
+    // qDebug() << "reply.error" << reply->error();
+    // qDebug() << "reply.isFinished = " << reply->isFinished();
+    // qDebug() << "reply.size:" << reply->size();
+    // qDebug() << "Content-Type" << reply->header(QNetworkRequest::KnownHeaders::ContentTypeHeader);
+    if (!reply->url().toString().startsWith(m_locationUrlBase)) {
         return;
     }
     qDebug() << "reply.url" << reply->url();
+
     if (reply->error() != QNetworkReply::NoError) {
         qCritical() << "Error processing request " << reply->request().url() << " Error:" << reply->error();
     }
@@ -87,14 +90,15 @@ void LocationProvider::processFinishedReply(QNetworkReply *reply)
         return;
     }
 
-    auto processReply = [this, buf = reply->readAll()]() noexcept {
+    auto processReply = [ this, buf = reply->readAll() ]() noexcept
+    {
         QJsonParseError err{};
         QJsonDocument json = QJsonDocument::fromJson(buf, &err);
         if (json.isNull()) {
             qCritical() << "Json parse error:" << err.errorString();
             return;
         }
-        auto location = extractLocationFromJSON(json);
+        auto location = extractLocationFromJSONDocument(json);
         m_locationsToLoad.remove(location.uuid);
         m_loadedLocations.insert(location.uuid, location);
         m_locationsToInsert.push_back(location);
@@ -103,6 +107,66 @@ void LocationProvider::processFinishedReply(QNetworkReply *reply)
             qDebug() << "ALL LOCATIONS LOADED!";
             m_db->insertLocations(m_locationsToInsert);
             m_locationsToInsert.clear();
+        }
+    };
+    reply->close();
+    reply->deleteLater();
+    processReply();
+}
+
+void LocationProvider::processBatchReply(QNetworkReply *reply)
+{
+    qDebug() << __PRETTY_FUNCTION__;
+    if (reply == nullptr) {
+        return;
+    }
+
+    qDebug() << "reply.url" << reply->url();
+
+    if (reply->url().toString() != m_locationsInCity.arg(m_countryCode, m_city)) {
+        return;
+    }
+
+    if (reply->error() != QNetworkReply::NoError) {
+        qCritical() << "Error processing request " << reply->request().url() << " Error:" << reply->error();
+    }
+    if (!reply->isFinished()) {
+        return;
+    }
+
+    auto processReply = [ this, buf = reply->readAll() ]() noexcept
+    {
+        QJsonParseError err{};
+        QJsonDocument json = QJsonDocument::fromJson(buf, &err);
+        if (json.isNull()) {
+            qCritical() << "Json parse error:" << err.errorString();
+            return;
+        }
+        auto rootObj = json.object();
+        auto resultIter = rootObj.constFind(QStringLiteral("result"));
+        if (resultIter != rootObj.constEnd()) {
+            const auto &result = resultIter->toObject();
+            qDebug() << "Got " << result.size() << " locations!";
+            for (const auto &locationValue : result) {
+                const auto &locationObj = locationValue.toObject();
+                if (locationObj.isEmpty()) {
+                    continue;
+                }
+                auto location = extractLocationFromJSONObject(locationObj);
+                qDebug() << "Got location: uuid=" << location.uuid << ", " << location.toString();
+                m_locationsToLoad.remove(location.uuid);
+                m_loadedLocations.insert(location.uuid, location);
+                m_locationsToInsert.push_back(location);
+                emit locationAvailable(location.uuid, location);
+            }
+        }
+        m_db->insertLocations(m_locationsToInsert);
+        m_locationsToInsert.clear();
+        if (m_locationsToLoad.isEmpty()) {
+            qDebug() << "ALL LOCATIONS LOADED!";
+        } else {
+            qDebug() << "Some locations are remained to be loaded.";
+            loadAllLocations();
         }
     };
     reply->close();
@@ -124,7 +188,7 @@ void LocationProvider::requestLocation(const QUuid &uuid)
 {
     const auto foundIt = m_loadedLocations.constFind(uuid);
     if (foundIt != m_loadedLocations.constEnd()) {
-        qDebug() << "Already loaded!";
+        qDebug() << "LocationProvider: Already loaded!";
         emit locationAvailable(uuid, foundIt.value());
         return;
     }
@@ -132,15 +196,15 @@ void LocationProvider::requestLocation(const QUuid &uuid)
     bool found;
     std::tie(found, location) = m_db->findLocation(uuid);
     if (found) {
-        qDebug() << "found in DB!";
+        qDebug() << "LocationProvider: found in DB!";
         m_loadedLocations.insert(uuid, location);
         emit locationAvailable(uuid, location);
         return;
     }
-    qDebug() << "Download needed!";
+    qDebug() << "LocationProvider: Download needed!";
     auto iter = m_locationsToLoad.constFind(uuid);
     if (iter != m_locationsToLoad.constEnd()) {
-        qDebug() << "Already in load queue!";
+        qDebug() << "LocationProvider: Already in load queue!";
         return;
     }
     m_locationsToLoad.insert(uuid);
@@ -158,6 +222,7 @@ std::pair< Location, bool > LocationProvider::getLoadedLocation(const QUuid &uui
 
 void LocationProvider::setLocationsToLoad(QSet< QUuid > &&locations, const QString &countryCode, const QString &city)
 {
+    qDebug() << __PRETTY_FUNCTION__ << "locations.size() = " << locations.size();
     m_countryCode = countryCode;
     m_city = city;
     m_locationsToInsert.clear();
@@ -179,12 +244,20 @@ void LocationProvider::setLocationsToLoad(QSet< QUuid > &&locations, const QStri
     }
     m_locationsToLoad.subtract(m_db->getAllUUIDs());
     m_locationsToInsert.reserve(m_locationsToLoad.size());
-    loadAllLocations();
+    if (m_locationsToLoad.size() > 0) {
+        QUrl requestUrl(m_locationsInCity.arg(m_countryCode, m_city));
+        QNetworkRequest request(requestUrl);
+        request.setRawHeader(QByteArrayLiteral("User-Agent"), QByteArrayLiteral("Radar App 1.0"));
+        qDebug() << "[Network] Requesting locations for city:" << requestUrl;
+        auto reply = m_networkAccessManager->get(request);
+        connect(reply, &QNetworkReply::finished, this, [ this, reply ]() noexcept { processBatchReply(reply); });
+    }
+    //loadAllLocations();
 }
 
 QNetworkReply *LocationProvider::requestLocationByUUID(const QUuid &id)
 {
-    QUrl requestUrl(QStringLiteral("%1%2.json").arg(locationUrlBase, id.toString(QUuid::WithoutBraces)));
+    QUrl requestUrl(QStringLiteral("%1%2.json").arg(m_locationUrlBase, id.toString(QUuid::WithoutBraces)));
     QNetworkRequest request(requestUrl);
     request.setRawHeader(QByteArrayLiteral("User-Agent"), QByteArrayLiteral("Radar App 1.0"));
     qDebug() << "[Network] Requesting location " << id;

@@ -51,12 +51,13 @@ QVariant DB::insertLocation(const Location &location)
     return q.lastInsertId();
 }
 
-QVariant DB::insertLocations(const QVector<Location> &locations)
+QVariant DB::insertLocations(const QVector< Location > &locations)
 {
     if (locations.empty()) {
         return {};
     }
     QSqlQuery q;
+    bool transactionIsRunning = QSqlDatabase::database().transaction();
     q.prepare(QStringLiteral("insert or replace into locations("
                              "uuid, name, country, locality, firstName, "
                              "lastName, postalCode, thoroughfare, "
@@ -83,13 +84,15 @@ QVariant DB::insertLocations(const QVector<Location> &locations)
         }
         q.exec();
     }
+    if (transactionIsRunning) {
+        QSqlDatabase::database().commit();
+    }
     return q.lastInsertId();
 }
 
-
 std::pair< bool, Location > DB::findLocation(QUuid uuid)
 {
-    qDebug() << "Loading location by uuid=" << uuid.toString(QUuid::WithoutBraces);
+    qDebug() << "DB: Loading location by uuid=" << uuid.toString(QUuid::WithoutBraces);
     QSqlQuery q;
     q.prepare(QStringLiteral("select name, country, locality, firstName,"
                              " lastName, postalCode, thoroughfare, directions,"
@@ -123,7 +126,7 @@ std::pair< bool, Location > DB::findLocation(QUuid uuid)
 QVector< Location > DB::getLocations(const QString &countryCode, const QString &city)
 {
     QVector< Location > results;
-    qDebug() << "Loading location for " << countryCode << "/" << city;
+    qDebug() << "DB: Loading all locations location for " << countryCode << "/" << city;
     QSqlQuery q;
     q.prepare(QStringLiteral("select uuid, name, firstName,"
                              " lastName, postalCode, thoroughfare, directions,"
@@ -195,7 +198,8 @@ QStringList DB::getAllCountries()
 QMap< QString, QStringList > DB::getAllCities()
 {
     QSqlQuery q;
-    q.prepare(QStringLiteral("select code, cities.name from countries, cities where countries.id = cities.countryid ORDER BY code,cities.name"));
+    q.prepare(QStringLiteral(
+        "select code, cities.name from countries, cities where countries.id = cities.countryid ORDER BY code,cities.name"));
     if (q.exec()) {
         QMap< QString, QStringList > result;
         while (q.next()) {
@@ -210,12 +214,16 @@ QMap< QString, QStringList > DB::getAllCities()
 QVariant DB::insertCountry(const QString &code, const QString &name, const QStringList &cities)
 {
     QSqlQuery q;
+    bool transaction = QSqlDatabase::database().transaction();
     q.prepare(QStringLiteral("INSERT OR REPLACE INTO countries(code, name) VALUES(:code, :name)"));
     q.bindValue(QStringLiteral(":code"), code);
     q.bindValue(QStringLiteral(":name"), name);
     q.exec();
     if (!q.lastInsertId().isValid()) {
         qCritical() << "Failed to insert into countries:" << q.lastError().text();
+        if (transaction) {
+            QSqlDatabase::database().rollback();
+        }
         return {};
     }
     int countryId = q.lastInsertId().toInt();
@@ -226,6 +234,10 @@ QVariant DB::insertCountry(const QString &code, const QString &name, const QStri
         q.bindValue(QStringLiteral(":name"), city);
         q.exec();
         Q_ASSERT(q.lastInsertId().isValid());
+    }
+    if (transaction) {
+        bool commited = QSqlDatabase::database().commit();
+        qDebug() << "insertCountry() transaction commited=" << commited;
     }
     return q.lastInsertId();
 }
@@ -271,7 +283,6 @@ QSqlError DB::initDB()
     if (tables.contains(QStringLiteral("locations"), Qt::CaseInsensitive)) {
         qCritical() << "table LOCATIONS already exists!";
     } else {
-
         if (!q.exec(QStringLiteral("create table locations("
                                    " uuid varchar primary key, name varchar,"
                                    " country varchar,"
