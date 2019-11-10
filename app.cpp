@@ -482,6 +482,8 @@ void App::doExtract()
             event.date = QDateTime::fromSecsSinceEpoch(event.timeStart).date();
             event.description = memberObj.value(QLatin1Literal("body")).toObject().value(QLatin1Literal("value")).toString();
             event.radarUrl = memberObj.value(QLatin1String("url")).toString();
+            auto price = memberObj.value(QLatin1String("price"));
+            event.price = price.isNull() ? QString() : price.toString();
             const auto &offline = memberObj.value(QLatin1Literal("offline")).toArray();
             if (!offline.empty()) {
                 const auto &offline0 = offline.first().toObject();
@@ -822,8 +824,7 @@ const QString &App::category() const
 
 const QString &App::price() const
 {
-    static QString unknown = QStringLiteral("Unknown");// m_currentEvent.price;
-    return unknown;
+    return m_currentEvent.price;
 }
 
 QString App::locationName() const

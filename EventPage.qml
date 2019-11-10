@@ -185,6 +185,7 @@ Cras nec ante sit amet augue sodales iaculis. Aliquam erat volutpat. Nam aliquet
             RowLayout {
                 Layout.fillWidth: true
                 spacing: 6
+                visible: root.price !== ""
                 Label {
                     Layout.alignment: Qt.AlignTop
                     text: qsTr("Price:")
@@ -194,6 +195,7 @@ Cras nec ante sit amet augue sodales iaculis. Aliquam erat volutpat. Nam aliquet
                     Layout.alignment: Qt.AlignTop
                     text: root.price
                     Layout.fillWidth: true
+                    wrapMode: TextEdit.Wrap
                 }
             }
             RowLayout {

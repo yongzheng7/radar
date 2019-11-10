@@ -33,6 +33,7 @@ struct Event {
     QDate date;
     qint64 timeStart{};
     qint64 timeEnd{};
+    QString price;
     QString category;
     QString radarUrl;
 };

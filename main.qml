@@ -127,6 +127,7 @@ ApplicationWindow {
 
     Dialog {
         anchors.centerIn: parent
+        width: parent.width - 40
         id: aboutDialog
 //        width: Math.min(contentWidth, root.width - 20)
 
