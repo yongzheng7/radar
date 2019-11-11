@@ -117,8 +117,16 @@ ApplicationWindow {
 //                        //onTriggered: settingsDialog.open()
 //                    }
                     MenuItem {
-                        text: "About"
+                        text: qsTr("About")
                         onTriggered: aboutDialog.open()
+                    }
+                    MenuItem {
+                        text: qsTr("Share App...")
+                        onTriggered: App.shareApp()
+                    }
+                    MenuItem {
+                        text: qsTr("Share via QR-code...")
+                        onTriggered: qrCodeDialog.open()
                     }
                 }
             }
@@ -126,10 +134,10 @@ ApplicationWindow {
     }
 
     Dialog {
-        anchors.centerIn: parent
-        width: parent.width - 40
         id: aboutDialog
-//        width: Math.min(contentWidth, root.width - 20)
+        anchors.centerIn: parent
+        horizontalPadding: 20
+        margins: 20
 
         title: qsTr("Radar App")
 
@@ -140,8 +148,25 @@ ApplicationWindow {
             text: qsTr("<p>Copyright © 2019</p>" +
                        "<p>This program comes with ABSOLUTELY NO WARRANTY.</p>" +
                        "<p>This is free software, and you are welcome to redistribute it under certain conditions.</p>"+
-                       "<a href=\"https://www.gnu.org/licenses/gpl-3.0.en.html\">Details…</a>")
+                       "<p><a href=\"https://www.gnu.org/licenses/gpl-3.0.en.html\">Details on License…</a></p>" +
+                       "<p><a href=\"https://0xacab.org/xandyx/radar-app/tree/master\">Source code…</a></p>")
             onLinkActivated: App.openLink(link)
+        }
+    }
+
+    Dialog {
+        id: qrCodeDialog
+        anchors.centerIn: parent
+        width: Math.min(parent.height*3/4, parent.width*3/4) - 40
+        height: width + 40
+
+        title: qsTr("Radar App")
+
+        Image {
+            id: image
+            anchors.fill: parent
+            fillMode: Image.PreserveAspectFit
+            source: "images/qrcode-apk.png"
         }
     }
 
@@ -307,11 +332,12 @@ ApplicationWindow {
         id: pleaseWait
 
         parent: Overlay.overlay
+        anchors.centerIn: parent
+
+        horizontalPadding: 20
+        verticalPadding: 20
+
         z: 100
-        x: Math.round((parent.width - width) / 2)
-        y: Math.round((parent.height - height)/2)
-        width: contentItem.implicitWidth + 20
-        height: contentItem.implicitHeight + 20
 
         focus: true
         modal: true

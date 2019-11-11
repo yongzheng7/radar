@@ -86,6 +86,8 @@ class App : public QObject
     Q_PROPERTY(int totalFoundEvents READ totalFoundEvents NOTIFY totalFoundEventsChanged)
     Q_PROPERTY(int todayFoundEvents READ todayFoundEvents NOTIFY todayFoundEventsChanged)
 
+    Q_PROPERTY(QString downloadLink MEMBER m_downloadLink CONSTANT)
+
 public:
     explicit App(QObject *parent = nullptr);
     ~App() override;
@@ -110,6 +112,7 @@ public:
     Q_INVOKABLE void stopUpdatePosition();
     Q_INVOKABLE void startUpdatePosition();
     Q_INVOKABLE void share();
+    Q_INVOKABLE void shareApp();
 
     Q_INVOKABLE void toggleRememberLocation();
     Q_INVOKABLE void cancelOperation();
@@ -201,6 +204,10 @@ private:
     void assignIsLoaded(bool loaded);
 
     QString sharableBody() const;
+    void rememberSelectedLocation();
+    void clearEventsModel();
+    void doSharing(const QString &title, const QString &body);
+    Q_DISABLE_COPY(App)
 
 private:
     QNetworkAccessManager *const m_networkAccessManager;
@@ -225,14 +232,11 @@ private:
     //QString m_cityRequestUrlBase = QStringLiteral("https://radar.squat.net/api/1.2/search/events.json?fields[]=uuid&limit=1&facets[country][]=%1");
     const QString m_cityRequestUrlBase = QStringLiteral("https://radar.squat.net/api/1.2/search/groups.json?fields[]=uuid&limit=1&facets[country][]=%1");
     //Locations in city: https://radar.squat.net/api/1.2/search/location.json?facets[country][]=DE&facets[locality][]=Berlin&fields[]=directions&fields[]=title&fields[]=address&fields[]=uuid&fields[]=map
+    const QString m_downloadLink = QStringLiteral("https://0xacab.org/xandyx/radar-app/raw/master/apk/android-build-debug.apk");
 
     QJsonObject m_events;
     QJsonObject m_groups;
 
     QDateTime m_start;
     QDateTime m_end;
-
-    Q_DISABLE_COPY(App)
-    void rememberSelectedLocation();
-    void clearEventsModel();
 };

@@ -724,17 +724,16 @@ void App::startUpdatePosition()
     // m_eventsModel->forceUpdatePosition();
 }
 
-void App::share()
+void App::doSharing(const QString &title, const QString &body)
 {
-    qDebug() << "Sharing event " << m_currentEvent.title << " with URL " << eventUrl();
 #ifndef Q_OS_ANDROID
     {
         QUrl url;
         url.setScheme(QStringLiteral("mailto"));
         QUrlQuery query;
         query.setQueryItems({
-            {QStringLiteral("subject"), title()},
-            {QStringLiteral("body"), sharableBody()},
+            {QStringLiteral("subject"), title},
+            {QStringLiteral("body"), body},
         });
         url.setQuery(query);
         QDesktopServices::openUrl(url);
@@ -749,10 +748,10 @@ void App::share()
     QAndroidIntent intent(action);
     intent.handle().callObjectMethod("putExtra", "(Ljava/lang/String;Ljava/lang/String;)Landroid/content/Intent;",
                                      extraSubject.object< jstring >(),
-                                     QAndroidJniObject::fromString(title()).object< jstring >());
+                                     QAndroidJniObject::fromString(title).object< jstring >());
     intent.handle().callObjectMethod("putExtra", "(Ljava/lang/String;Ljava/lang/String;)Landroid/content/Intent;",
                                      extraText.object< jstring >(),
-                                     QAndroidJniObject::fromString(sharableBody()).object< jstring >());
+                                     QAndroidJniObject::fromString(body).object< jstring >());
     intent.handle().callObjectMethod("setType", "(Ljava/lang/String;)Landroid/content/Intent;",
                                      QAndroidJniObject::fromString(QStringLiteral("text/plain")).object< jstring >());
     auto chooser = QAndroidJniObject::callStaticObjectMethod(
@@ -761,6 +760,20 @@ void App::share()
         QAndroidJniObject::fromString(QStringLiteral("Share URL")).object< jstring >());
     QtAndroid::startActivity(chooser, 0, nullptr);
 #endif
+}
+
+void App::share()
+{
+    qDebug() << "Sharing event " << m_currentEvent.title << " with URL " << eventUrl();
+    const auto &linkTitle = title();
+    const auto &body = sharableBody();
+
+    doSharing(linkTitle, body);
+}
+
+void App::shareApp()
+{
+    doSharing(tr("Radar App"), tr("Link to Android APK: %1").arg(m_downloadLink));
 }
 
 void App::toggleRememberLocation()
