@@ -182,6 +182,8 @@ signals:
     void totalFoundEventsChanged(QPrivateSignal);
     void todayFoundEventsChanged(QPrivateSignal);
 
+    void failedToOpenMapApp(QPrivateSignal);
+
 private:
     using MemberFunc = void (App::*)();
     void setupFSM();

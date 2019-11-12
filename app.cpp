@@ -37,6 +37,7 @@
 
 
 #ifdef Q_OS_ANDROID
+#include <QAndroidJniEnvironment>
 #include <QtAndroid>
 #include <QtAndroidExtras/QAndroidIntent>
 #endif
@@ -669,6 +670,13 @@ void App::showLocation()
     QAndroidIntent intent(QStringLiteral("android.intent.action.VIEW"));
     intent.handle().callObjectMethod("setData", "(Landroid/net/Uri;)Landroid/content/Intent;", uri.object< jobject >());
     QtAndroid::startActivity(intent.handle(), 0, nullptr);
+    QAndroidJniEnvironment env;
+    if (env->ExceptionCheck()) {
+        qCritical() << "Exception:";
+        env->ExceptionDescribe();
+        env->ExceptionClear();
+        emit failedToOpenMapApp(QPrivateSignal());
+    }
 #endif
 }
 
@@ -676,14 +684,22 @@ void App::addToCalendar()
 {
     qDebug() << __PRETTY_FUNCTION__;
 #ifdef Q_OS_ANDROID
-    auto getCalendarContractStaticField = [](const char *field, const char *sig) {
-        return QAndroidJniObject::getStaticObjectField("android/provider/CalendarContract$Events", field, sig);
+    QAndroidJniEnvironment env;
+    auto getCalendarContractEventsColumnsStaticField = [](const char *field, const char *sig) {
+        auto fieldId
+            = QAndroidJniObject::getStaticObjectField("android/provider/CalendarContract$EventsColumns", field, sig);
+        qDebug() << "field name: " << field << ", signature: " << sig << " fieldID: " << fieldId.object();
+        return fieldId;
     };
+
     QAndroidIntent intent(QStringLiteral("android.intent.action.INSERT"));
-    auto contentUri = getCalendarContractStaticField("CONTENT_URI", "Landroid/net/Uri;");
+    qDebug() << "setting CONTENT_URI...";
+    auto contentUri = QAndroidJniObject::getStaticObjectField("android/provider/CalendarContract$Events", "CONTENT_URI",
+                                                              "Landroid/net/Uri;");
     intent.handle().callObjectMethod("setData", "(Landroid/net/Uri;)Landroid/content/Intent;",
                                      contentUri.object< jobject >());
-    auto eventTitleJniObject = getCalendarContractStaticField("TITLE", "Ljava/lang/String;");
+    qDebug() << "setting TITLE...";
+    auto eventTitleJniObject = getCalendarContractEventsColumnsStaticField("TITLE", "Ljava/lang/String;");
     auto titleJniObject
         = QAndroidJniObject::fromString(QStringLiteral("%1 at %2").arg(m_currentEvent.title, locationName()));
     qDebug() << "Setting event title to " << m_currentEvent.title;
@@ -697,19 +713,26 @@ void App::addToCalendar()
                                                                 "Ljava/lang/String;");
     intent.handle().callObjectMethod("putExtra", "(Ljava/lang/String;J)Landroid/content/Intent;",
                                      endTimeExtra.object< jobject >(), m_currentEvent.timeEnd * 1000ll);
-    auto descriptionExtra = getCalendarContractStaticField("DESCRIPTION", "Ljava/lang/String;");
+    qDebug() << "setting DESCRIPTION...";
+    auto descriptionExtra = getCalendarContractEventsColumnsStaticField("DESCRIPTION", "Ljava/lang/String;");
     intent.handle().callObjectMethod("putExtra", "(Ljava/lang/String;Ljava/lang/String;)Landroid/content/Intent;",
                                      descriptionExtra.object< jobject >(),
                                      QAndroidJniObject::fromString(m_currentEvent.description).object< jobject >());
 
-    auto locationExtra = getCalendarContractStaticField("EVENT_LOCATION", "Ljava/lang/String;");
+    qDebug() << "setting EVENT_LOCATION...";
+    auto locationExtra = getCalendarContractEventsColumnsStaticField("EVENT_LOCATION", "Ljava/lang/String;");
     intent.handle().callObjectMethod("putExtra", "(Ljava/lang/String;Ljava/lang/String;)Landroid/content/Intent;",
                                      locationExtra.object< jobject >(),
                                      QAndroidJniObject::fromString(locationAddress()).object< jobject >());
-    intent.handle().callObjectMethod("putExtra", "(Ljava/lang/String;Ljava/lang/String;)Landroid/content/Intent;",
-                                     QAndroidJniObject::fromString(QStringLiteral("eventLocation")).object< jobject >(),
-                                     QAndroidJniObject::fromString(locationAddress()).object< jobject >());
-    QtAndroid::startActivity(intent.handle(), 0, nullptr);
+
+
+    qDebug() << "Starting activity...";
+    QtAndroid::startActivity(intent.handle(), 0);
+    if (env->ExceptionCheck()) {
+        qCritical() << "Exception:";
+        env->ExceptionDescribe();
+        env->ExceptionClear();
+    }
 #endif
 }
 
@@ -759,6 +782,13 @@ void App::doSharing(const QString &title, const QString &body)
         "(Landroid/content/Intent;Ljava/lang/CharSequence;)Landroid/content/Intent;", intent.handle().object(),
         QAndroidJniObject::fromString(QStringLiteral("Share URL")).object< jstring >());
     QtAndroid::startActivity(chooser, 0, nullptr);
+
+    QAndroidJniEnvironment env;
+    if (env->ExceptionCheck()) {
+        qCritical() << "Exception:";
+        env->ExceptionDescribe();
+        env->ExceptionClear();
+    }
 #endif
 }
 
