@@ -40,10 +40,11 @@ int main(int argc, char *argv[])
     QGuiApplication app(argc, argv);
     QGuiApplication::setOrganizationName(QStringLiteral("UnknownDeveloper"));
     QGuiApplication::setOrganizationDomain(QStringLiteral("unknownsoft.org"));
-    QGuiApplication::setApplicationName(QStringLiteral("Radar-App"));
+    QGuiApplication::setApplicationName(QStringLiteral("Radar App"));
     QGuiApplication::setApplicationDisplayName(QStringLiteral("Radar Application"));
     QGuiApplication::setWindowIcon(QIcon(QStringLiteral("qrc:/icons/app-xhdpi.png")));
 
+    QIcon::setThemeName(QStringLiteral("radar"));
     auto font = QGuiApplication::font();
     constexpr auto fontSizePt = 16;
     font.setPointSize(fontSizePt);

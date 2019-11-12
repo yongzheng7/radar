@@ -22,6 +22,8 @@ import QtQuick.Controls.Material 2.12
 import QtQuick.Controls.Universal 2.12
 import Qt.labs.settings 1.0
 
+import Qt.labs.platform 1.1 as Platform
+
 import QtQuick.Layouts 1.11
 
 import org.radar.app 1.0
@@ -105,6 +107,10 @@ ApplicationWindow {
 
             ToolButton {
                 text: "⋮"
+                font.pointSize: root.font.pointSize*1.5
+                font.bold: true
+                Layout.alignment: Qt.AlignVCenter
+
                 onClicked: optionsMenu.open()
 
                 Menu {
@@ -168,6 +174,17 @@ ApplicationWindow {
             fillMode: Image.PreserveAspectFit
             source: "images/qrcode-apk.png"
         }
+    }
+
+    Platform.MessageDialog {
+        id: noMapApplication
+
+        text: qsTr("No Maps application available.")
+        informativeText: qsTr("Do you want to see event location with web browser?")
+
+        buttons: Platform.MessageDialog.No | Platform.MessageDialog.Yes
+
+        onYesClicked: Qt.openUrlExternally(App.url)
     }
 
     ColumnLayout {
@@ -325,6 +342,7 @@ ApplicationWindow {
             target: App
             onCurrentEventChanged: eventPage.updateEventInfo()
             onCurrentLocationChanged: eventPage.updateLocationInfo()
+            onFailedToOpenMapApp: noMapApplication.open()
         }
     }
 
