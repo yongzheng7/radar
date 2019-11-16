@@ -116,6 +116,7 @@ public:
 
     Q_INVOKABLE void toggleRememberLocation();
     Q_INVOKABLE void cancelOperation();
+    Q_INVOKABLE void resetNetworkConnection();
 
     QAbstractListModel *eventsModel() const;
     bool noEventsFound() const;

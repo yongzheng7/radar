@@ -822,6 +822,11 @@ void App::cancelOperation()
     emit userCancelled(QPrivateSignal());
 }
 
+void App::resetNetworkConnection()
+{
+    m_networkAccessManager->clearConnectionCache();
+}
+
 QAbstractListModel *App::eventsModel() const
 {
     return m_eventsModel;

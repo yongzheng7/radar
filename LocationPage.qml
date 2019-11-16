@@ -84,7 +84,10 @@ Item {
         Button {
             id: reload
             text: qsTr("Reload...")
-            onClicked: App.reloadEvents()
+            onClicked: {
+                App.resetNetworkConnection();
+                App.reloadEvents();
+            }
             enabled: App.state === AppStates.Idle
         }
     }

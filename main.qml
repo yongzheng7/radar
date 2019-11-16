@@ -187,6 +187,15 @@ ApplicationWindow {
         onYesClicked: Qt.openUrlExternally(App.url)
     }
 
+    Platform.MessageDialog {
+        id: loadFailedDialog
+
+        text: qsTr("Failed to load data")
+        informativeText: qsTr("Network Errror")
+
+        buttons: Platform.MessageDialog.Ok
+    }
+
     ColumnLayout {
         id: column
         anchors.fill: parent
@@ -464,5 +473,6 @@ ApplicationWindow {
         onStateChanged: {
             console.log("State=%1".arg(App.state));
         }
+        onLoadFailed: loadFailedDialog.open()
     }
 }
