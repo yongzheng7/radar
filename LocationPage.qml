@@ -81,5 +81,11 @@ Item {
         Text {
             text: qsTr("%1 events today".arg(App.todayFoundEvents))
         }
+        Button {
+            id: reload
+            text: qsTr("Reload...")
+            onClicked: App.reloadEvents()
+            enabled: App.state === AppStates.Idle
+        }
     }
 }

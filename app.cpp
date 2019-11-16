@@ -578,6 +578,7 @@ void App::getPermissions()
 
 void App::reload()
 {
+    qDebug() << __PRETTY_FUNCTION__;
     if (!m_fsm.isRunning()) {
         connect(&m_fsm, &QStateMachine::runningChanged, this, [this](bool running) {
             if (running) {
@@ -594,6 +595,7 @@ void App::reload()
 
 void App::reloadEvents()
 {
+    qDebug() << __PRETTY_FUNCTION__;
     if (!m_fsm.isRunning()) {
         connect(&m_fsm, &QStateMachine::runningChanged, this, [this](bool running) {
             if (running) {

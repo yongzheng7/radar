@@ -206,6 +206,7 @@ ApplicationWindow {
                 id: location
                 active: SwipeView.isCurrentItem || SwipeView.isNextItem || SwipeView.isPreviousItem
                 source: "qrc:/LocationPage.qml"
+                readonly property int index: SwipeView.index
             }
 
 //            Loader {
@@ -216,8 +217,9 @@ ApplicationWindow {
 
             Loader {
                 id: results
-                active: SwipeView.isCurrentItem || SwipeView.isNextItem || SwipeView.isPreviousItem
+                active: App.isLoaded && (SwipeView.isCurrentItem || SwipeView.isNextItem || SwipeView.isPreviousItem)
                 source: "qrc:/ResultsPage.qml"
+                readonly property int index: SwipeView.index
                 Connections {
                     target: results.item
                     onItemClicked: {
@@ -270,6 +272,9 @@ ApplicationWindow {
                 focus: true
                 enabled: {
                     var index = swipeView.currentIndex;
+                    if (index === location.index && !App.isLoaded) {
+                        return false;
+                    }
                     return index >= 0 && index < swipeView.count - 1;
                 }
                 onClicked: root.setNext()
