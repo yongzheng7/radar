@@ -39,6 +39,8 @@ public:
     QStringList getAllCountries();
     QMap<QString, QStringList> getAllCities();
     QVariant insertCountry(const QString &code, const QString &name, const QStringList &cities);
+    void clearCountries();
+    void clearCities();
 private:
     Q_DISABLE_COPY(DB)
 };

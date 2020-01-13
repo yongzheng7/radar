@@ -112,6 +112,7 @@ FocusScope {
                     anchors.leftMargin: 4
 
                     text: model.startDateTime
+                    textFormat: Text.PlainText
                     font.italic: true
                     horizontalAlignment: Text.AlignLeft
                     verticalAlignment: Text.AlignTop
@@ -126,8 +127,12 @@ FocusScope {
                     anchors.bottom: location.visible ? location.top : mouseArea.bottom
                     anchors.left: date.right
 
-                    text: model.title
-                    font.bold: true
+                    text: {
+                        var category = model.category;
+                        return category === "" ?
+                                    model.title :
+                                    "<strong>%1</strong> [%2]".arg(model.title).arg(category);
+                    }
                     wrapMode: Text.WordWrap
                     horizontalAlignment: Text.AlignRight
                     color: mouseArea.textColor
@@ -135,6 +140,7 @@ FocusScope {
                 Text {
                     id: distance
                     text: model.distance
+                    textFormat: Text.PlainText
                     anchors.margins: 4
                     anchors.top: date.bottom
                     anchors.left: mouseArea.left
@@ -153,6 +159,7 @@ FocusScope {
                     anchors.left: distance.text !== "" ? distance.right : date.right
 
                     text: model.locationName
+                    textFormat: Text.PlainText
                     wrapMode: Text.WordWrap
                     horizontalAlignment: Text.AlignRight
                     color: mouseArea.textColor

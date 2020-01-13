@@ -123,6 +123,11 @@ ApplicationWindow {
 //                        //onTriggered: settingsDialog.open()
 //                    }
                     MenuItem {
+                        text: qsTr("Reload Countries")
+                        onTriggered: App.refreshCountries();
+                    }
+
+                    MenuItem {
                         text: qsTr("About")
                         onTriggered: aboutDialog.open()
                     }

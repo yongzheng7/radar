@@ -1,4 +1,7 @@
-QT += quick positioning location
+QT += quick positioning sql
+QT -= widgets
+
+!android: QT += location
 CONFIG += c++14
 
 # The following define makes your compiler emit warnings if you use
@@ -50,8 +53,6 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 android {
     QT += androidextras
 }
-
-QT += sql
 
 HEADERS += \
     all_countries.h \

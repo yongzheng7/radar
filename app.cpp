@@ -237,6 +237,7 @@ void App::doReload()
 {
     qDebug() << "doReload...";
     assignIsLoaded(false);
+    initTimeRange();
     clearEventsModel();
     if (m_networkAccessManager->networkAccessible() != QNetworkAccessManager::NetworkAccessibility::Accessible) {
         qDebug() << "Network is not accessible!";
@@ -253,6 +254,8 @@ void App::doReload()
         capitalized[0] = capitalized[0].toUpper();
         query.addQueryItem(QStringLiteral("facets[city][]"), capitalized);
     }
+    query.addQueryItem(QStringLiteral("filter[~and][search_api_aggregation_1][~gt]"), QString::number(m_start.toSecsSinceEpoch()-24*3600));
+    query.addQueryItem(QStringLiteral("filter[~or][search_api_aggregation_1][~lt]"), QString::number(m_end.toSecsSinceEpoch()+30*24*3600));
     requestUrl.setQuery(query);
     qDebug() << "requestUrl=" << requestUrl.toString();
     request.setUrl(requestUrl);
@@ -338,6 +341,10 @@ void App::doLoadCountries()
 
 void App::doLoadCities()
 {
+    if (m_allCountries.isEmpty()) {
+        emit loadFailed(QPrivateSignal());
+        return;
+    }
     m_citiesByCountryCode.clear();
     m_citiesByCountryCode = m_db->getAllCities();
     if (!m_citiesByCountryCode.empty()) {
@@ -492,6 +499,15 @@ void App::doExtract()
                 const auto &uuid = offline0.value(QLatin1Literal("id")).toString();
                 event.locationID = QUuid::fromString(uuid);
                 locationIDs.insert(event.locationID);
+            }
+            const auto &categoriesIt = memberObj.constFind(QLatin1String("category"));
+            if (categoriesIt != memberObj.constEnd()) {
+                const auto &categories = categoriesIt->toArray();
+                for (const auto &item : categories) {
+                    event.category += item.toObject().value(QStringLiteral("name")).toString();
+                    event.category.append(QLatin1String(" | "));
+                }
+                event.category.chop(3);
             }
             events.push_back(event);
         }
@@ -827,6 +843,17 @@ void App::resetNetworkConnection()
     m_networkAccessManager->clearConnectionCache();
 }
 
+void App::refreshCountries()
+{
+    m_isLoaded = false;
+    m_countriesToLoad.clear();
+    m_citiesByCountryCode.clear();
+
+    m_db->clearCountries();
+    m_db->clearCities();
+    reload();
+}
+
 QAbstractListModel *App::eventsModel() const
 {
     return m_eventsModel;
@@ -862,8 +889,12 @@ QString App::duration() const
     auto start = m_currentEvent.timeStart;
     auto end = m_currentEvent.timeEnd;
     auto secsTo = end - start;
-    auto hours = secsTo / 3600;
-    auto minutes = static_cast<qulonglong>((secsTo - (hours * 3600)) / 60);
+    auto days = secsTo / 86400;
+    auto hours = (secsTo / 3600) % 24;
+    auto minutes = static_cast<qulonglong>(secsTo / 60) % 60;
+    if (days) {
+        return tr("%1 days, %2 hours %3 minutes").arg(days).arg(hours).arg(minutes);
+    }
     return tr("%1:%2").arg(hours).arg(minutes, 2, 10, QLatin1Char('0'));
 }
 

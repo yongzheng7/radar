@@ -86,6 +86,21 @@ Cras nec ante sit amet augue sodales iaculis. Aliquam erat volutpat. Nam aliquet
                 wrapMode: Text.Wrap
             }
             RowLayout {
+                Layout.fillWidth: true
+                spacing: 6
+                visible: root.category.length > 0
+                Label {
+                    Layout.alignment: Qt.AlignTop
+                    text: qsTr("Category:")
+                    font.bold: true
+                }
+                Text {
+                    Layout.alignment: Qt.AlignTop
+                    Layout.fillWidth: true
+                    text: root.category
+                }
+            }
+            RowLayout {
                 Layout.alignment: Qt.AlignTop
                 Layout.fillWidth: true
                 height: Layout.preferredHeight
@@ -130,7 +145,6 @@ Cras nec ante sit amet augue sodales iaculis. Aliquam erat volutpat. Nam aliquet
                     }
                 }
             }
-
             RowLayout {
                 Layout.fillWidth: true
                 height: Layout.preferredHeight
@@ -147,7 +161,6 @@ Cras nec ante sit amet augue sodales iaculis. Aliquam erat volutpat. Nam aliquet
                     wrapMode: TextEdit.Wrap
                 }
             }
-
             RowLayout {
                 id: durationLayout
                 visible: root.duration !== ""
@@ -164,22 +177,6 @@ Cras nec ante sit amet augue sodales iaculis. Aliquam erat volutpat. Nam aliquet
                     Layout.fillWidth: true
                     text: root.duration
                     wrapMode: TextEdit.Wrap
-                }
-            }
-
-            RowLayout {
-                Layout.fillWidth: true
-                spacing: 6
-                visible: root.category.length > 0
-                Label {
-                    Layout.alignment: Qt.AlignTop
-                    text: qsTr("Category:")
-                    font.bold: true
-                }
-                Text {
-                    Layout.alignment: Qt.AlignTop
-                    Layout.fillWidth: true
-                    text: root.category
                 }
             }
             RowLayout {

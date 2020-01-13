@@ -242,6 +242,29 @@ QVariant DB::insertCountry(const QString &code, const QString &name, const QStri
     return q.lastInsertId();
 }
 
+void DB::clearCountries()
+{
+    qDebug() << __PRETTY_FUNCTION__;
+    QSqlQuery q;
+    q.prepare(QStringLiteral("delete from countries"));
+    if (q.exec()) {
+        qDebug() << "success";
+    }
+    qCritical() << "Error deleting countries:" << q.lastError().text();
+}
+
+void DB::clearCities()
+{
+    qDebug() << __PRETTY_FUNCTION__;
+    QSqlQuery q;
+    q.prepare(QStringLiteral("delete from cities"));
+    if (q.exec()) {
+        qDebug() << "success";
+    }
+    qCritical() << "Error deleting cities:" << q.lastError().text();
+
+}
+
 DB::DB(QObject *parent)
     : QObject(parent)
 {
