@@ -56,6 +56,7 @@ class App : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(bool isLoaded READ isLoaded NOTIFY isLoadedChanged)
+    Q_PROPERTY(bool isFirstLoad READ isFirstLoad NOTIFY isFirstLoadChanged)
     Q_PROPERTY(bool isConnected READ isConnected NOTIFY isConnectedChanged)
     Q_PROPERTY(QString country READ country WRITE setCountry NOTIFY countryChanged)
     Q_PROPERTY(QString city READ city WRITE setCity NOTIFY cityChanged)
@@ -124,6 +125,7 @@ public:
 
     QAbstractListModel *eventsModel() const;
     bool noEventsFound() const;
+    bool isFirstLoad() const;
 
     const QString &title() const;
     const QString &description() const;
@@ -157,6 +159,7 @@ signals:
     void citiesAlreadyLoaded(QPrivateSignal);
 
     void isLoadedChanged(QPrivateSignal);
+    void isFirstLoadChanged(QPrivateSignal);
     void isConnectedChanged(QPrivateSignal);
     void countryChanged(QPrivateSignal);
     void cityChanged(QPrivateSignal);

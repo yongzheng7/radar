@@ -65,6 +65,13 @@ void EventsModel::setEvents(QVector< Event > &&events)
     endResetModel();
 }
 
+void EventsModel::appendEvents(QVector<Event> &&events)
+{
+    beginInsertRows(QModelIndex(), m_events.size(), m_events.size() + events.size() - 1);
+    m_events.append(events);
+    endInsertRows();
+}
+
 void EventsModel::setEvents(const QVector< Event > &events)
 {
     beginResetModel();

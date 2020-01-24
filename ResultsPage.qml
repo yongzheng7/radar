@@ -31,12 +31,12 @@ FocusScope {
     signal itemClicked(int index);
 
     function positionToTodaysEvents() {
+        console.log("positionToTodaysEvents()");
         let indexOfTodaysFirstEvent = App.getFirstTodaysItemIndex();
         if (indexOfTodaysFirstEvent !== -1) {
             resultsList.positionViewAtIndex(indexOfTodaysFirstEvent, ListView.Beginning);
         }
     }
-
 
     Component {
         id: sectionHeading
@@ -68,12 +68,17 @@ FocusScope {
         text: qsTr("Nothing found for %1 %2".arg(App.country).arg(App.city))
 
     }
+
     ListView {
         id: resultsList
 
         activeFocusOnTab: true
 
         visible: !App.noEventsFound
+
+        onVisibleChanged: {
+            console.log("!! resultsList.visible=%1".arg(resultsList.visible));
+        }
 
         anchors.fill: parent
         model: App.eventsModel
@@ -89,8 +94,13 @@ FocusScope {
         opacity: Math.max(0.0, 1.0 - Math.abs(verticalOvershoot) / height)
 
         property var overShoot: resultsList.verticalOvershoot
+
         onOverShootChanged: {
             console.log("% verticalOvershoot=" + (verticalOvershoot/height) * 100);
+            if (verticalOvershoot > root.height/5) {
+                console.log("Load more needed...");
+                App.reloadEvents();
+            }
         }
 
         delegate: Loader {

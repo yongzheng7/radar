@@ -35,7 +35,6 @@
 #include <chrono>
 #include <utility>
 
-
 #ifdef Q_OS_ANDROID
 #include <QAndroidJniEnvironment>
 #include <QtAndroid>
@@ -59,9 +58,10 @@ App::App(QObject *parent)
     qRegisterMetaType< Location >();
     auto configuration = m_networkAccessManager->configuration();
     constexpr auto timeout = 30;
-    configuration.setConnectTimeout(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::seconds(timeout)).count());
+    configuration.setConnectTimeout(
+        std::chrono::duration_cast< std::chrono::milliseconds >(std::chrono::seconds(timeout)).count());
     m_networkAccessManager->setConfiguration(configuration);
-    //m_locationProvider->setNetworkAccessManager(m_networkAccessManager);
+    // m_locationProvider->setNetworkAccessManager(m_networkAccessManager);
     QSqlError err = m_db->initDB();
     if (err.type() != QSqlError::NoError) {
         qCritical() << err.text();
@@ -89,8 +89,8 @@ App::App(QObject *parent)
                 emit this->currentLocationChanged(QPrivateSignal());
             });
 
-    connect(m_networkAccessManager, &QNetworkAccessManager::networkAccessibleChanged, this,
-            [this] (const QNetworkAccessManager::NetworkAccessibility accessible) noexcept {
+    connect(m_networkAccessManager, &QNetworkAccessManager::networkAccessibleChanged,
+            this, [this](const QNetworkAccessManager::NetworkAccessibility accessible) noexcept {
                 qDebug() << "m_networkAccessManager = " << accessible;
                 if (!isLoaded() && accessible == QNetworkAccessManager::NetworkAccessibility::Accessible) {
                     emit this->reloadEventsRequested(QPrivateSignal());
@@ -136,13 +136,12 @@ void App::setupFSM()
     idle->addTransition(this, &App::reloadEventsRequested, loading);
     loading->addTransition(this, &App::userCancelled, idle);
     loading->addTransition(this, &App::loadCompleted, extraction);
-    loading->addTransition(this, &App::loadFailed, idle); //FIXME
+    loading->addTransition(this, &App::loadFailed, idle);// FIXME
     extraction->addTransition(this, &App::eventListReady, filtering);
     extraction->addTransition(this, &App::userCancelled, idle);
 
     filtering->addTransition(this, &App::userCancelled, idle);
-    auto getEventsFinished =
-            filtering->addTransition(this, &App::eventListFiltered, idle);
+    auto getEventsFinished = filtering->addTransition(this, &App::eventListFiltered, idle);
     connect(getEventsFinished, &QAbstractTransition::triggered, this, [this]() noexcept {
         assignIsLoaded(true);
         if (isRememberLocationOn()) {
@@ -156,7 +155,7 @@ QState *App::addState(AppState::Values stateEnumVal)
     auto state = new QState(&m_fsm);
     state->assignProperty(this, "state", QVariant::fromValue< AppState::Values >(stateEnumVal));
     connect(state, &QAbstractState::entered, this, [stateEnumVal]() noexcept {
-        qDebug() << "FSM State:" << QMetaEnum::fromType<AppState::Values>().valueToKey(static_cast<int>(stateEnumVal));
+        qDebug() << "FSM State:" << QMetaEnum::fromType< AppState::Values >().valueToKey(static_cast< int >(stateEnumVal));
     });
     return state;
 }
@@ -227,6 +226,7 @@ const QString &App::city() const
 
 void App::clearEventsModel()
 {
+    qDebug() << __PRETTY_FUNCTION__;
     m_allEvents.clear();
     m_eventsModel->setEvents({});
     emit todayFoundEventsChanged(QPrivateSignal());
@@ -256,9 +256,11 @@ void App::doReload()
         capitalized[0] = capitalized[0].toUpper();
         query.addQueryItem(QStringLiteral("facets[city][]"), capitalized);
     }
-    query.addQueryItem(QStringLiteral("filter[~and][search_api_aggregation_1][~gt]"), QString::number(m_start.toSecsSinceEpoch()-24*3600));
+    query.addQueryItem(QStringLiteral("filter[~and][search_api_aggregation_1][~gt]"),
+                       QString::number(m_start.toSecsSinceEpoch() - 24 * 3600));
     if (m_firstLoad) {
-        query.addQueryItem(QStringLiteral("filter[~or][search_api_aggregation_1][~lt]"), QString::number(m_end.toSecsSinceEpoch()+30*24*3600));
+        query.addQueryItem(QStringLiteral("filter[~or][search_api_aggregation_1][~lt]"),
+                           QString::number(m_end.toSecsSinceEpoch() + 30 * 24 * 3600));
     } else {
         query.addQueryItem(QStringLiteral("offset"), QString::number(m_eventsModel->rowCount(QModelIndex())));
         query.addQueryItem(QStringLiteral("limit"), QString::number(100));
@@ -295,6 +297,7 @@ void App::doReload()
             // qDebug() << "result: " << m_events;
             qDebug() << "loadCompleted!";
             m_firstLoad = false;
+            emit isFirstLoadChanged(QPrivateSignal());
             emit this->loadCompleted(QPrivateSignal());
             reply->close();
             reply->deleteLater();
@@ -331,7 +334,7 @@ void App::doLoadCountries()
         qDebug() << "Content-Type" << reply->header(QNetworkRequest::KnownHeaders::ContentTypeHeader);
         if (reply->isFinished()) {
             QByteArray buf = reply->readAll();
-            //qDebug() << buf;
+            // qDebug() << buf;
             QJsonParseError err{};
             QJsonDocument json = QJsonDocument::fromJson(buf, &err);
             if (json.isNull()) {
@@ -394,17 +397,17 @@ void App::doLoadCities()
                     emit loadFailed(QPrivateSignal());
                 }
                 const auto &cities = json.object();
-                const auto facets = cities.constFind(QLatin1Literal("facets"));
+                const auto facets = cities.constFind(QLatin1String("facets"));
                 if (facets != cities.constEnd()) {
                     const auto &facetsObj = facets->toObject();
-                    const auto cityArray = facetsObj.constFind(QLatin1Literal("city"));
+                    const auto cityArray = facetsObj.constFind(QLatin1String("city"));
                     if (cityArray != facetsObj.constEnd()) {
                         QStringList citiesForCountry;
                         const auto &jsonArray = cityArray->toArray();
                         citiesForCountry.reserve(jsonArray.size());
                         for (const auto &city : jsonArray) {
                             const auto &cityObj = city.toObject();
-                            citiesForCountry.push_back(cityObj.value(QLatin1Literal("filter")).toString());
+                            citiesForCountry.push_back(cityObj.value(QLatin1String("filter")).toString());
                         }
                         qDebug() << "Country: " << countryCode << " Cities:" << citiesForCountry;
                         m_citiesByCountryCode.insert(countryCode, citiesForCountry);
@@ -522,7 +525,8 @@ void App::doExtract()
     }
     locationIDs.squeeze();
     qDebug() << "Locations count:" << locationIDs.size();
-    m_allEvents.append(events);
+    //    m_allEvents.append(events);
+    m_allEvents = std::move(events);
     m_locationProvider->setNetworkAccessManager(m_networkAccessManager);
 
     auto capitalized = m_city;
@@ -554,7 +558,7 @@ void App::doFiltering()
     std::sort(filtered.begin(), filtered.end(), [](const Event &left, const Event &right) noexcept {
         return left.timeStart < right.timeStart;
     });
-    m_eventsModel->setEvents(std::move(filtered));
+    m_eventsModel->appendEvents(std::move(filtered));
     emit eventsModelChanged(QPrivateSignal());
     emit eventListFiltered(QPrivateSignal());
     emit totalFoundEventsChanged(QPrivateSignal());
@@ -665,6 +669,7 @@ void App::setCity(const QString &city)
     if (!isLoaded() || m_city != city) {
         m_city = city;
         m_firstLoad = true;
+        emit isFirstLoadChanged(QPrivateSignal());
         emit cityChanged(QPrivateSignal());
         reloadEvents();
     }
@@ -752,7 +757,6 @@ void App::addToCalendar()
                                      locationExtra.object< jobject >(),
                                      QAndroidJniObject::fromString(locationAddress()).object< jobject >());
 
-
     qDebug() << "Starting activity...";
     QtAndroid::startActivity(intent.handle(), 0);
     if (env->ExceptionCheck()) {
@@ -800,8 +804,7 @@ void App::doSharing(const QString &title, const QString &body)
                                      extraSubject.object< jstring >(),
                                      QAndroidJniObject::fromString(title).object< jstring >());
     intent.handle().callObjectMethod("putExtra", "(Ljava/lang/String;Ljava/lang/String;)Landroid/content/Intent;",
-                                     extraText.object< jstring >(),
-                                     QAndroidJniObject::fromString(body).object< jstring >());
+                                     extraText.object< jstring >(), QAndroidJniObject::fromString(body).object< jstring >());
     intent.handle().callObjectMethod("setType", "(Ljava/lang/String;)Landroid/content/Intent;",
                                      QAndroidJniObject::fromString(QStringLiteral("text/plain")).object< jstring >());
     auto chooser = QAndroidJniObject::callStaticObjectMethod(
@@ -878,6 +881,11 @@ bool App::noEventsFound() const
     return m_eventsModel->rowCount(QModelIndex()) == 0;
 }
 
+bool App::isFirstLoad() const
+{
+    return m_firstLoad;
+}
+
 const QString &App::title() const
 {
     return m_currentEvent.title;
@@ -905,7 +913,7 @@ QString App::duration() const
     auto secsTo = end - start;
     auto days = secsTo / 86400;
     auto hours = (secsTo / 3600) % 24;
-    auto minutes = static_cast<qulonglong>(secsTo / 60) % 60;
+    auto minutes = static_cast< qulonglong >(secsTo / 60) % 60;
     if (days) {
         return tr("%1 days, %2 hours %3 minutes").arg(days).arg(hours).arg(minutes);
     }
@@ -941,7 +949,8 @@ QString App::locationAddress() const
     if (m_currentLocation.thoroughfare.length() > 0) {
         return QStringLiteral("%1, %2").arg(m_currentLocation.locality, m_currentLocation.thoroughfare);
     }
-    return tr("%1, %2").arg(QObject::tr(qPrintable(Countries::countryByCode(m_currentLocation.country))), m_currentLocation.locality);
+    return tr("%1, %2").arg(QObject::tr(qPrintable(Countries::countryByCode(m_currentLocation.country))),
+                            m_currentLocation.locality);
 }
 
 QString App::eventCity() const

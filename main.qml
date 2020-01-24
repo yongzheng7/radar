@@ -487,10 +487,16 @@ ApplicationWindow {
             console.log("State=%1".arg(App.state));
         }
         onLoadFailed: loadFailedDialog.open()
-        onIsLoadedChanged: {
-            if (App.isLoaded) {
+        onIsFirstLoadChanged: {
+            if (App.isFirstLoad) {
                 results.initialPositioningNeeded = true;
-                if (results.active && results.item) {
+            }
+        }
+
+        onIsLoadedChanged: {
+            console.log("App.isLoaded=%1".arg(App.isLoaded));
+            if (App.isLoaded) {
+                if (results.active && results.item && results.initialPositioningNeeded) {
                     results.item.positionToTodaysEvents();
                     results.initialPositioningNeeded = false;
                 }

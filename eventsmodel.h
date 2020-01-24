@@ -53,6 +53,7 @@ public:
 
 public:
     void setEvents(QVector< Event > &&events);
+    void appendEvents(QVector< Event > &&events);
     void setEvents(const QVector< Event > &events);
 
     Event getEventByIndex(int index) const;
