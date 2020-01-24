@@ -120,6 +120,8 @@ public:
 
     Q_INVOKABLE void refreshCountries();
 
+    Q_INVOKABLE int getFirstTodaysItemIndex() const;
+
     QAbstractListModel *eventsModel() const;
     bool noEventsFound() const;
 
@@ -233,8 +235,7 @@ private:
     QMap< QString, QStringList > m_citiesByCountryCode;
     QSet< QString > m_countriesToLoad;
     const QString m_eventsRequestUrlBase = QStringLiteral("https://radar.squat.net/api/1.2/search/events.json");
-    const QString m_groupsRequestUrl = QStringLiteral("https://radar.squat.net/api/1.1/search/groups.json?fields[]=uuid&limit=1");//&filter[~and][search_api_aggregation_1][~gt]=0");
-    //QString m_cityRequestUrlBase = QStringLiteral("https://radar.squat.net/api/1.2/search/events.json?fields[]=uuid&limit=1&facets[country][]=%1");
+    const QString m_groupsRequestUrl = QStringLiteral("https://radar.squat.net/api/1.1/search/groups.json?fields[]=uuid&limit=1");
     const QString m_cityRequestUrlBase = QStringLiteral("https://radar.squat.net/api/1.2/search/groups.json?fields[]=uuid&limit=1&facets[country][]=%1");
     //Locations in city: https://radar.squat.net/api/1.2/search/location.json?facets[country][]=DE&facets[locality][]=Berlin&fields[]=directions&fields[]=title&fields[]=address&fields[]=uuid&fields[]=map
     const QString m_downloadLink = QStringLiteral("https://0xacab.org/xandyx/radar-app/raw/master/apk/android-build-debug.apk");
@@ -244,4 +245,6 @@ private:
 
     QDateTime m_start;
     QDateTime m_end;
+
+    bool m_firstLoad { true };
 };

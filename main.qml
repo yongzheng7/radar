@@ -117,6 +117,7 @@ ApplicationWindow {
                     id: optionsMenu
                     x: parent.width - width
                     transformOrigin: Menu.TopRight
+                    width: implicitWidth
 
 //                    MenuItem {
 //                        text: "Settings"
@@ -234,6 +235,7 @@ ApplicationWindow {
                 active: App.isLoaded && (SwipeView.isCurrentItem || SwipeView.isNextItem || SwipeView.isPreviousItem)
                 source: "qrc:/ResultsPage.qml"
                 readonly property int index: SwipeView.index
+                property bool initialPositioningNeeded: false
                 Connections {
                     target: results.item
                     onItemClicked: {
@@ -241,6 +243,12 @@ ApplicationWindow {
                         App.selectEvent(index);
                         swipeView.enabled = false;
                         eventPage.active = true;
+                    }
+                }
+                onLoaded: {
+                    if (initialPositioningNeeded) {
+                        initialPositioningNeeded = false;
+                        item.positionToTodaysEvents();
                     }
                 }
             }
@@ -479,5 +487,14 @@ ApplicationWindow {
             console.log("State=%1".arg(App.state));
         }
         onLoadFailed: loadFailedDialog.open()
+        onIsLoadedChanged: {
+            if (App.isLoaded) {
+                results.initialPositioningNeeded = true;
+                if (results.active && results.item) {
+                    results.item.positionToTodaysEvents();
+                    results.initialPositioningNeeded = false;
+                }
+            }
+        }
     }
 }

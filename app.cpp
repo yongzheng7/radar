@@ -238,7 +238,9 @@ void App::doReload()
     qDebug() << "doReload...";
     assignIsLoaded(false);
     initTimeRange();
-    clearEventsModel();
+    if (m_firstLoad) {
+        clearEventsModel();
+    }
     if (m_networkAccessManager->networkAccessible() != QNetworkAccessManager::NetworkAccessibility::Accessible) {
         qDebug() << "Network is not accessible!";
         emit loadFailed(QPrivateSignal());
@@ -255,7 +257,12 @@ void App::doReload()
         query.addQueryItem(QStringLiteral("facets[city][]"), capitalized);
     }
     query.addQueryItem(QStringLiteral("filter[~and][search_api_aggregation_1][~gt]"), QString::number(m_start.toSecsSinceEpoch()-24*3600));
-    query.addQueryItem(QStringLiteral("filter[~or][search_api_aggregation_1][~lt]"), QString::number(m_end.toSecsSinceEpoch()+30*24*3600));
+    if (m_firstLoad) {
+        query.addQueryItem(QStringLiteral("filter[~or][search_api_aggregation_1][~lt]"), QString::number(m_end.toSecsSinceEpoch()+30*24*3600));
+    } else {
+        query.addQueryItem(QStringLiteral("offset"), QString::number(m_eventsModel->rowCount(QModelIndex())));
+        query.addQueryItem(QStringLiteral("limit"), QString::number(100));
+    }
     requestUrl.setQuery(query);
     qDebug() << "requestUrl=" << requestUrl.toString();
     request.setUrl(requestUrl);
@@ -287,6 +294,7 @@ void App::doReload()
             m_events = json.object();
             // qDebug() << "result: " << m_events;
             qDebug() << "loadCompleted!";
+            m_firstLoad = false;
             emit this->loadCompleted(QPrivateSignal());
             reply->close();
             reply->deleteLater();
@@ -514,7 +522,7 @@ void App::doExtract()
     }
     locationIDs.squeeze();
     qDebug() << "Locations count:" << locationIDs.size();
-    m_allEvents = std::move(events);
+    m_allEvents.append(events);
     m_locationProvider->setNetworkAccessManager(m_networkAccessManager);
 
     auto capitalized = m_city;
@@ -656,6 +664,7 @@ void App::setCity(const QString &city)
     qDebug() << "m_city:" << m_city;
     if (!isLoaded() || m_city != city) {
         m_city = city;
+        m_firstLoad = true;
         emit cityChanged(QPrivateSignal());
         reloadEvents();
     }
@@ -852,6 +861,11 @@ void App::refreshCountries()
     m_db->clearCountries();
     m_db->clearCities();
     reload();
+}
+
+int App::getFirstTodaysItemIndex() const
+{
+    return m_eventsModel->todaysFirstEventIndex();
 }
 
 QAbstractListModel *App::eventsModel() const

@@ -94,6 +94,20 @@ int EventsModel::todayEventsCount() const
     }));
 }
 
+int EventsModel::todaysFirstEventIndex() const
+{
+    const auto constBegin = m_events.cbegin();
+    const auto constEnd = m_events.cend();
+    const QDate today = QDate::currentDate();
+    const auto foundIter = std::find_if(constBegin, constEnd, [&today](const Event &event) noexcept {
+        return event.date == today;
+    });
+    if (foundIter == constEnd) {
+        return -1;
+    }
+    return std::distance(constBegin, foundIter);
+}
+
 QVariant EventsModel::data(const QModelIndex &index, int role) const
 {
     if (!index.isValid()) {

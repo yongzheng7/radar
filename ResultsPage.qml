@@ -30,6 +30,14 @@ FocusScope {
 
     signal itemClicked(int index);
 
+    function positionToTodaysEvents() {
+        let indexOfTodaysFirstEvent = App.getFirstTodaysItemIndex();
+        if (indexOfTodaysFirstEvent !== -1) {
+            resultsList.positionViewAtIndex(indexOfTodaysFirstEvent, ListView.Beginning);
+        }
+    }
+
+
     Component {
         id: sectionHeading
         Rectangle {
@@ -74,6 +82,16 @@ FocusScope {
         keyNavigationEnabled: true
 
         clip: true
+
+        boundsMovement: Flickable.FollowBoundsBehavior
+        boundsBehavior: Flickable.DragOverBounds
+
+        opacity: Math.max(0.0, 1.0 - Math.abs(verticalOvershoot) / height)
+
+        property var overShoot: resultsList.verticalOvershoot
+        onOverShootChanged: {
+            console.log("% verticalOvershoot=" + (verticalOvershoot/height) * 100);
+        }
 
         delegate: Loader {
             width: root.width

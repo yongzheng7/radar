@@ -58,6 +58,7 @@ public:
     Event getEventByIndex(int index) const;
     int rowCount(const QModelIndex &parent) const override;
     int todayEventsCount() const;
+    int todaysFirstEventIndex() const;
     QVariant data(const QModelIndex &index, int role) const override;
     QHash< int, QByteArray > roleNames() const override;
 
