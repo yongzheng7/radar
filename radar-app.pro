@@ -1,5 +1,5 @@
 QT += quick positioning sql
-QT -= widgets
+QT -= widgets location
 
 !android: QT += location
 CONFIG += c++14
@@ -24,6 +24,9 @@ SOURCES += \
         main.cpp
 
 RESOURCES += qml.qrc
+
+!android: RESOURCES += qml_desktop.qrc
+
 RESOURCES += images/qrcode-apk.png
 RESOURCES += icons/radar/index.theme \
              icons/radar/20x20/back.png \
@@ -61,20 +64,22 @@ HEADERS += \
     eventsmodel.h \
     locationprovider.h
 
-DISTFILES += \
-    android/AndroidManifest.xml \
-    android/build.gradle \
-    android/gradle/wrapper/gradle-wrapper.jar \
-    android/gradle/wrapper/gradle-wrapper.properties \
-    android/gradlew \
-    android/gradlew.bat \
-    android/res/values/libs.xml
+android {
+    DISTFILES += \
+                 android/AndroidManifest.xml \
+                 android/build.gradle \
+                 android/gradle/wrapper/gradle-wrapper.jar \
+                 android/gradle/wrapper/gradle-wrapper.properties \
+                 android/gradlew \
+                 android/gradlew.bat \
+                 android/res/values/libs.xml
+}
 
 contains(ANDROID_TARGET_ARCH,armeabi-v7a) {
     ANDROID_PACKAGE_SOURCE_DIR = \
         $$PWD/android
 
     ANDROID_EXTRA_LIBS = \
-        $$PWD/openssl/openssl-1.0.2r/libcrypto.so \
-        $$PWD/openssl/openssl-1.0.2r/libssl.so
+    $$(HOME)/qt/Tools/OpenSSL/src/libcrypto_1_1.so \
+    $$(HOME)/qt/Tools/OpenSSL/src/libssl_1_1.so
 }

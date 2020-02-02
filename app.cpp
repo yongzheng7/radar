@@ -370,7 +370,7 @@ void App::doLoadCities()
     for (const auto &country : qAsConst(m_allCountries)) {
         allCodes.push_back(Countries::countryCode(country));
     }
-    m_countriesToLoad = QSet< QString >::fromList(allCodes);
+    m_countriesToLoad = QSet< QString >::fromList(qAsConst(allCodes));
 
     for (const auto &code : qAsConst(allCodes)) {
         const auto countryCode = code.toUpper();
@@ -432,17 +432,17 @@ void App::doFilterCountries()
 {
     qDebug() << __PRETTY_FUNCTION__;
     const auto &constEnd = m_groups.constEnd();
-    const auto &facets = m_groups.constFind(QLatin1Literal("facets"));
+    const auto &facets = m_groups.constFind(QLatin1String("facets"));
     QSet< QString > codes;
     if (facets != constEnd) {
         const auto &facetsObj = facets->toObject();
-        const auto &countriesIter = facetsObj.constFind(QLatin1Literal("country"));
+        const auto &countriesIter = facetsObj.constFind(QLatin1String("country"));
         if (countriesIter != facetsObj.constEnd()) {
             const auto &countriesArray = countriesIter->toArray();
             codes.reserve(countriesArray.size());
             for (auto it = countriesArray.constBegin(), cend = countriesArray.constEnd(); it != cend; ++it) {
                 const auto countryObj = *it;
-                const auto code = countryObj.toObject().value(QLatin1Literal("filter")).toString();
+                const auto code = countryObj.toObject().value(QLatin1String("filter")).toString();
                 codes.insert(code);
             }
         } else {
@@ -481,9 +481,9 @@ void App::doExtract()
     QVector< Event > events;
     QSet< QUuid > locationIDs;
     const auto &constEnd = m_events.constEnd();
-    const auto &result = m_events.constFind(QLatin1Literal("result"));
+    const auto &result = m_events.constFind(QLatin1String("result"));
     if (result != constEnd) {
-        auto countIter = m_events.constFind(QLatin1Literal("count"));
+        auto countIter = m_events.constFind(QLatin1String("count"));
         if (countIter != constEnd) {
             Q_ASSERT(countIter->type() == QJsonValue::Double);
             events.reserve(countIter.value().toInt());
@@ -493,21 +493,21 @@ void App::doExtract()
         for (const auto &member : qAsConst(resultObj)) {
             const auto &memberObj = member.toObject();
             Event event{};
-            event.title = memberObj.value(QLatin1Literal("title")).toString();
-            const auto dateTime = memberObj.value(QLatin1Literal("date_time")).toArray().first().toObject();
+            event.title = memberObj.value(QLatin1String("title")).toString();
+            const auto dateTime = memberObj.value(QLatin1String("date_time")).toArray().first().toObject();
             // qDebug() << "dateTime: " << dateTime.toVariantMap();
-            event.timeStart = dateTime.value(QLatin1Literal("value")).toString().toLongLong();
-            event.timeEnd = dateTime.value(QLatin1Literal("value2")).toString().toLongLong();
+            event.timeStart = dateTime.value(QLatin1String("value")).toString().toLongLong();
+            event.timeEnd = dateTime.value(QLatin1String("value2")).toString().toLongLong();
             event.date = QDateTime::fromSecsSinceEpoch(event.timeStart).date();
-            event.description = memberObj.value(QLatin1Literal("body")).toObject().value(QLatin1Literal("value")).toString();
+            event.description = memberObj.value(QLatin1String("body")).toObject().value(QLatin1String("value")).toString();
             event.radarUrl = memberObj.value(QLatin1String("url")).toString();
             auto price = memberObj.value(QLatin1String("price"));
             event.price = price.isNull() ? QString() : price.toString();
-            const auto &offline = memberObj.value(QLatin1Literal("offline")).toArray();
+            const auto &offline = memberObj.value(QLatin1String("offline")).toArray();
             if (!offline.empty()) {
                 const auto &offline0 = offline.first().toObject();
-                event.rawAddress = offline0.value(QLatin1Literal("title")).toString();
-                const auto &uuid = offline0.value(QLatin1Literal("id")).toString();
+                event.rawAddress = offline0.value(QLatin1String("title")).toString();
+                const auto &uuid = offline0.value(QLatin1String("id")).toString();
                 event.locationID = QUuid::fromString(uuid);
                 locationIDs.insert(event.locationID);
             }

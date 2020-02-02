@@ -448,7 +448,7 @@ ApplicationWindow {
             eventPage.item.enabled = true;
         }
 
-        source: "qrc:/map.qml"
+        source: root.currentOSIsAndroid ? "" : "qrc:/map.qml"
         onLoaded: updateCoordinates()
         function updateCoordinates() {
             mapView.item.latitude = App.latitude;
