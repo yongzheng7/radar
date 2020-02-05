@@ -236,7 +236,7 @@ void App::clearEventsModel()
 void App::doReload()
 {
     qDebug() << "doReload...";
-    assignIsLoaded(false);
+    assignIsLoaded(!m_firstLoad);
     initTimeRange();
     if (m_firstLoad) {
         clearEventsModel();
