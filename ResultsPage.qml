@@ -94,7 +94,14 @@ FocusScope {
             console.log("!! resultsList.visible=%1".arg(resultsList.visible));
         }
 
-        anchors.fill: parent
+        anchors.left: parent.left
+        anchors.right: parent.right
+        anchors.top: parent.top
+        anchors.bottom: busyIndicator.running ? busyIndicator.top : parent.bottom
+        Behavior on anchors.bottom {
+            PropertyAnimation { duration: 1000 }
+        }
+
         model: App.eventsModel
         highlightFollowsCurrentItem: false
         interactive: true
