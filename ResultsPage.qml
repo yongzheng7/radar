@@ -38,6 +38,20 @@ FocusScope {
         }
     }
 
+    BusyIndicator {
+        id: busyIndicator
+
+        running: appState === AppStates.Loading ||
+                 appState === AppStates.Filtering ||
+                 appState === AppStates.Extraction
+
+        anchors.bottom: root.bottom
+        anchors.left: root.left
+        anchors.right: root.right
+
+        z: 2
+    }
+
     Component {
         id: sectionHeading
         Rectangle {

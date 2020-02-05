@@ -419,12 +419,12 @@ ApplicationWindow {
             }
         }
 
-        visible: appState === AppStates.Loading ||
-                 appState === AppStates.Filtering ||
-                 appState === AppStates.CountryLoad ||
-                 appState === AppStates.CountryFilter ||
-                 appState === AppStates.CitiesLoad ||
-                 appState === AppStates.Extraction
+        visible:  ((swipeView.currentIndex === location.index) && (appState === AppStates.Loading ||
+                                                                   appState === AppStates.Filtering ||
+                                                                   appState === AppStates.Extraction)) ||
+                  appState === AppStates.CountryLoad ||
+                  appState === AppStates.CountryFilter ||
+                  appState === AppStates.CitiesLoad
 
         onClosed: App.cancelOperation()
     }
