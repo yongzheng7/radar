@@ -115,6 +115,15 @@ int EventsModel::todaysFirstEventIndex() const
     return std::distance(constBegin, foundIter);
 }
 
+namespace  {
+QString prettyDistance(double meters)
+{
+    if (meters < 1000.0) {
+        return QObject::tr("%1 m").arg(qRound(meters));
+    }
+    return QObject::tr("%1 km").arg(QString::number(meters/1000.0,'f', 1));
+}
+}
 QVariant EventsModel::data(const QModelIndex &index, int role) const
 {
     if (!index.isValid()) {
@@ -159,7 +168,8 @@ QVariant EventsModel::data(const QModelIndex &index, int role) const
         if (!location.coordinate.isValid()) {
             return QString();
         }
-        return tr("%1 m").arg(qRound(m_latestPosition.distanceTo(location.coordinate)));
+        auto distanceInMeters = m_latestPosition.distanceTo(location.coordinate);
+        return prettyDistance(distanceInMeters);
     }
     case Url:
         return m_events[pos].radarUrl;
