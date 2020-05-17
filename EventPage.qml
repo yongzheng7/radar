@@ -98,6 +98,7 @@ Cras nec ante sit amet augue sodales iaculis. Aliquam erat volutpat. Nam aliquet
                     Layout.alignment: Qt.AlignTop
                     Layout.fillWidth: true
                     text: root.category
+                    wrapMode: Text.WordWrap
                 }
             }
             RowLayout {
@@ -218,6 +219,7 @@ Cras nec ante sit amet augue sodales iaculis. Aliquam erat volutpat. Nam aliquet
                             console.log("Location: %1".arg(address.text));
                             root.locationActivated();
                         }
+                        cursorShape: Qt.PointingHandCursor
                     }
                 }
             }
