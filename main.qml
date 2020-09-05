@@ -19,6 +19,7 @@
 import QtQml 2.12
 
 import QtQuick 2.12
+import QtQuick.Window 2.12
 import QtQuick.Controls 2.12
 import QtQuick.Controls.Material 2.12
 
@@ -108,49 +109,55 @@ ApplicationWindow {
                 Layout.alignment: Qt.AlignVCenter
 
                 onClicked: optionsMenu.open()
-
-                Menu {
-                    id: optionsMenu
-                    x: parent.width - width
-                    transformOrigin: Menu.TopRight
-                    width: implicitWidth
-
-                    MenuItem {
-                        text: qsTr("Reload Countries")
-                        onTriggered: App.refreshCountries();
-                    }
-
-                    MenuItem {
-                        text: qsTr("About")
-                        onTriggered: aboutDialog.open()
-                    }
-                    MenuItem {
-                        text: qsTr("Share App...")
-                        onTriggered: App.shareApp()
-                    }
-                    MenuItem {
-                        text: qsTr("Share via QR-code...")
-                        onTriggered: qrCodeDialog.open()
-                    }
-                }
             }
+        }
+    }
+
+    Menu {
+        id: optionsMenu
+
+        width: Math.max(reloadCountriesItem.implicitWidth,
+                        aboutItem.implicitWidth,
+                        shareItem.implicitWidth,
+                        shareWithQrItem.implicitWidth)
+
+        x: parent.width - width
+        y: 0
+
+        MenuItem {
+            id: reloadCountriesItem
+            text: qsTr("Reload Countries")
+            onTriggered: App.refreshCountries();
+        }
+
+        MenuItem {
+            id: aboutItem
+            text: qsTr("About")
+            onTriggered: aboutDialog.open()
+        }
+        MenuItem {
+            id: shareItem
+            text: qsTr("Share App...")
+            onTriggered: App.shareApp()
+        }
+        MenuItem {
+            id: shareWithQrItem
+            text: qsTr("Share via QR-code...")
+            onTriggered: qrCodeDialog.open()
         }
     }
 
     Dialog {
         id: aboutDialog
 
+        parent: Overlay.overlay
         anchors.centerIn: parent
-
-        width: Math.min(parent.width - 40, implicitContentWidth)
-        height: Math.min(parent.height - implicitFooterHeight - implicitHeaderHeight,
-                         implicitHeight)
 
         modal: true
 
         header: Label {
             text: qsTr("Radar App")
-            wrapMode: Text.WordWrap
+            wrapMode: Text.NoWrap
             elide: Label.ElideRight
             padding: 24
             bottomPadding: 0
@@ -174,10 +181,11 @@ ApplicationWindow {
     Dialog {
         id: qrCodeDialog
 
+        parent: Overlay.overlay
         anchors.centerIn: parent
 
-        width: Math.min(parent.width*3/5, image.sourceSize.width + 40, parent.height - 80)
-        height: width + implicitHeaderHeight + implicitFooterHeight
+        width: image.width + 2*padding
+        height: image.height + 2*padding + implicitHeaderHeight + implicitFooterHeight
 
         modal: true
 
@@ -191,12 +199,22 @@ ApplicationWindow {
             font.pointSize: fontPointSize || 18
         }
 
-        Image {
-            id: image
+        Frame {
+            width: Math.min(root.width-60, root.height-60, image.sourceSize.width) - qrCodeDialog.padding
+            height: width
+
             anchors.centerIn: parent
-            anchors.fill: parent
-            fillMode: Image.PreserveAspectFit
-            source: "images/qrcode-apk.png"
+            anchors.margins: 12
+
+            Image {
+                id: image
+
+                anchors.fill: parent
+                anchors.margins: 0
+
+                fillMode: Image.PreserveAspectFit
+                source: "images/qrcode-apk.png"
+            }
         }
     }
 
@@ -205,6 +223,9 @@ ApplicationWindow {
 
         modal: true
 
+        parent: Overlay.overlay
+        anchors.centerIn: parent
+
         title: qsTr("No Maps application available.")
 
         Label {
@@ -212,7 +233,7 @@ ApplicationWindow {
             text: qsTr("Do you want to see event location with web browser?")
         }
 
-        standardButtons: StandardButton.No | StandardButton.Yes
+        standardButtons: Dialog.No | Dialog.Yes
 
         onAccepted: Qt.openUrlExternally(App.url)
     }
@@ -222,10 +243,13 @@ ApplicationWindow {
 
         modal: true
 
+        parent: Overlay.overlay
+        anchors.centerIn: parent
+
         title: qsTr("Failed to load data")
         Label {text: qsTr("Network Errror")}
 
-        standardButtons: StandardButton.Ok
+        standardButtons: Dialog.Ok
         onAccepted: loadFailedDialog.close()
     }
 
@@ -398,6 +422,7 @@ ApplicationWindow {
 
         contentItem: Row {
             spacing: 6
+            anchors.centerIn: parent
             BusyIndicator {
                 id: indicator
                 anchors.verticalCenter: parent.verticalCenter
