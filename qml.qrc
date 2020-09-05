@@ -3,7 +3,6 @@
         <file>main.qml</file>
         <file>qtquickcontrols2.conf</file>
         <file>LocationPage.qml</file>
-        <file>DateTimePage.qml</file>
         <file>ResultsPage.qml</file>
         <file>EventPage.qml</file>
         <file>db.sqlite</file>

@@ -54,6 +54,7 @@ App::App(QObject *parent)
     , m_eventsModel(new EventsModel(m_locationProvider, this))
     , m_allCountries(Countries::allCountries().keys())
 {
+    m_allCountries.sort();
     qRegisterMetaType< Event >();
     qRegisterMetaType< Location >();
     auto configuration = m_networkAccessManager->configuration();
@@ -256,11 +257,12 @@ void App::doReload()
         capitalized[0] = capitalized[0].toUpper();
         query.addQueryItem(QStringLiteral("facets[city][]"), capitalized);
     }
+    QDateTime yesterday = m_start.addDays(-1);
     query.addQueryItem(QStringLiteral("filter[~and][search_api_aggregation_1][~gt]"),
-                       QString::number(m_start.toSecsSinceEpoch() - 24 * 3600));
+                       QString::number(yesterday.toSecsSinceEpoch()));
     if (m_firstLoad) {
         query.addQueryItem(QStringLiteral("filter[~or][search_api_aggregation_1][~lt]"),
-                           QString::number(m_end.toSecsSinceEpoch() + 30 * 24 * 3600));
+                           QString::number(m_end.addDays(30).toSecsSinceEpoch()));
     } else {
         query.addQueryItem(QStringLiteral("offset"), QString::number(m_eventsModel->rowCount(QModelIndex())));
         query.addQueryItem(QStringLiteral("limit"), QString::number(100));
@@ -667,6 +669,8 @@ void App::setCity(const QString &city)
     qDebug() << "setCity:" << city;
     qDebug() << "m_city:" << m_city;
     if (!isLoaded() || m_city != city) {
+        assignIsLoaded(false);
+        m_eventsModel->setEvents({});
         m_city = city;
         m_firstLoad = true;
         emit isFirstLoadChanged(QPrivateSignal());
@@ -1035,7 +1039,7 @@ void App::setCountry(const QString &country)
 QStringList App::cities() const
 {
     auto cities = m_citiesByCountryCode.value(Countries::countryCode(m_country), {});
-    std::sort(cities.begin(), cities.end());
+    cities.sort();
     return cities;
 }
 

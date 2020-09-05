@@ -118,10 +118,11 @@ int EventsModel::todaysFirstEventIndex() const
 namespace  {
 QString prettyDistance(double meters)
 {
-    if (meters < 1000.0) {
+    constexpr auto one_km = 1000.0;
+    if (meters < one_km) {
         return QObject::tr("%1 m").arg(qRound(meters));
     }
-    return QObject::tr("%1 km").arg(QString::number(meters/1000.0,'f', 1));
+    return QObject::tr("%1 km").arg(QString::number(meters/one_km,'f', 1));
 }
 }
 QVariant EventsModel::data(const QModelIndex &index, int role) const

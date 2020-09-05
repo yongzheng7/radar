@@ -244,7 +244,7 @@ void LocationProvider::setLocationsToLoad(QSet< QUuid > &&locations, const QStri
     }
     m_locationsToLoad.subtract(m_db->getAllUUIDs());
     m_locationsToInsert.reserve(m_locationsToLoad.size());
-    if (m_locationsToLoad.size() > 0) {
+    if (!m_locationsToLoad.empty()) {
         QUrl requestUrl(m_locationsInCity.arg(m_countryCode, m_city));
         QNetworkRequest request(requestUrl);
         request.setRawHeader(QByteArrayLiteral("User-Agent"), QByteArrayLiteral("Radar App 1.0"));

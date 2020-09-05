@@ -1,7 +1,7 @@
 QT += quick positioning sql
-QT -= widgets location
+QT -= widgets
+QT -= gui
 
-!android: QT += location
 CONFIG += c++14
 
 # The following define makes your compiler emit warnings if you use
@@ -65,6 +65,7 @@ HEADERS += \
     locationprovider.h
 
 android {
+    ANDROID_ABIS = "armeabi-v7a"
     DISTFILES += \
                  android/AndroidManifest.xml \
                  android/build.gradle \
@@ -73,13 +74,52 @@ android {
                  android/gradlew \
                  android/gradlew.bat \
                  android/res/values/libs.xml
+
+    ANDROID_LIB_DEPENDENCIES = \
+    libQt5AndroidExtras.so \
+    libQt5Concurrent.so \
+    libQt5Core.so \
+    libQt5Gui.so \
+    libQt5Location.so \
+    libQt5Network.so \
+    libQt5Positioning.so \
+    libQt5PositioningQuick.so \
+    libQt5Qml.so \
+    libQt5Quick.so \
+    libQt5QuickControls2.so \
+    libQt5QuickParticles.so \
+    libQt5QuickTemplates2.so \
+    libQt5Sql.so \
+    plugins/libplugins_bearer_libqandroidbearer.so \
+    plugins/libplugins_imageformats_libqgif.so \
+    plugins/libplugins_imageformats_libqicns.so \
+    plugins/libplugins_imageformats_libqico.so \
+    plugins/libplugins_imageformats_libqjpeg.so \
+    plugins/libplugins_imageformats_libqtga.so \
+    plugins/libplugins_imageformats_libqtiff.so \
+    plugins/libplugins_imageformats_libqwbmp.so \
+    plugins/libplugins_imageformats_libqwebp.so \
+    plugins/libplugins_platforms_android_libqtforandroid.so \
+    plugins/libplugins_position_libqtposition_android.so \
+    plugins/libplugins_position_libqtposition_positionpoll.so \
+    plugins/libplugins_sqldrivers_libqsqlite.so \
+    plugins/libplugins_styles_libqandroidstyle.so \
+    libqml_QtGraphicalEffects_libqtgraphicaleffectsplugin.so \
+    libqml_QtGraphicalEffects_private_libqtgraphicaleffectsprivate.so \
+    libqml_QtLocation_libdeclarative_location.so \
+    libqml_QtPositioning_libdeclarative_positioning.so \
+    libqml_QtQuick.2_libqtquick2plugin.so \
+    libqml_QtQuick_Controls.2_Material_libqtquickcontrols2materialstyleplugin.so \
+    libqml_QtQuick_Controls.2_libqtquickcontrols2plugin.so \
+    libqml_QtQuick_Layouts_libqquicklayoutsplugin.so \
+    libqml_QtQuick_Templates.2_libqtquicktemplates2plugin.so \
+    libqml_QtQuick_Window.2_libwindowplugin.so \
+    libqml_Qt_labs_platform_libqtlabsplatformplugin.so \
+    libqml_Qt_labs_settings_libqmlsettingsplugin.so
 }
 
 contains(ANDROID_TARGET_ARCH,armeabi-v7a) {
     ANDROID_PACKAGE_SOURCE_DIR = \
         $$PWD/android
-
-    ANDROID_EXTRA_LIBS = \
-    $$(HOME)/qt/Tools/OpenSSL/src/libcrypto_1_1.so \
-    $$(HOME)/qt/Tools/OpenSSL/src/libssl_1_1.so
 }
+android: include($$PWD/../android_openssl/openssl.pri)
