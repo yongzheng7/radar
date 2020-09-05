@@ -21,6 +21,8 @@ import QtQuick.Layouts 1.3
 import QtQuick.Controls 2.12
 import QtQuick.Controls.Material 2.12
 
+import org.radar.app 1.0
+
 Rectangle {
     id: root
 
@@ -59,6 +61,28 @@ Cras nec ante sit amet augue sodales iaculis. Aliquam erat volutpat. Nam aliquet
 
     Keys.onBackPressed: root.closeClicked();
     Keys.onEscapePressed: root.closeClicked()
+
+    function updateLocationInfo() {
+        root.locationName = App.locationName;
+        root.locationAddress = App.locationAddress;
+        root.directions = App.directions;
+    }
+
+    function updateEventInfo()
+    {
+        root.title = App.title;
+        root.description = App.description;
+        root.category = App.category;
+        root.dateTime = App.dateTime;
+        root.duration = App.duration
+        root.price = App.price;
+        root.locationName = App.locationName;
+        root.locationAddress = App.locationAddress;
+        root.city = App.eventCity;
+        root.country = App.eventCountry;
+        root.directions = App.directions;
+        root.urlProvided = App.url !== ""
+    }
 
     Flickable {
         id: flickable

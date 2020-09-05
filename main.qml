@@ -1,5 +1,5 @@
 ﻿/*
- *   Copyright (c) 2019 <xandyx_at_riseup dot net>
+ *   Copyright (c) 2019-2020 <xandyx_at_riseup dot net>
  *
  *   This file is part of Radar-App.
  *
@@ -16,13 +16,11 @@
  *   You should have received a copy of the GNU General Public License
  *   along with Radar-App.  If not, see <https://www.gnu.org/licenses/>.
  */
+import QtQml 2.12
+
 import QtQuick 2.12
 import QtQuick.Controls 2.12
 import QtQuick.Controls.Material 2.12
-import QtQuick.Controls.Universal 2.12
-import Qt.labs.settings 1.0
-
-import Qt.labs.platform 1.1 as Platform
 
 import QtQuick.Layouts 1.11
 
@@ -60,7 +58,6 @@ ApplicationWindow {
             ToolButton {
                 icon.name: swipeView.currentIndex > 0 ? "back" : ""
                 enabled: swipeView.currentIndex > 0
-                //text: icon.name === "" ? "☰" : ""
                 onClicked: {
                     if (mapView.active) {
                         mapView.closeView();
@@ -74,8 +71,7 @@ ApplicationWindow {
 
                     if (swipeView.currentIndex > 0) {
                         root.setPrevious();
-                    } else {
-                        //drawer.open()
+                        return;
                     }
                 }
             }
@@ -106,7 +102,7 @@ ApplicationWindow {
             }
 
             ToolButton {
-                text: "⋮"
+                icon.name: "menu"
                 font.pointSize: root.font.pointSize*1.5
                 font.bold: true
                 Layout.alignment: Qt.AlignVCenter
@@ -119,10 +115,6 @@ ApplicationWindow {
                     transformOrigin: Menu.TopRight
                     width: implicitWidth
 
-//                    MenuItem {
-//                        text: "Settings"
-//                        //onTriggered: settingsDialog.open()
-//                    }
                     MenuItem {
                         text: qsTr("Reload Countries")
                         onTriggered: App.refreshCountries();
@@ -147,17 +139,30 @@ ApplicationWindow {
 
     Dialog {
         id: aboutDialog
-        anchors.centerIn: parent
-        horizontalPadding: 20
-        margins: 20
 
-        title: qsTr("Radar App")
+        anchors.centerIn: parent
+
+        width: Math.min(parent.width - 40, implicitContentWidth)
+        height: Math.min(parent.height - implicitFooterHeight - implicitHeaderHeight,
+                         implicitHeight)
+
+        modal: true
+
+        header: Label {
+            text: qsTr("Radar App")
+            wrapMode: Text.WordWrap
+            elide: Label.ElideRight
+            padding: 24
+            bottomPadding: 0
+            font.bold: true
+            font.pointSize: fontPointSize || 18
+        }
 
         Label {
             anchors.fill: parent
             wrapMode: Text.WordWrap
             textFormat: Text.RichText
-            text: qsTr("<p>Copyright © 2019</p>" +
+            text: qsTr("<p>Copyright © 2019-2020</p>" +
                        "<p>This program comes with ABSOLUTELY NO WARRANTY.</p>" +
                        "<p>This is free software, and you are welcome to redistribute it under certain conditions.</p>"+
                        "<p><a href=\"https://www.gnu.org/licenses/gpl-3.0.en.html\">Details on License…</a></p>" +
@@ -168,38 +173,60 @@ ApplicationWindow {
 
     Dialog {
         id: qrCodeDialog
-        anchors.centerIn: parent
-        width: Math.min(parent.height*3/4, parent.width*3/4) - 40
-        height: width + 40
 
-        title: qsTr("Radar App")
+        anchors.centerIn: parent
+
+        width: Math.min(parent.width*3/5, image.sourceSize.width + 40, parent.height - 80)
+        height: width + implicitHeaderHeight + implicitFooterHeight
+
+        modal: true
+
+        header: Label {
+            text: qsTr("Scan QR Code to download")
+            wrapMode: Text.WordWrap
+            elide: Label.ElideRight
+            padding: 24
+            bottomPadding: 0
+            font.bold: true
+            font.pointSize: fontPointSize || 18
+        }
 
         Image {
             id: image
+            anchors.centerIn: parent
             anchors.fill: parent
             fillMode: Image.PreserveAspectFit
             source: "images/qrcode-apk.png"
         }
     }
 
-    Platform.MessageDialog {
+    Dialog {
         id: noMapApplication
 
-        text: qsTr("No Maps application available.")
-        informativeText: qsTr("Do you want to see event location with web browser?")
+        modal: true
 
-        buttons: Platform.MessageDialog.No | Platform.MessageDialog.Yes
+        title: qsTr("No Maps application available.")
 
-        onYesClicked: Qt.openUrlExternally(App.url)
+        Label {
+            wrapMode: Text.WordWrap
+            text: qsTr("Do you want to see event location with web browser?")
+        }
+
+        standardButtons: StandardButton.No | StandardButton.Yes
+
+        onAccepted: Qt.openUrlExternally(App.url)
     }
 
-    Platform.MessageDialog {
+    Dialog {
         id: loadFailedDialog
 
-        text: qsTr("Failed to load data")
-        informativeText: qsTr("Network Errror")
+        modal: true
 
-        buttons: Platform.MessageDialog.Ok
+        title: qsTr("Failed to load data")
+        Label {text: qsTr("Network Errror")}
+
+        standardButtons: StandardButton.Ok
+        onAccepted: loadFailedDialog.close()
     }
 
     ColumnLayout {
@@ -224,18 +251,13 @@ ApplicationWindow {
                 readonly property int index: SwipeView.index
             }
 
-//            Loader {
-//                id: dateTime
-//                active: SwipeView.isCurrentItem || SwipeView.isNextItem || SwipeView.isPreviousItem
-//                source: "qrc:/DateTimePage.qml"
-//            }
-
             Loader {
                 id: results
                 active: App.isLoaded && (SwipeView.isCurrentItem || SwipeView.isNextItem || SwipeView.isPreviousItem)
                 source: "qrc:/ResultsPage.qml"
                 readonly property int index: SwipeView.index
                 property bool initialPositioningNeeded: false
+
                 Connections {
                     target: results.item
                     onItemClicked: {
@@ -338,26 +360,13 @@ ApplicationWindow {
         function updateEventInfo() {
             if (eventPage.item) {
                 console.log("Updating event details...");
-                eventPage.item.title = App.title;
-                eventPage.item.description = App.description;
-                eventPage.item.category = App.category;
-                eventPage.item.dateTime = App.dateTime;
-                eventPage.item.duration = App.duration
-                eventPage.item.price = App.price;
-                eventPage.item.locationName = App.locationName;
-                eventPage.item.locationAddress = App.locationAddress;
-                eventPage.item.city = App.eventCity;
-                eventPage.item.country = App.eventCountry;
-                eventPage.item.directions = App.directions;
-                eventPage.item.urlProvided = App.url !== ""
+                eventPage.item.updateEventInfo();
             }
         }
         function updateLocationInfo() {
             if (eventPage.item) {
                 console.log("Updating location details...");
-                eventPage.item.locationName = App.locationName;
-                eventPage.item.locationAddress = App.locationAddress;
-                eventPage.item.directions = App.directions;
+                eventPage.item.updateLocationInfo();
             }
         }
         onLoaded: {
@@ -386,6 +395,7 @@ ApplicationWindow {
 
         focus: true
         modal: true
+
         contentItem: Row {
             spacing: 6
             BusyIndicator {
@@ -395,11 +405,13 @@ ApplicationWindow {
 
             Column {
                 anchors.verticalCenter: parent.verticalCenter
+                padding: 12
                 spacing: 6
                 Text {
                     text: qsTr("Please wait…")
                 }
                 Text {
+                    wrapMode: Text.WordWrap
                     visible: text !== ""
                     text: {
                         switch (appState) {
