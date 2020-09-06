@@ -273,6 +273,11 @@ ApplicationWindow {
                 active: SwipeView.isCurrentItem || SwipeView.isNextItem || SwipeView.isPreviousItem
                 source: "qrc:/LocationPage.qml"
                 readonly property int index: SwipeView.index
+
+                Connections {
+                    target: location.item
+                    onShowClicked: root.setNext()
+                }
             }
 
             Loader {

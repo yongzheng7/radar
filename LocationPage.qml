@@ -1,5 +1,5 @@
 /*
- *   Copyright (c) 2019 <xandyx_at_riseup dot net>
+ *   Copyright (c) 2019-2020 <xandyx_at_riseup dot net>
  *
  *   This file is part of Radar-App.
  *
@@ -24,8 +24,12 @@ import org.radar.app 1.0
 
 Item {
     id: root
+
     anchors.fill: parent
     anchors.margins: 12
+
+    signal showClicked()
+
     Column {
         spacing: 10
         anchors.fill: parent
@@ -81,6 +85,16 @@ Item {
         Text {
             text: qsTr("%1 events today".arg(App.todayFoundEvents))
         }
+        Button {
+            id: showEvents
+            text: qsTr("Show...")
+
+            onClicked: root.showClicked()
+
+            visible: App.totalFoundEvents > 0
+            enabled: App.state === AppStates.Idle
+        }
+
         Button {
             id: reload
             text: qsTr("Reload...")
