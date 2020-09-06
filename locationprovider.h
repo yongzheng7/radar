@@ -89,7 +89,7 @@ private:
     QNetworkAccessManager *m_networkAccessManager{nullptr};
     DB *m_db{nullptr};
     const QString m_locationUrlBase {QStringLiteral("https://radar.squat.net/api/1.2/location/")};
-    const QString m_locationsInCity {QStringLiteral("https://radar.squat.net/api/1.2/search/location.json?facets[country][]=%1&facets[locality][]=%2&fields[]=directions&fields[]=title&fields[]=address&fields[]=uuid&fields[]=map")};
+    const QString m_locationsInCity {QStringLiteral("https://radar.squat.net/api/1.2/search/location.json?facets[country][]=%1&facets[locality][]=%2&fields=address,directions,map,title,uuid")};
     QString m_countryCode;
     QString m_city;
 };

@@ -42,25 +42,30 @@ Location LocationProvider::extractLocationFromJSONDocument(const QJsonDocument &
 Location LocationProvider::extractLocationFromJSONObject(const QJsonObject &obj)
 {
     Location location{};
-    const auto &address = obj.value(QLatin1Literal("address")).toObject();
-    location.country = address.value(QLatin1Literal("country")).toString();
-    location.locality = address.value(QLatin1Literal("locality")).toString();
-    location.firstName = address.value(QLatin1Literal("first_name")).toString();
-    location.lastName = address.value(QLatin1Literal("last_name")).toString();
-    location.postalCode = address.value(QLatin1Literal("postal_code")).toString().toInt();
-    location.thoroughfare = address.value(QLatin1Literal("thoroughfare")).toString();
-    location.name = address.value(QLatin1Literal("name_line")).toString();
+
+    {
+        const auto &address = obj.value(QLatin1Literal("address")).toObject();
+        location.country = address.value(QLatin1Literal("country")).toString();
+        location.locality = address.value(QLatin1Literal("locality")).toString();
+        location.firstName = address.value(QLatin1Literal("first_name")).toString();
+        location.lastName = address.value(QLatin1Literal("last_name")).toString();
+        location.postalCode = address.value(QLatin1Literal("postal_code")).toString().toInt();
+        location.thoroughfare = address.value(QLatin1Literal("thoroughfare")).toString();
+        location.name = address.value(QLatin1Literal("name_line")).toString();
+    }
 
     location.directions = obj.value(QLatin1Literal("directions")).toString();
 
-    const auto &map = obj.value(QLatin1Literal("map")).toObject();
-    bool okLon = false;
-    bool okLat = false;
-    qreal latitude = map.value(QLatin1Literal("lat")).toString().toDouble(&okLat);
-    qreal longitude = map.value(QLatin1Literal("lon")).toString().toDouble(&okLon);
-    if (okLat && okLon) {
-        location.coordinate.setLatitude(latitude);
-        location.coordinate.setLongitude(longitude);
+    {
+        const auto &map = obj.value(QLatin1Literal("map")).toObject();
+        bool okLon = false;
+        bool okLat = false;
+        qreal latitude = map.value(QLatin1Literal("lat")).toString().toDouble(&okLat);
+        qreal longitude = map.value(QLatin1Literal("lon")).toString().toDouble(&okLon);
+        if (okLat && okLon) {
+            location.coordinate.setLatitude(latitude);
+            location.coordinate.setLongitude(longitude);
+        }
     }
     qDebug() << "name: " << location.name << " address:" << location.thoroughfare;
     QUuid uuid = QUuid::fromString(obj.value(QLatin1Literal("uuid")).toString());
@@ -257,7 +262,7 @@ void LocationProvider::setLocationsToLoad(QSet< QUuid > &&locations, const QStri
 
 QNetworkReply *LocationProvider::requestLocationByUUID(const QUuid &id)
 {
-    QUrl requestUrl(QStringLiteral("%1%2.json").arg(m_locationUrlBase, id.toString(QUuid::WithoutBraces)));
+    QUrl requestUrl(QStringLiteral("%1%2.json?fields=address,direction,map,title,uuid").arg(m_locationUrlBase, id.toString(QUuid::WithoutBraces)));
     QNetworkRequest request(requestUrl);
     request.setRawHeader(QByteArrayLiteral("User-Agent"), QByteArrayLiteral("Radar App 1.0"));
     qDebug() << "[Network] Requesting location " << id;

@@ -250,6 +250,8 @@ void App::doReload()
     QNetworkRequest request;
     QUrl requestUrl(m_eventsRequestUrlBase, QUrl::ParsingMode::TolerantMode);
     QUrlQuery query;
+    query.addQueryItem(QStringLiteral("fields"),
+                       QStringLiteral("body,category,date_time,offline,price,title,url"));
     if (m_city.isEmpty()) {
         query.addQueryItem(QStringLiteral("facets[country][]"), Countries::countryCode(m_country));
     } else {
