@@ -33,44 +33,73 @@ Item {
     Column {
         spacing: 10
         anchors.fill: parent
-        Text {
-            id: countryLabel
-            text: qsTr("Country")
-        }
-        ComboBox {
-            id: countries
-            width: parent.width
-            model: App.countries
 
-            onActivated: {
-                App.country = model[index];
-            }
-            onModelChanged: {
-                countries.currentIndex = find(App.country);
-            }
-        }
+        GridLayout {
+            columns: 2
+            rowSpacing: 10
+            columnSpacing: 10
+            anchors.left: parent.left
+            anchors.right: parent.right
 
-        Text {
-            id: cityLabel
-            text: qsTr("City")
-        }
-        ComboBox {
-            id: cities
-            font.capitalization: Font.Capitalize
-            width: parent.width
-            model: App.cities
-            delegate: ItemDelegate {
-                text: modelData
+            Text {
+                id: countryLabel
+
+                Layout.row: 0
+                Layout.column: 0
+                Layout.fillWidth: false
+
+                text: qsTr("Country")
+            }
+            ComboBox {
+                id: countries
+
+                Layout.row: 0
+                Layout.column: 1
+                Layout.fillWidth: true
+
                 width: parent.width
+                model: App.countries
+
+                onActivated: {
+                    App.country = model[index];
+                }
+                onModelChanged: {
+                    countries.currentIndex = find(App.country);
+                }
+            }
+
+            Text {
+                id: cityLabel
+
+                Layout.row: 1
+                Layout.column: 0
+                Layout.fillWidth: false
+
+                text: qsTr("City")
+            }
+            ComboBox {
+                id: cities
+
+                Layout.row: 1
+                Layout.column: 1
+                Layout.fillWidth: true
+
                 font.capitalization: Font.Capitalize
-            }
+                width: parent.width
+                model: App.cities
+                delegate: ItemDelegate {
+                    text: modelData
+                    width: parent.width
+                    font.capitalization: Font.Capitalize
+                }
 
-            onActivated: {
-                App.city = model[index];
-            }
+                onActivated: {
+                    App.city = model[index];
+                }
 
-            onModelChanged: {
-                cities.currentIndex = find(App.city);
+                onModelChanged: {
+                    cities.currentIndex = find(App.city);
+                }
             }
         }
         CheckBox {
