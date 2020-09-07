@@ -79,30 +79,65 @@ Item {
             text: qsTr("Remember location")
             onToggled: App.toggleRememberLocation()
         }
-        Text {
-            text: qsTr("%1 events in this area".arg(App.totalFoundEvents))
-        }
-        Text {
-            text: qsTr("%1 events today".arg(App.todayFoundEvents))
-        }
-        Button {
-            id: showEvents
-            text: qsTr("Show...")
+        GridLayout {
+            columns: 2
+            rowSpacing: 10
+            columnSpacing: 10
 
-            onClicked: root.showClicked()
+            anchors.left: parent.left
+            anchors.right: parent.right
 
-            visible: App.totalFoundEvents > 0
-            enabled: App.state === AppStates.Idle
-        }
+            Text {
+                Layout.row: 0
+                Layout.column: 0
+                Layout.fillWidth: true
 
-        Button {
-            id: reload
-            text: qsTr("Reload...")
-            onClicked: {
-                App.resetNetworkConnection();
-                App.reloadEvents();
+                wrapMode: Text.WordWrap
+
+                text: qsTr("%1 events in this area".arg(App.totalFoundEvents))
             }
-            enabled: App.state === AppStates.Idle
+
+            Text {
+                Layout.row: 1
+                Layout.column: 0
+                Layout.fillWidth: true
+
+                wrapMode: Text.WordWrap
+
+                text: qsTr("%1 events today".arg(App.todayFoundEvents))
+            }
+
+            Button {
+                id: showEvents
+
+                Layout.row: 0
+                Layout.column: 1
+                Layout.fillWidth: true
+                Layout.maximumWidth: Math.max(showEvents.implicitWidth, reload.implicitWidth)
+
+                text: qsTr("Show...")
+
+                onClicked: root.showClicked()
+
+                visible: App.totalFoundEvents > 0
+                enabled: App.state === AppStates.Idle
+            }
+
+            Button {
+                id: reload
+
+                Layout.row: 1
+                Layout.column: 1
+                Layout.fillWidth: true
+                Layout.maximumWidth: Math.max(showEvents.implicitWidth, reload.implicitWidth)
+
+                text: qsTr("Reload...")
+                onClicked: {
+                    App.resetNetworkConnection();
+                    App.reloadEvents();
+                }
+                enabled: App.state === AppStates.Idle
+            }
         }
     }
 }
