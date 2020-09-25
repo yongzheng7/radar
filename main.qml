@@ -525,10 +525,14 @@ ApplicationWindow {
 
     Connections {
         target: App
+
         onStateChanged: {
             console.log("State=%1".arg(App.state));
+            if (App.state === AppStates.Error) {
+                loadFailedDialog.open();
+            }
         }
-        onLoadFailed: loadFailedDialog.open()
+
         onIsFirstLoadChanged: {
             if (App.isFirstLoad) {
                 results.initialPositioningNeeded = true;

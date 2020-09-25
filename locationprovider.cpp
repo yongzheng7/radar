@@ -25,9 +25,12 @@
 #include <QNetworkReply>
 #include <QNetworkRequest>
 
-LocationProvider::LocationProvider(QObject *parent)
+LocationProvider::LocationProvider(QNetworkAccessManager &networkAccessManager, QObject *parent)
     : QObject(parent)
+    , m_networkAccessManager(networkAccessManager)
 {
+    connect(&m_networkAccessManager, &QNetworkAccessManager::finished, this, &LocationProvider::processFinishedReply,
+            Qt::ConnectionType::UniqueConnection);
 }
 
 LocationProvider::~LocationProvider() = default;
@@ -35,7 +38,6 @@ LocationProvider::~LocationProvider() = default;
 Location LocationProvider::extractLocationFromJSONDocument(const QJsonDocument &json)
 {
     QJsonObject obj = json.object();
-    //qDebug() << "obj: " << obj.toVariantMap();
     return extractLocationFromJSONObject(obj);
 }
 
@@ -179,16 +181,6 @@ void LocationProvider::processBatchReply(QNetworkReply *reply)
     processReply();
 }
 
-void LocationProvider::setNetworkAccessManager(QNetworkAccessManager *networkAccessManager)
-{
-    if (m_networkAccessManager) {
-        disconnect(m_networkAccessManager, &QNetworkAccessManager::finished, this, &LocationProvider::processFinishedReply);
-    }
-    m_networkAccessManager = networkAccessManager;
-    connect(m_networkAccessManager, &QNetworkAccessManager::finished, this, &LocationProvider::processFinishedReply,
-            Qt::ConnectionType::UniqueConnection);
-}
-
 void LocationProvider::requestLocation(const QUuid &uuid)
 {
     const auto foundIt = m_loadedLocations.constFind(uuid);
@@ -254,7 +246,7 @@ void LocationProvider::setLocationsToLoad(QSet< QUuid > &&locations, const QStri
         QNetworkRequest request(requestUrl);
         request.setRawHeader(QByteArrayLiteral("User-Agent"), QByteArrayLiteral("Radar App 1.0"));
         qDebug() << "[Network] Requesting locations for city:" << requestUrl;
-        auto reply = m_networkAccessManager->get(request);
+        auto reply = m_networkAccessManager.get(request);
         connect(reply, &QNetworkReply::finished, this, [ this, reply ]() noexcept { processBatchReply(reply); });
     }
     //loadAllLocations();
@@ -266,7 +258,7 @@ QNetworkReply *LocationProvider::requestLocationByUUID(const QUuid &id)
     QNetworkRequest request(requestUrl);
     request.setRawHeader(QByteArrayLiteral("User-Agent"), QByteArrayLiteral("Radar App 1.0"));
     qDebug() << "[Network] Requesting location " << id;
-    return m_networkAccessManager->get(request);
+    return m_networkAccessManager.get(request);
 }
 
 void LocationProvider::doLoad(const QUuid &id)

@@ -41,15 +41,21 @@
 #include <QtAndroidExtras/QAndroidIntent>
 #endif
 
-namespace
+void App::prepareNetworkAccessManager()
 {
-    const QString settingsCityKey{QStringLiteral("filter/city")};
-    const QString settingsCountryKey{QStringLiteral("filter/country")};
-}// namespace
+    m_networkAccessManager->setConfiguration(QNetworkConfigurationManager().defaultConfiguration());
+    auto configuration = m_networkAccessManager->configuration();
+    constexpr auto timeout = 30;
+    configuration.setConnectTimeout(
+        std::chrono::duration_cast< std::chrono::milliseconds >(std::chrono::seconds(timeout)).count());
+    m_networkAccessManager->setConfiguration(configuration);
+    qApp->processEvents();
+}
+
 App::App(QObject *parent)
     : QObject(parent)
     , m_networkAccessManager(new QNetworkAccessManager(this))
-    , m_locationProvider(new LocationProvider(this))
+    , m_locationProvider(new LocationProvider(*m_networkAccessManager, this))
     , m_db(new DB(this))
     , m_eventsModel(new EventsModel(m_locationProvider, this))
     , m_allCountries(Countries::allCountries().keys())
@@ -57,12 +63,7 @@ App::App(QObject *parent)
     m_allCountries.sort();
     qRegisterMetaType< Event >();
     qRegisterMetaType< Location >();
-    auto configuration = m_networkAccessManager->configuration();
-    constexpr auto timeout = 30;
-    configuration.setConnectTimeout(
-        std::chrono::duration_cast< std::chrono::milliseconds >(std::chrono::seconds(timeout)).count());
-    m_networkAccessManager->setConfiguration(configuration);
-    // m_locationProvider->setNetworkAccessManager(m_networkAccessManager);
+    prepareNetworkAccessManager();
     QSqlError err = m_db->initDB();
     if (err.type() != QSqlError::NoError) {
         qCritical() << err.text();
@@ -73,8 +74,8 @@ App::App(QObject *parent)
     initTimeRange();
     QSettings settings;
 
-    m_city = settings.value(settingsCityKey, QStringLiteral("Berlin")).toString();
-    m_country = settings.value(settingsCountryKey, QStringLiteral("Germany")).toString();
+    m_city = settings.value(m_settingsCityKey, QStringLiteral("Berlin")).toString();
+    m_country = settings.value(m_settingsCountryKey, QStringLiteral("Germany")).toString();
 
     qDebug() << __FUNCTION__;
     setupFSM();
@@ -92,8 +93,9 @@ App::App(QObject *parent)
 
     connect(m_networkAccessManager, &QNetworkAccessManager::networkAccessibleChanged,
             this, [this](const QNetworkAccessManager::NetworkAccessibility accessible) noexcept {
-                qDebug() << "m_networkAccessManager = " << accessible;
+                qDebug() << "m_networkAccessManager.networkAccessibleChanged:" << accessible;
                 if (!isLoaded() && accessible == QNetworkAccessManager::NetworkAccessibility::Accessible) {
+                    qDebug() << "Emitting reloadEventsRequested...";
                     emit this->reloadEventsRequested(QPrivateSignal());
                 }
             });
@@ -105,6 +107,7 @@ App::~App() = default;
 void App::setupFSM()
 {
     auto idle = addState(AppState::Values::Idle);
+    auto error = addState(AppState::Values::Error);
     auto countryLoad = addState(AppState::Values::CountryLoad, &App::doLoadCountries);
     auto countryFilter = addState(AppState::Values::CountryFilter, &App::doFilterCountries);
     auto citiesLoad = addState(AppState::Values::CitiesLoad, &App::doLoadCities);
@@ -126,18 +129,24 @@ void App::setupFSM()
 #else
     idle->addTransition(this, &App::reloadRequested, requestingPermissions);
 #endif
+    idle->addTransition(this, &App::reloadEventsRequested, loading);
+
     countryLoad->addTransition(this, &App::countriesAlreadyLoaded, citiesLoad);
     countryLoad->addTransition(this, &App::loadCompleted, countryFilter);
+
     countryFilter->addTransition(this, &App::countriesFiltered, citiesLoad);
+
     citiesLoad->addTransition(this, &App::citiesAlreadyLoaded, checkCurrentLocation);
-    checkCurrentLocation->addTransition(this, &App::noEvents, loading);
-    checkCurrentLocation->addTransition(this, &App::eventsExist, idle);
     auto transition = citiesLoad->addTransition(this, &App::allCitiesLoaded, idle);
     connect(transition, &QAbstractTransition::triggered, this, &App::updateCurrentLocation);
-    idle->addTransition(this, &App::reloadEventsRequested, loading);
+
+    checkCurrentLocation->addTransition(this, &App::noEvents, loading);
+    checkCurrentLocation->addTransition(this, &App::eventsExist, idle);
+
     loading->addTransition(this, &App::userCancelled, idle);
     loading->addTransition(this, &App::loadCompleted, extraction);
-    loading->addTransition(this, &App::loadFailed, idle);// FIXME
+    loading->addTransition(this, &App::loadFailed, error);
+
     extraction->addTransition(this, &App::eventListReady, filtering);
     extraction->addTransition(this, &App::userCancelled, idle);
 
@@ -149,6 +158,8 @@ void App::setupFSM()
             rememberSelectedLocation();
         }
     });
+
+    error->addTransition(idle);
 }
 
 QState *App::addState(AppState::Values stateEnumVal)
@@ -242,16 +253,17 @@ void App::doReload()
     if (m_firstLoad) {
         clearEventsModel();
     }
+
     if (m_networkAccessManager->networkAccessible() != QNetworkAccessManager::NetworkAccessibility::Accessible) {
         qDebug() << "Network is not accessible!";
         emit loadFailed(QPrivateSignal());
         return;
     }
+
     QNetworkRequest request;
     QUrl requestUrl(m_eventsRequestUrlBase, QUrl::ParsingMode::TolerantMode);
     QUrlQuery query;
-    query.addQueryItem(QStringLiteral("fields"),
-                       QStringLiteral("body,category,date_time,offline,price,title,url"));
+    query.addQueryItem(QStringLiteral("fields"), QStringLiteral("body,category,date_time,offline,price,title,url"));
     if (m_city.isEmpty()) {
         query.addQueryItem(QStringLiteral("facets[country][]"), Countries::countryCode(m_country));
     } else {
@@ -531,7 +543,6 @@ void App::doExtract()
     qDebug() << "Locations count:" << locationIDs.size();
     //    m_allEvents.append(events);
     m_allEvents = std::move(events);
-    m_locationProvider->setNetworkAccessManager(m_networkAccessManager);
 
     auto capitalized = m_city;
     capitalized[0] = capitalized[0].toUpper();
@@ -627,19 +638,28 @@ void App::reload()
 
 void App::reloadEvents()
 {
+    auto onReloadClicked = [this]() noexcept
+    {
+        qDebug() << "requesting reloadEvents!";
+        if (m_networkAccessManager->networkAccessible() != QNetworkAccessManager::NetworkAccessibility::Accessible) {
+            prepareNetworkAccessManager();
+        }
+        emit reloadEventsRequested(QPrivateSignal());
+    };
     qDebug() << __PRETTY_FUNCTION__;
     if (!m_fsm.isRunning()) {
-        connect(&m_fsm, &QStateMachine::runningChanged, this, [this](bool running) {
-            if (running) {
-                qDebug() << "requesting reloadEvents!";
-                emit this->reloadEventsRequested(QPrivateSignal());
-                disconnect(&m_fsm, &QStateMachine::runningChanged, this, nullptr);
-            }
-        });
-    } else {
-        qDebug() << "requesting reloadEvents!";
-        emit reloadEventsRequested(QPrivateSignal());
+        QMetaObject::Connection *connection = new QMetaObject::Connection();
+        *connection = connect(&m_fsm, &QStateMachine::runningChanged, this,
+                             [this, connection, onReloadClicked](bool running) {
+                                 if (running) {
+                                     onReloadClicked();
+                                     m_fsm.disconnect(*connection);
+                                     delete connection;
+                                 }
+                             });
+        return;
     }
+    onReloadClicked();
 }
 
 void App::selectEvent(int index)
@@ -662,8 +682,8 @@ void App::openLink(const QString &link)
 void App::rememberSelectedLocation()
 {
     QSettings settings;
-    settings.setValue(settingsCountryKey, m_country);
-    settings.setValue(settingsCityKey, m_city);
+    settings.setValue(m_settingsCountryKey, m_country);
+    settings.setValue(m_settingsCityKey, m_city);
 }
 
 void App::setCity(const QString &city)
@@ -781,7 +801,6 @@ void App::stopUpdatePosition()
 void App::startUpdatePosition()
 {
     m_eventsModel->startUpdatePosition();
-    // m_eventsModel->forceUpdatePosition();
 }
 
 void App::doSharing(const QString &title, const QString &body)

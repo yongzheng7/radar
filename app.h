@@ -45,6 +45,7 @@ namespace AppState
         Loading,
         Extraction,
         Filtering,
+        Error,
         Idle
     };
     Q_ENUM_NS(Values)
@@ -193,6 +194,8 @@ signals:
     void failedToOpenMapApp(QPrivateSignal);
 
 private:
+    void prepareNetworkAccessManager();
+
     using MemberFunc = void (App::*)();
     void setupFSM();
     QState *addState(AppState::Values stateEnumVal);
@@ -242,6 +245,9 @@ private:
     const QString m_cityRequestUrlBase = QStringLiteral("https://radar.squat.net/api/1.2/search/groups.json?fields[]=uuid&limit=1&facets[country][]=%1");
     //Locations in city: https://radar.squat.net/api/1.2/search/location.json?facets[country][]=DE&facets[locality][]=Berlin&fields[]=directions&fields[]=title&fields[]=address&fields[]=uuid&fields[]=map
     const QString m_downloadLink = QStringLiteral("https://0xacab.org/xandyx/radar-app/raw/master/apk/android-build-debug.apk");
+
+    const QString m_settingsCityKey = QStringLiteral("filter/city");
+    const QString m_settingsCountryKey = QStringLiteral("filter/country");
 
     QJsonObject m_events;
     QJsonObject m_groups;

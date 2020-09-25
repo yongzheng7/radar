@@ -60,10 +60,9 @@ class LocationProvider : public QObject
 {
     Q_OBJECT
 public:
-    LocationProvider(QObject *parent = nullptr);
+    LocationProvider(QNetworkAccessManager &accessManager, QObject *parent = nullptr);
     ~LocationProvider() override;
 
-    void setNetworkAccessManager(QNetworkAccessManager *networkAccessManager);
     void requestLocation(const QUuid &uuid);
     std::pair< Location, bool > getLoadedLocation(const QUuid &uuid) const;
     void setLocationsToLoad(QSet< QUuid > &&locations, const QString &countryCode, const QString &city);
@@ -86,7 +85,7 @@ private:
     QSet< QUuid > m_locationsToLoad;
     QVector< Location > m_locationsToInsert;
     QHash< QUuid, Location > m_loadedLocations;
-    QNetworkAccessManager *m_networkAccessManager{nullptr};
+    QNetworkAccessManager &m_networkAccessManager;
     DB *m_db{nullptr};
     const QString m_locationUrlBase {QStringLiteral("https://radar.squat.net/api/1.2/location/")};
     const QString m_locationsInCity {QStringLiteral("https://radar.squat.net/api/1.2/search/location.json?facets[country][]=%1&facets[locality][]=%2&fields=address,directions,map,title,uuid")};

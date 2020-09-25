@@ -36,7 +36,7 @@ EventsModel::EventsModel(LocationProvider *locationProvider, QObject *parent)
     qDebug() << "m_positionSource =" << m_positionSource;
     if (m_positionSource) {
         connect(m_positionSource, QOverload< QGeoPositionInfoSource::Error >::of(&QGeoPositionInfoSource::error),
-                [this](QGeoPositionInfoSource::Error positioningError) noexcept {
+                this, [this](QGeoPositionInfoSource::Error positioningError) noexcept {
                     m_geoError = positioningError;
                     emit this->hasGeoErrorChanged(QPrivateSignal());
                 });
@@ -65,7 +65,7 @@ void EventsModel::setEvents(QVector< Event > &&events)
     endResetModel();
 }
 
-void EventsModel::appendEvents(QVector<Event> &&events)
+void EventsModel::appendEvents(QVector< Event > &&events)
 {
     beginInsertRows(QModelIndex(), m_events.size(), m_events.size() + events.size() - 1);
     m_events.append(events);
@@ -96,9 +96,8 @@ int EventsModel::rowCount(const QModelIndex &parent) const
 int EventsModel::todayEventsCount() const
 {
     QDate today = QDate::currentDate();
-    return static_cast<int>(std::count_if(m_events.cbegin(), m_events.cend(), [today](const Event &event) noexcept {
-        return event.date == today;
-    }));
+    return static_cast< int >(std::count_if(
+        m_events.cbegin(), m_events.cend(), [today](const Event &event) noexcept { return event.date == today; }));
 }
 
 int EventsModel::todaysFirstEventIndex() const
@@ -106,25 +105,25 @@ int EventsModel::todaysFirstEventIndex() const
     const auto constBegin = m_events.cbegin();
     const auto constEnd = m_events.cend();
     const QDate today = QDate::currentDate();
-    const auto foundIter = std::find_if(constBegin, constEnd, [&today](const Event &event) noexcept {
-        return event.date == today;
-    });
+    const auto foundIter
+        = std::find_if(constBegin, constEnd, [&today](const Event &event) noexcept { return event.date == today; });
     if (foundIter == constEnd) {
         return -1;
     }
     return std::distance(constBegin, foundIter);
 }
 
-namespace  {
-QString prettyDistance(double meters)
+namespace
 {
-    constexpr auto one_km = 1000.0;
-    if (meters < one_km) {
-        return QObject::tr("%1 m").arg(qRound(meters));
+    QString prettyDistance(double meters)
+    {
+        constexpr auto one_km = 1000.0;
+        if (meters < one_km) {
+            return QObject::tr("%1 m").arg(qRound(meters));
+        }
+        return QObject::tr("%1 km").arg(QString::number(meters / one_km, 'f', 1));
     }
-    return QObject::tr("%1 km").arg(QString::number(meters/one_km,'f', 1));
-}
-}
+}// namespace
 QVariant EventsModel::data(const QModelIndex &index, int role) const
 {
     if (!index.isValid()) {
