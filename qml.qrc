@@ -6,7 +6,6 @@
         <file>ResultsPage.qml</file>
         <file>EventPage.qml</file>
         <file>db.sqlite</file>
-        <file>map.qml</file>
         <file>icons/map-marker-icon.png</file>
         <file>icons/app-icon.svg</file>
         <file>icons/app-xhdpi.png</file>

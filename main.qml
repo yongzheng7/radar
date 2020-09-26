@@ -16,10 +16,7 @@
  *   You should have received a copy of the GNU General Public License
  *   along with Radar-App.  If not, see <https://www.gnu.org/licenses/>.
  */
-import QtQml 2.12
-
 import QtQuick 2.12
-import QtQuick.Window 2.12
 import QtQuick.Controls 2.12
 import QtQuick.Controls.Material 2.12
 
