@@ -16,14 +16,14 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
-        all_countries.cpp \
-        app.cpp \
-        database.cpp \
-        eventsmodel.cpp \
-        locationprovider.cpp \
-        main.cpp
+        src/all_countries.cpp \
+        src/app.cpp \
+        src/database.cpp \
+        src/eventsmodel.cpp \
+        src/locationprovider.cpp \
+        src/main.cpp
 
-RESOURCES += qml.qrc
+RESOURCES += resources.qrc
 
 !android: RESOURCES += qml_desktop.qrc
 
@@ -59,11 +59,11 @@ android {
 }
 
 HEADERS += \
-    all_countries.h \
-    app.h \
-    database.h \
-    eventsmodel.h \
-    locationprovider.h
+    src/all_countries.h \
+    src/app.h \
+    src/database.h \
+    src/eventsmodel.h \
+    src/locationprovider.h
 
 android {
     ANDROID_ABIS = "armeabi-v7a"
