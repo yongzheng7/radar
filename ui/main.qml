@@ -268,7 +268,7 @@ ApplicationWindow {
             Loader {
                 id: location
                 active: SwipeView.isCurrentItem || SwipeView.isNextItem || SwipeView.isPreviousItem
-                source: "qrc:/LocationPage.qml"
+                source: "qrc:/ui/LocationPage.qml"
                 readonly property int index: SwipeView.index
 
                 Connections {
@@ -280,7 +280,7 @@ ApplicationWindow {
             Loader {
                 id: results
                 active: App.isLoaded && (SwipeView.isCurrentItem || SwipeView.isNextItem || SwipeView.isPreviousItem)
-                source: "qrc:/ResultsPage.qml"
+                source: "qrc:/ui/ResultsPage.qml"
                 readonly property int index: SwipeView.index
                 property bool initialPositioningNeeded: false
 
@@ -357,7 +357,7 @@ ApplicationWindow {
         z: 1
         id: eventPage
         active: false
-        source: "qrc:/EventPage.qml"
+        source: "qrc:/ui/EventPage.qml"
 
         function closePage() {
             eventPage.active = false;
@@ -487,7 +487,7 @@ ApplicationWindow {
             eventPage.item.enabled = true;
         }
 
-        source: root.currentOSIsAndroid ? "" : "qrc:/map.qml"
+        source: root.currentOSIsAndroid ? "" : "qrc:/ui/map.qml"
         onLoaded: updateCoordinates()
         function updateCoordinates() {
             mapView.item.latitude = App.latitude;

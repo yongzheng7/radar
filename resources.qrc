@@ -1,11 +1,11 @@
 <RCC>
     <qresource prefix="/">
-        <file>main.qml</file>
         <file>qtquickcontrols2.conf</file>
-        <file>LocationPage.qml</file>
-        <file>ResultsPage.qml</file>
-        <file>EventPage.qml</file>
-        <file>db.sqlite</file>
+        <file>ui/main.qml</file>
+        <file>ui/LocationPage.qml</file>
+        <file>ui/ResultsPage.qml</file>
+        <file>ui/EventPage.qml</file>
+        <file>data/db.sqlite</file>
         <file>icons/map-marker-icon.png</file>
         <file>icons/app-icon.svg</file>
         <file>icons/app-xhdpi.png</file>

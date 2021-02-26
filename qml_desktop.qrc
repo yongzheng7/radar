@@ -1,5 +1,5 @@
 <RCC>
     <qresource prefix="/">
-        <file>map.qml</file>
+        <file>ui/map.qml</file>
     </qresource>
 </RCC>

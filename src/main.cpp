@@ -54,7 +54,7 @@ int main(int argc, char *argv[])
     qmlRegisterSingletonType< App >("org.radar.app", 1, 0, "App", createAppInstance);
     qmlRegisterUncreatableMetaObject(AppState::staticMetaObject, "org.radar.app", 1, 0, "AppStates", "Error: only enums!");
     QQmlApplicationEngine engine;
-    const QUrl url(QStringLiteral("qrc:/main.qml"));
+    const QUrl url(QStringLiteral("qrc:/ui/main.qml"));
     engine.rootContext()->setContextProperty(QStringLiteral("fontPointSize"), QGuiApplication::font().pointSizeF());
     QObject::connect(&engine, &QQmlApplicationEngine::objectCreated, &app,
                      [url](QObject *obj, const QUrl &objUrl) {

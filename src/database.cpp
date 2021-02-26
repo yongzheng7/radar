@@ -275,7 +275,7 @@ DB::~DB() = default;
 QSqlError DB::initDB()
 {
     QSqlDatabase db = QSqlDatabase::addDatabase(QStringLiteral("QSQLITE"));
-    QFile asset(QStringLiteral(":/db.sqlite"));
+    QFile asset(QStringLiteral(":/data/db.sqlite"));
     if (!asset.exists()) {
         qCritical() << "No DB file in assets!";
         return QSqlError();

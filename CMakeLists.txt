@@ -40,6 +40,8 @@ file(WRITE ${CMAKE_GENERATED_RCC}
 "<!DOCTYPE RCC><RCC version=\"1.0\">\n"
 "<qresource prefix=\"/\">\n"
 )
+
+# Android?
 foreach(RES_FILE ${QRC_SOURCES})
     get_filename_component(FULL_PATH ${RES_FILE} ABSOLUTE)
     file(APPEND ${CMAKE_GENERATED_RCC}
@@ -55,19 +57,22 @@ file(APPEND ${CMAKE_GENERATED_RCC}
 "</RCC>\n"
 )
 
+set(CXX_SOURCES 
+    src/all_countries.cpp
+    src/app.cpp
+    src/database.cpp
+    src/eventsmodel.cpp
+    src/locationprovider.cpp
+    src/main.cpp
+    src/all_countries.h
+    src/app.h
+    src/database.h
+    src/eventsmodel.h
+    src/locationprovider.h)
+
 add_executable(radar-app
-    all_countries.cpp
-    app.cpp
-    database.cpp
-    eventsmodel.cpp
-    locationprovider.cpp
-    main.cpp
-    all_countries.h
-    app.h
-    database.h
-    eventsmodel.h
-    locationprovider.h
-    qml.qrc
+    ${CXX_SOURCES}
+    resources.qrc
     qml_desktop.qrc
     ${CMAKE_GENERATED_RCC}
 )
