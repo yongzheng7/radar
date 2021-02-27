@@ -7,15 +7,13 @@ else()
 endif()
 
 project(RadarApp VERSION 1.0
-         DESCRIPTION "Radar Squat Net Client Application"
-         LANGUAGES CXX)
+        DESCRIPTION "Radar Squat Net Mobile App"
+        LANGUAGES CXX)
 
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
-
-find_package(Qt5 COMPONENTS Quick Positioning Sql REQUIRED)
 
 set(IMAGE_RESOURCES images/qrcode-apk.png)
 set(ICON_RESOURCES
@@ -70,14 +68,30 @@ set(CXX_SOURCES
     src/eventsmodel.h
     src/locationprovider.h)
 
-add_executable(radar-app
-    ${CXX_SOURCES}
-    resources.qrc
-    qml_desktop.qrc
-    ${CMAKE_GENERATED_RCC}
-)
+if(ANDROID)
+    include(qt-android-cmake/AddQtAndroidApk.cmake)
+    add_qt_android_apk(radar-app_apk radar-app)
+    set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY BOTH)
+    set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE BOTH)
 
-set_target_properties(radar-app
-    PROPERTIES CXX_STANDARD_REQUIRED 14)
+    add_library(radar-app
+        ${CXX_SOURCES}
+        resources.qrc
+        qml_desktop.qrc
+        ${CMAKE_GENERATED_RCC}
+    )
+else()
+    add_executable(radar-app
+        ${CXX_SOURCES}
+        resources.qrc
+        qml_desktop.qrc
+        ${CMAKE_GENERATED_RCC}
+    )
+endif()
+
+find_package(Qt5 COMPONENTS Quick Positioning Sql REQUIRED)
+
+set_target_properties(radar-app 
+                      PROPERTIES CXX_STANDARD_REQUIRED 14)
 
 qt5_use_modules(radar-app Quick Positioning Sql)
