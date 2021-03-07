@@ -1,5 +1,5 @@
 #!/bin/bash
-script ../radar-app/properties.local
+source ../radar-app/properties.local
 ~/qt/5.12.9/android_armv7/bin/qmake CONFIG+=release ../radar-app 
 make
 make install INSTALL_ROOT=.

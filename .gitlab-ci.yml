@@ -21,16 +21,23 @@ variables:
   # when the script was last modified for latest compileSdkVersion, it was which is written down below
   ANDROID_SDK_TOOLS: "6514223"
 
+  ANDROID_NDK_VERSION: "19.2.5345600"
+
+  QT_VERSION: "5.12.9"
+  QT_TARGET_ARCH: "android_armv7"
+
 # Packages installation before running script
 before_script:
   - apt-get --quiet update --yes
   - apt-get --quiet install --yes wget tar unzip lib32stdc++6 lib32z1
-  - apt-get --quiet install --yes cmake python3-pip
+  - apt-get --quiet install --yes make cmake python3-pip
   - pip3 install pipenv
 
   - git clone https://github.com/engnr/qt-downloader
-  - cd qt-downloader && pipenv run pipenv install
-  - cd qt-downloader && pipenv run ./qt-downloader linux android 5.12.9 android_armv7
+  - pushd qt-downloader
+  - pipenv run pipenv install
+  - pipenv run ./qt-downloader linux android ${QT_VERSION} ${QT_TARGET_ARCH}
+  - popd
   # Setup path as android_home for moving/exporting the downloaded sdk into it
   - export ANDROID_HOME="${PWD}/android-home"
   # Create a new directory at specified location
@@ -54,31 +61,25 @@ before_script:
   - sdkmanager --sdk_root=${ANDROID_HOME} "platforms;android-${ANDROID_COMPILE_SDK}"
   - sdkmanager --sdk_root=${ANDROID_HOME} "platform-tools"
   - sdkmanager --sdk_root=${ANDROID_HOME} "build-tools;${ANDROID_BUILD_TOOLS}"
+  - sdkmanager --sdk_root=${ANDROID_HOME} "ndk;${ANDROID_NDK_VERSION}"
 
   # Not necessary, but just for surity
-  - chmod +x ./gradlew
+  #- chmod +x ./gradlew
 
-# Basic android and gradle stuff
-# Check linting
-lintDebug:
-  interruptible: true
-  stage: build
-  script:
-    - ./gradlew -Pci --console=plain :app:lintDebug -PbuildDir=lint
-
-# Make Project
+# Run build script      
 assembleDebug:
   interruptible: true
   stage: build
   script:
-    - ./gradlew assembleDebug
+    - export ANDROID_NDK=${ANDROID_HOME}/ndk/${ANDROID_NDK_VERSION}
+    - export ANDROID_NDK_ROOT=${ANDROID_NDK}
+    - export ANDROID_SDK_ROOT=${ANDROID_HOME}
+    - export ANDROID_SDK=${ANDROID_SDK_ROOT}
+    - export QT_BASE=qt-downloader/${QT_VERSION}/${QT_TARGET_ARCH}
+    - ${QT_BASE}/bin/qmake CONFIG+= release .
+    - make
+    - make install INSTALL_ROOT=.
+    - ${QT_BASE}/bin/androiddeployqt --input android-libradar-app.so-deployment-settings.json --output . --gradle --no-gdbserver
   artifacts:
     paths:
-      - app/build/outputs/
-
-# Run all tests, if any fails, interrupt the pipeline(fail it)
-debugTests:
-  interruptible: true
-  stage: test
-  script:
-    - ./gradlew -Pci --console=plain :app:testDebug
+      - apk/
