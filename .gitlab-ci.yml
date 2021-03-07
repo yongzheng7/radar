@@ -36,7 +36,7 @@ before_script:
   - git clone https://github.com/engnr/qt-downloader
   - pushd qt-downloader
   - pipenv run pipenv install
-  - pipenv run ./qt-downloader linux android ${QT_VERSION} ${QT_TARGET_ARCH}
+  - pipenv run ./qt-downloader --opensource linux android ${QT_VERSION} ${QT_TARGET_ARCH}
   - popd
   # Setup path as android_home for moving/exporting the downloaded sdk into it
   - export ANDROID_HOME="${PWD}/android-home"
@@ -76,7 +76,7 @@ assembleDebug:
     - export ANDROID_SDK_ROOT=${ANDROID_HOME}
     - export ANDROID_SDK=${ANDROID_SDK_ROOT}
     - export QT_BASE=qt-downloader/${QT_VERSION}/${QT_TARGET_ARCH}
-    - ${QT_BASE}/bin/qmake CONFIG+= release .
+    - ${QT_BASE}/bin/qmake CONFIG+=release .
     - make
     - make install INSTALL_ROOT=.
     - ${QT_BASE}/bin/androiddeployqt --input android-libradar-app.so-deployment-settings.json --output . --gradle --no-gdbserver
