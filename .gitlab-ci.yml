@@ -25,6 +25,8 @@ variables:
 
   QT_VERSION: "5.12.9"
   QT_TARGET_ARCH: "android_armv7"
+  GIT_CLONE_PATH: "$CI_BUILDS_DIR/radar-app"
+  GIT_SUBMODULE_STRATEGY: "normal"
 
 # Packages installation before running script
 before_script:

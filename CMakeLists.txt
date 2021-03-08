@@ -69,8 +69,6 @@ set(CXX_SOURCES
     src/locationprovider.h)
 
 if(ANDROID)
-    include(qt-android-cmake/AddQtAndroidApk.cmake)
-    add_qt_android_apk(radar-app_apk radar-app)
     set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY BOTH)
     set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE BOTH)
 
@@ -80,6 +78,9 @@ if(ANDROID)
         qml_desktop.qrc
         ${CMAKE_GENERATED_RCC}
     )
+    include(android_openssl/CMakeLists.txt)
+    include(qt-android-cmake/AddQtAndroidApk.cmake)
+    add_qt_android_apk(radar-app_apk radar-app)
 else()
     add_executable(radar-app
         ${CXX_SOURCES}
