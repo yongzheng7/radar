@@ -81,4 +81,4 @@ contains(ANDROID_TARGET_ARCH,armeabi-v7a) {
     ANDROID_PACKAGE_SOURCE_DIR = \
         $$PWD/android
 }
-android: include($$PWD/../android_openssl/openssl.pri)
+android: include($$PWD/android_openssl/openssl.pri)
