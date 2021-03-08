@@ -33,7 +33,7 @@ before_script:
   - apt-get --quiet install --yes make cmake python3-pip
   - pip3 install pipenv
 
-  - git clone https://github.com/engnr/qt-downloader
+  - git submodule update --init
   - pushd qt-downloader
   - pipenv run pipenv install
   - pipenv run ./qt-downloader --opensource linux android ${QT_VERSION} ${QT_TARGET_ARCH}
