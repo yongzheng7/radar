@@ -447,7 +447,7 @@ ApplicationWindow {
                         case AppStates.Filtering:
                             return qsTr("Filtering events");
                         case AppStates.CountryLoad:
-                            return qsTr("Loading coutries");
+                            return qsTr("Loading countries");
                         case AppStates.CitiesLoad:
                             return qsTr("Loading cities");
                         default:
