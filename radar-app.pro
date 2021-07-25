@@ -53,11 +53,6 @@ qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
-android {
-    QT += androidextras
-    QT -= location
-}
-
 HEADERS += \
     src/all_countries.h \
     src/app.h \
@@ -66,6 +61,9 @@ HEADERS += \
     src/locationprovider.h
 
 android {
+    QT += androidextras
+    QT -= location
+    ANDROID_PACKAGE_SOURCE_DIR = $$PWD/android
     ANDROID_ABIS = "armeabi-v7a"
     DISTFILES += \
                  android/AndroidManifest.xml \
@@ -75,10 +73,7 @@ android {
                  android/gradlew \
                  android/gradlew.bat \
                  android/res/values/libs.xml
+ 
+    include($$PWD/android_openssl/openssl.pri)
 }
 
-contains(ANDROID_TARGET_ARCH,armeabi-v7a) {
-    ANDROID_PACKAGE_SOURCE_DIR = \
-        $$PWD/android
-}
-android: include($$PWD/android_openssl/openssl.pri)

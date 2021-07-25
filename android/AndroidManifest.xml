@@ -62,7 +62,7 @@
             <meta-data android:name="android.app.background_running" android:value="false"/>
             <!-- Background running -->
             <!-- auto screen scale factor -->
-            <meta-data android:name="android.app.auto_screen_scale_factor" android:value="false"/>
+            <meta-data android:name="android.app.auto_screen_scale_factor" android:value="true"/>
             <!-- auto screen scale factor -->
             <!-- extract android style -->
             <!-- available android:values :
@@ -71,7 +71,7 @@
                 * minimal - useful for Quick Controls 2 apps, it is much faster than "full"
                 * none - useful for apps that don't use any of the above Qt modules
                 -->
-            <meta-data android:name="android.app.extract_android_style" android:value="none"/>
+            <meta-data android:name="android.app.extract_android_style" android:value="minimal"/>
             <!-- extract android style -->
         </activity>
         <!-- For adding service(s) please check: https://wiki.qt.io/AndroidServices -->
