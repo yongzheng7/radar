@@ -84,5 +84,5 @@ assembleDebug:
     - ${QT_BASE}/bin/androiddeployqt --input android-libradar-app.so-deployment-settings.json --output . --gradle --no-gdbserver
   artifacts:
     paths:
-      - build/outputs/apk/
+      - build/outputs/apk/debug/radar-app-debug.apk
 
