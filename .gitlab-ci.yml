@@ -85,12 +85,13 @@ assembleDebug:
     - export ANDROID_SDK=${ANDROID_SDK_ROOT}
     - export QT_BASE=${GIT_CLONE_PATH}/qt-downloader/${QT_VERSION}/${QT_TARGET_ARCH}
     - export CMAKE=${ANDROID_HOME}/cmake/${CMAKE_VERSION}/bin/cmake
-    - mkdir ${CI_BUILDS_DIR}/build-android
-    - pushd ${CI_BUILDS_DIR}/build-android
+    - export CMAKE_BUILD_DIR=${GIT_CLONE_PATH}/build-android
+    - install -d "${CMAKE_BUILD_DIR}"
+    - pushd "${CMAKE_BUILD_DIR}"
     - ${CMAKE} -DCMAKE_TOOLCHAIN_FILE="${ANDROID_NDK}/build/cmake/android.toolchain.cmake" -DANDROID_ABI=${ANDROID_ABI} -DCMAKE_PREFIX_PATH:PATH="${QT_BASE}/lib" -DCMAKE_FIND_ROOT_PATH="${QT_BASE}/" ${GIT_CLONE_PATH}
     - ${CMAKE} --build . -- -j $(nproc)
     - popd
   artifacts:
     paths:
-      - ${CI_BUILDS_DIR}/build-android/radar-app-armeabi-v7a/build/outputs/apk/debug/radar-app-armeabi-v7a-debug.apk
+      - ${GIT_CLONE_PATH}/build-android/radar-app-armeabi-v7a/build/outputs/apk/debug/radar-app-armeabi-v7a-debug.apk
 
