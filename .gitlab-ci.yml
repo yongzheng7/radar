@@ -24,9 +24,9 @@ variables:
   ANDROID_SDK_TOOLS: "7302050"
 
   #  ANDROID_NDK_VERSION: "19.2.5345600"
-  ANDROID_NDK_VERSION: "21.3.6528147"
+  ANDROID_NDK_VERSION: "19.2.5345600"
 
-  QT_VERSION: "5.12.11"
+  QT_VERSION: "5.12.9"
   QT_TARGET_ARCH: "android_armv7"
   ANDROID_ABI: "armeabi-v7a"
   GIT_CLONE_PATH: "${CI_BUILDS_DIR}/radar-app"
@@ -43,7 +43,7 @@ before_script:
   - git submodule update --init
   - pushd qt-downloader
   - pipenv run pipenv install
-  - pipenv run ./qt-downloader --opensource linux android ${QT_VERSION} ${QT_TARGET_ARCH}
+  - pipenv run ./qt-downloader --opensource -a linux android ${QT_VERSION} ${QT_TARGET_ARCH}
   - popd
   # Setup path as android_home for moving/exporting the downloaded sdk into it
   - export ANDROID_HOME="${PWD}/android-home"
