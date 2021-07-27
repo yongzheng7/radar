@@ -8,12 +8,10 @@ variables:
 
   # ANDROID_COMPILE_SDK is the version of Android you're compiling with.
   # It should match compileSdkVersion.
-  #ANDROID_COMPILE_SDK: "29"
   ANDROID_COMPILE_SDK: "31"
 
   # ANDROID_BUILD_TOOLS is the version of the Android build tools you are using.
   # It should match buildToolsVersion.
-  #ANDROID_BUILD_TOOLS: "29.0.3"
   ANDROID_BUILD_TOOLS: "31.0.0"
 
   # It's what version of the command line tools we're going to download from the official site.
@@ -21,17 +19,17 @@ variables:
   # There, look down below at the cli tools only, sdk tools package is of format:
   #        commandlinetools-os_type-ANDROID_SDK_TOOLS_latest.zip
   # when the script was last modified for latest compileSdkVersion, it was which is written down below
-  #ANDROID_SDK_TOOLS: "6514223"
   ANDROID_SDK_TOOLS: "7302050"
 
   #  ANDROID_NDK_VERSION: "19.2.5345600"
   ANDROID_NDK_VERSION: "21.3.6528147"
 
-#  QT_VERSION: "5.12.9"
   QT_VERSION: "5.12.11"
   QT_TARGET_ARCH: "android_armv7"
-  GIT_CLONE_PATH: "$CI_BUILDS_DIR/radar-app"
+  ANDROID_ABI: "armeabi-v7a"
+  GIT_CLONE_PATH: "${CI_BUILDS_DIR}/radar-app"
   GIT_SUBMODULE_STRATEGY: "normal"
+  CMAKE_VERSION: "3.18.1"
 
 # Packages installation before running script
 before_script:
@@ -69,6 +67,7 @@ before_script:
   - sdkmanager --sdk_root=${ANDROID_HOME} "platform-tools"
   - sdkmanager --sdk_root=${ANDROID_HOME} "build-tools;${ANDROID_BUILD_TOOLS}"
   - sdkmanager --sdk_root=${ANDROID_HOME} "ndk;${ANDROID_NDK_VERSION}"
+  - sdkmanager --sdk_root=${ANDROID_HOME} "cmake;${CMAKE_VERSION}"
 
   # Not necessary, but just for surity
   #- chmod +x ./gradlew
@@ -83,16 +82,13 @@ assembleDebug:
     - export ANDROID_SDK_ROOT=${ANDROID_HOME}
     - export ANDROID_SDK=${ANDROID_SDK_ROOT}
     - export QT_BASE=${GIT_CLONE_PATH}/qt-downloader/${QT_VERSION}/${QT_TARGET_ARCH}
-    - mkdir build
-    - pushd build
-    - ${QT_BASE}/bin/qmake CONFIG+=release ${GIT_CLONE_PATH}
-    - make -j 4
-    - mkdir radar-app
-    - make install INSTALL_ROOT=radar-app
-    - ${QT_BASE}/bin/androiddeployqt --verbose --input android-libradar-app.so-deployment-settings.json --output radar-app --gradle --no-gdbserver
+    - export CMAKE=${ANDROID_HOME}/cmake/${CMAKE_VERSION}/bin/cmake
+    - mkdir ${CI_BUILDS_DIR}/build-android
+    - pushd ${CI_BUILDS_DIR}/build-android
+    - ${CMAKE} -DCMAKE_TOOLCHAIN_FILE="${ANDROID_NDK}/build/cmake/android.toolchain.cmake" -DANDROID_ABI=${ANDROID_ABI} -DCMAKE_PREFIX_PATH:PATH="${QT_BASE}/lib" -DCMAKE_FIND_ROOT_PATH="${QT_BASE}/" ${GIT_CLONE_PATH}
+    - ${CMAKE} --build . -- -j $(nproc)
     - popd
-    - bash
   artifacts:
     paths:
-      - build/outputs/apk/debug/radar-app-debug.apk
+      - ${CI_BUILDS_DIR}/build-android/radar-app-armeabi-v7a/build/outputs/apk/debug/radar-app-armeabi-v7a-debug.apk
 
