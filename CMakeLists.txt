@@ -10,6 +10,7 @@ project(RadarApp VERSION 1.0
         DESCRIPTION "Radar Squat Net Mobile App"
         LANGUAGES CXX)
 
+
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
@@ -55,7 +56,7 @@ file(APPEND ${CMAKE_GENERATED_RCC}
 "</RCC>\n"
 )
 
-set(CXX_SOURCES 
+set(CXX_SOURCES
     src/all_countries.cpp
     src/app.cpp
     src/database.cpp
@@ -68,9 +69,14 @@ set(CXX_SOURCES
     src/eventsmodel.h
     src/locationprovider.h)
 
+
 if(ANDROID)
-    set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY BOTH)
-    set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE BOTH)
+#    set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY BOTH)
+#    set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE BOTH)
+    find_package(Qt5 COMPONENTS Core AndroidExtras Quick Positioning Sql REQUIRED)
+
+    include(android_openssl/CMakeLists.txt)
+    include(qt-android-cmake/AddQtAndroidApk.cmake)
 
     add_library(radar-app
         ${CXX_SOURCES}
@@ -78,21 +84,24 @@ if(ANDROID)
         qml_desktop.qrc
         ${CMAKE_GENERATED_RCC}
     )
-    include(android_openssl/CMakeLists.txt)
-    include(qt-android-cmake/AddQtAndroidApk.cmake)
-    add_qt_android_apk(radar-app_apk radar-app)
+    qt5_use_modules(radar-app Core AndroidExtras Quick Positioning Sql)
+
+    add_qt_android_apk(radar-app_apk radar-app
+        NAME "Radar App"
+        VERSION_CODE 1
+        PACKAGE_NAME "org.radar.app"
+        )
 else()
+    find_package(Qt5 COMPONENTS Core Quick Positioning Sql REQUIRED)
     add_executable(radar-app
         ${CXX_SOURCES}
         resources.qrc
         qml_desktop.qrc
         ${CMAKE_GENERATED_RCC}
     )
+    qt5_use_modules(radar-app Core Quick Positioning Sql)
 endif()
 
-find_package(Qt5 COMPONENTS Quick Positioning Sql REQUIRED)
-
-set_target_properties(radar-app 
+set_target_properties(radar-app
                       PROPERTIES CXX_STANDARD_REQUIRED 14)
 
-qt5_use_modules(radar-app Quick Positioning Sql)
