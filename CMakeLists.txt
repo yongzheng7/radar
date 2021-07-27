@@ -78,7 +78,7 @@ if(ANDROID)
     include(android_openssl/CMakeLists.txt)
     include(qt-android-cmake/AddQtAndroidApk.cmake)
 
-    add_library(radar-app
+    add_library(radar-app SHARED
         ${CXX_SOURCES}
         resources.qrc
         qml_desktop.qrc
@@ -90,6 +90,7 @@ if(ANDROID)
         NAME "Radar App"
         VERSION_CODE 1
         PACKAGE_NAME "org.radar.app"
+	PACKAGE_SOURCES "${CMAKE_CURRENT_LIST_DIR}/android"
         )
 else()
     find_package(Qt5 COMPONENTS Core Quick Positioning Sql REQUIRED)
