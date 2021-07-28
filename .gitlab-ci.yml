@@ -43,7 +43,9 @@ before_script:
   - git submodule update --init
   - pushd qt-downloader
   - pipenv run pipenv install
-  - pipenv run ./qt-downloader --opensource -a linux android ${QT_VERSION} ${QT_TARGET_ARCH}
+  # Download Qt to CI_BUILDS_DIR, to prevent androiddeployqt from skipping Qt QML dependencies for APK
+  # (option -o ${CI_BUILDS_DIR}
+  - pipenv run ./qt-downloader -o ${CI_BUILDS_DIR}/ --opensource linux android ${QT_VERSION} ${QT_TARGET_ARCH}
   - popd
   # Setup path as android_home for moving/exporting the downloaded sdk into it
   - export ANDROID_HOME="${PWD}/android-home"
@@ -83,7 +85,7 @@ assembleDebug:
     - export ANDROID_NDK_ROOT=${ANDROID_NDK}
     - export ANDROID_SDK_ROOT=${ANDROID_HOME}
     - export ANDROID_SDK=${ANDROID_SDK_ROOT}
-    - export QT_BASE=${GIT_CLONE_PATH}/qt-downloader/${QT_VERSION}/${QT_TARGET_ARCH}
+    - export QT_BASE=${GIT_CLONE_PATH}/${QT_VERSION}/${QT_TARGET_ARCH}
     - export CMAKE=${ANDROID_HOME}/cmake/${CMAKE_VERSION}/bin/cmake
     - export CMAKE_BUILD_DIR=${GIT_CLONE_PATH}/build-android
     - install -d "${CMAKE_BUILD_DIR}"
