@@ -244,7 +244,7 @@ private:
     const QString m_groupsRequestUrl = QStringLiteral("https://radar.squat.net/api/1.1/search/groups.json?fields[]=uuid&limit=1");
     const QString m_cityRequestUrlBase = QStringLiteral("https://radar.squat.net/api/1.2/search/groups.json?fields[]=uuid&limit=1&facets[country][]=%1");
     //Locations in city: https://radar.squat.net/api/1.2/search/location.json?facets[country][]=DE&facets[locality][]=Berlin&fields[]=directions&fields[]=title&fields[]=address&fields[]=uuid&fields[]=map
-    const QString m_downloadLink = QStringLiteral("https://0xacab.org/xandyx/radar-app/raw/master/apk/android-build-debug.apk");
+    const QString m_downloadLink = QStringLiteral("https://0xacab.org/xandyx/radar-app/-/jobs/213170/artifacts/raw/build-android/radar-app-armeabi-v7a/build/outputs/apk/debug/radar-app-armeabi-v7a-debug.apk");
 
     const QString m_settingsCityKey = QStringLiteral("filter/city");
     const QString m_settingsCountryKey = QStringLiteral("filter/country");
