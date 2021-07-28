@@ -210,7 +210,7 @@ ApplicationWindow {
                 anchors.margins: 0
 
                 fillMode: Image.PreserveAspectFit
-                source: "images/qrcode-apk.png"
+                source: "qrc:/images/qrcode-apk.png"
             }
         }
     }
