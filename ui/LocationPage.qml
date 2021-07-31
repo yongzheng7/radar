@@ -131,7 +131,7 @@ Item {
 
                 wrapMode: Text.WordWrap
 
-                text: qsTr("%1 events in this area".arg(App.totalFoundEvents))
+                text: qsTr("%1 events in this area").arg(App.totalFoundEvents)
             }
 
             Label {
@@ -141,7 +141,7 @@ Item {
 
                 wrapMode: Text.WordWrap
 
-                text: qsTr("%1 events today".arg(App.todayFoundEvents))
+                text: qsTr("%1 events today").arg(App.todayFoundEvents)
             }
 
             ColumnLayout {
@@ -163,8 +163,7 @@ Item {
 
                     onClicked: root.showClicked()
 
-                    visible: App.totalFoundEvents > 0
-                    enabled: App.state === AppStates.Idle
+                    enabled: App.state === AppStates.Idle && App.totalFoundEvents > 0
                 }
 
 

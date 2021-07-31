@@ -22,6 +22,7 @@
 #include <QIcon>
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
+#include <QTranslator>
 #include <QtQuickControls2>
 #include <QtSql>
 
@@ -46,6 +47,16 @@ int main(int argc, char *argv[])
     QGuiApplication::setWindowIcon(QIcon(QStringLiteral("qrc:/icons/app-xhdpi.png")));
 
     QIcon::setThemeName(QStringLiteral("radar"));
+
+    {
+        QTranslator *tranlator = new QTranslator(&app);
+        qDebug() << "Locale:" << QLocale().system().name() << QLocale().system().language();
+        if (!tranlator->load(QStringLiteral(":/radar.qm"))) {
+            qCritical() << "Failed to load translator!";
+            return 1;
+        }
+        app.installTranslator(tranlator);
+    }
 
     { //TODO: get font size settings on android
         auto font = QGuiApplication::font();

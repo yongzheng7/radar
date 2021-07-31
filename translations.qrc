@@ -1,0 +1,11 @@
+<RCC>
+    <qresource>
+        <file alias="radar.qm">i18n/radar_en.qm</file>
+    </qresource>
+    <qresource lang="de">
+        <file alias="radar.qm">i18n/radar_de.qm</file>
+    </qresource>
+    <qresource lang="ru">
+        <file alias="radar.qm">i18n/radar_ru.qm</file>
+    </qresource>
+</RCC>

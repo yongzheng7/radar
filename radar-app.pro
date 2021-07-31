@@ -23,7 +23,8 @@ SOURCES += \
         src/locationprovider.cpp \
         src/main.cpp
 
-RESOURCES += resources.qrc
+RESOURCES += resources.qrc \
+    translations.qrc
 
 !android: RESOURCES += qml_desktop.qrc
 
@@ -62,6 +63,12 @@ HEADERS += \
     src/database.h \
     src/eventsmodel.h \
     src/locationprovider.h
+
+TRANSLATIONS += \
+    i18n/radar_ru.ts \
+    i18n/radar_de.ts \
+    i18n/radar_en.ts
+
 
 android {
     QT += androidextras
