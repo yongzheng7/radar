@@ -153,6 +153,8 @@ public:
 
     void updateCurrentLocation();
 
+    static float getAndroidScale();
+
 signals:
     void countriesChanged(QPrivateSignal);
     void allCitiesLoaded(QPrivateSignal);

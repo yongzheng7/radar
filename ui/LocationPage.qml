@@ -180,6 +180,8 @@ Item {
                         anchors.verticalCenter: parent.verticalCenter
                         anchors.leftMargin: 12
                         font.family: "Material Design Icons"
+                        font.bold: true
+                        font.pixelSize: parent.font.pixelSize
                         text: MdiFont.Icon.reload
                     }
 

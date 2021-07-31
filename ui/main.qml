@@ -56,6 +56,7 @@ ApplicationWindow {
             anchors.fill: parent
 
             ToolButton {
+                id: toolBarBackButton
                 icon.name: swipeView.currentIndex > 0 ? "back" : ""
                 enabled: swipeView.currentIndex > 0
                 onClicked: {
@@ -94,7 +95,8 @@ ApplicationWindow {
                         return qsTr("Radar")
                     }
                 }
-                font.pointSize: root.font.pointSize
+
+                font.pixelSize: toolBarBackButton.icon.height
                 elide: Label.ElideRight
                 horizontalAlignment: Qt.AlignHCenter
                 verticalAlignment: Qt.AlignVCenter
@@ -113,7 +115,11 @@ ApplicationWindow {
 
             ToolButton {
                 visible: eventView.active || mapView.active
+
                 font.family: "Material Design Icons"
+                font.bold: true
+                font.pixelSize: toolBarBackButton.icon.height
+
                 text: MdiFont.Icon.close
                 Layout.alignment: Qt.AlignVCenter
 
@@ -211,7 +217,6 @@ ApplicationWindow {
             padding: 24
             bottomPadding: 0
             font.bold: true
-            //font.pointSize: fontPointSize || 18
         }
 
         Frame {

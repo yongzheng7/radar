@@ -185,7 +185,6 @@ Cras nec ante sit amet augue sodales iaculis. Aliquam erat volutpat. Nam aliquet
                     font.bold: true
                 }
                 Label {
-                    Layout.alignment: Qt.AlignTop
                     Layout.fillWidth: true
                     text: root.dateTime
                     wrapMode: TextEdit.Wrap
@@ -198,12 +197,10 @@ Cras nec ante sit amet augue sodales iaculis. Aliquam erat volutpat. Nam aliquet
                 height: Layout.preferredHeight
                 spacing: 6
                 Label {
-                    Layout.alignment: Qt.AlignTop
                     text: qsTr("Duration:")
                     font.bold: true
                 }
                 Label {
-                    Layout.alignment: Qt.AlignTop
                     Layout.fillWidth: true
                     text: root.duration
                     wrapMode: TextEdit.Wrap
@@ -214,12 +211,10 @@ Cras nec ante sit amet augue sodales iaculis. Aliquam erat volutpat. Nam aliquet
                 spacing: 6
                 visible: root.price !== ""
                 Label {
-                    Layout.alignment: Qt.AlignTop
                     text: qsTr("Price:")
                     font.bold: true
                 }
                 Label {
-                    Layout.alignment: Qt.AlignTop
                     text: root.price
                     Layout.fillWidth: true
                     wrapMode: TextEdit.Wrap
@@ -230,12 +225,10 @@ Cras nec ante sit amet augue sodales iaculis. Aliquam erat volutpat. Nam aliquet
                 spacing: 6
 
                 Label {
-                    //Layout.alignment: Qt.AlignTop
                     text: qsTr("Address:")
                     font.bold: true
                 }
                 TextArea {
-                    Layout.alignment: Qt.AlignTop
                     id: address
                     readOnly: true
                     Layout.fillWidth: true
@@ -252,6 +245,8 @@ Cras nec ante sit amet augue sodales iaculis. Aliquam erat volutpat. Nam aliquet
                 }
                 ToolButton {
                     font.family: "Material Design Icons"
+                    font.pointSize: (fontPointSize || 16) * 1.5
+
                     text: MdiFont.Icon.mapSearch
                     onClicked: root.openMap()
 
@@ -288,7 +283,7 @@ Cras nec ante sit amet augue sodales iaculis. Aliquam erat volutpat. Nam aliquet
                     color: "transparent"
 
                     border.width: 1.0
-                    border.color: Material.color(Material.Grey)//"#d0d0d0"
+                    border.color: Material.color(Material.Grey)
 
                     radius: addToCalendar.radius*2
 
@@ -301,6 +296,7 @@ Cras nec ante sit amet augue sodales iaculis. Aliquam erat volutpat. Nam aliquet
                         id: addToCalendar
 
                         font.family: "Material Design Icons"
+                        font.pixelSize: 24
                         text: MdiFont.Icon.calendar
 
                         onClicked: root.addToCalendarClicked()
@@ -314,6 +310,7 @@ Cras nec ante sit amet augue sodales iaculis. Aliquam erat volutpat. Nam aliquet
                         visible: root.urlProvided
 
                         font.family: "Material Design Icons"
+                        font.pixelSize: 24
                         text: MdiFont.Icon.web
 
                         onClicked: root.openUrlRequested()
@@ -326,10 +323,12 @@ Cras nec ante sit amet augue sodales iaculis. Aliquam erat volutpat. Nam aliquet
                         id: share
                         visible: root.urlProvided
                         font.family: "Material Design Icons"
+                        font.pixelSize: 24
                         text: MdiFont.Icon.share
 
                         onClicked: root.shareRequested()
                         Material.elevation: 1
+                        Material.accent: Material.Grey
 
                         ToolTip.visible: hovered
                         ToolTip.text: qsTr("Share...")

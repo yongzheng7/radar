@@ -49,7 +49,8 @@ int main(int argc, char *argv[])
 
     { //TODO: get font size settings on android
         auto font = QGuiApplication::font();
-        constexpr auto fontSizePt = 16;
+        auto fontSizePt = 16;
+        fontSizePt *= App::getAndroidScale();
         font.setPointSize(fontSizePt);
         QGuiApplication::setFont(font);
     }

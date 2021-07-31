@@ -847,6 +847,27 @@ void App::doSharing(const QString &title, const QString &body)
 #endif
 }
 
+
+float App::getAndroidScale()
+{
+#ifdef Q_OS_ANDROID
+        // getResources().getConfiguration().fontScale
+    auto resources = QtAndroid::androidContext().callObjectMethod("getResources", "()Landroid/content/res/Resources;");
+    auto configuration =resources.callObjectMethod("getConfiguration", "()Landroid/content/res/Configuration;");
+    float fontScale = configuration.getField<float>("fontScale");
+    QAndroidJniEnvironment env;
+    if (env->ExceptionCheck()) {
+        qCritical() << "Exception:";
+        env->ExceptionDescribe();
+        env->ExceptionClear();
+    }
+    qDebug() << "fontScale = " << fontScale;
+    return fontScale;
+#else
+    return 1.0;
+#endif
+}
+
 void App::share()
 {
     qDebug() << "Sharing event " << m_currentEvent.title << " with URL " << eventUrl();
