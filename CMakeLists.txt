@@ -21,15 +21,19 @@ set(ICON_RESOURCES
     icons/radar/index.theme
     icons/radar/20x20/back.png
     icons/radar/20x20/drawer.png
+    icons/radar/20x20/empty.png
     icons/radar/20x20/menu.png
     icons/radar/20x20@2/back.png
     icons/radar/20x20@2/drawer.png
+    icons/radar/20x20@2/empty.png
     icons/radar/20x20@2/menu.png
     icons/radar/20x20@3/back.png
     icons/radar/20x20@3/drawer.png
+    icons/radar/20x20@3/empty.png
     icons/radar/20x20@3/menu.png
     icons/radar/20x20@4/back.png
     icons/radar/20x20@4/drawer.png
+    icons/radar/20x20@4/empty.png
     icons/radar/20x20@4/menu.png
 )
 
@@ -90,8 +94,8 @@ if(ANDROID)
         NAME "Radar App"
         VERSION_CODE 1
         PACKAGE_NAME "org.radar.app"
-	PACKAGE_SOURCES "${CMAKE_CURRENT_LIST_DIR}/android"
-	DEPENDS "${ANDROID_EXTRA_LIBS}"
+    PACKAGE_SOURCES "${CMAKE_CURRENT_LIST_DIR}/android"
+    DEPENDS "${ANDROID_EXTRA_LIBS}"
         )
 else()
     find_package(Qt5 COMPONENTS Core Quick Positioning Sql REQUIRED)

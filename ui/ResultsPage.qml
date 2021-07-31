@@ -70,7 +70,7 @@ FocusScope {
         }
     }
 
-    Text {
+    Label {
         id: noResults
 
         visible: App.noEventsFound

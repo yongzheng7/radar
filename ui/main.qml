@@ -24,13 +24,15 @@ import QtQuick.Layouts 1.11
 
 import org.radar.app 1.0
 
+import "Icon.js" as MdiFont
+
 ApplicationWindow {
     id: root
 
     LayoutMirroring.enabled: Qt.application.layoutDirection === Qt.RightToLeft
     LayoutMirroring.childrenInherit: true
 
-    font.pointSize: fontPointSize || 18
+    font.pointSize: fontPointSize || 32
     visible: true
     width: 800
     height: 600
@@ -42,7 +44,7 @@ ApplicationWindow {
         id: backShortcut
         sequences: root.currentOSIsAndroid ? ["Esc", "Back"] : ["Esc"]
         onActivated: root.setPrevious()
-        enabled: swipeView.currentIndex > 0 && !eventPage.active && !mapView.active
+        enabled: swipeView.currentIndex > 0 && !eventView.active && !mapView.active
     }
 
     header: ToolBar {
@@ -62,8 +64,8 @@ ApplicationWindow {
                         return;
                     }
 
-                    if (eventPage.active) {
-                        eventPage.closePage();
+                    if (eventView.active) {
+                        eventView.closePage();
                         return;
                     }
 
@@ -80,7 +82,7 @@ ApplicationWindow {
                     if (mapView.active) {
                         return qsTr("Event on Map");
                     }
-                    if (eventPage.active) {
+                    if (eventView.active) {
                         return qsTr("Event");
                     }
                     switch (swipeView.currentItem) {
@@ -92,20 +94,36 @@ ApplicationWindow {
                         return qsTr("Radar")
                     }
                 }
-                font.pixelSize: 20
+                font.pointSize: root.font.pointSize
                 elide: Label.ElideRight
                 horizontalAlignment: Qt.AlignHCenter
                 verticalAlignment: Qt.AlignVCenter
                 Layout.fillWidth: true
             }
 
+
             ToolButton {
+                visible: !eventView.active
                 icon.name: "menu"
-                font.pointSize: root.font.pointSize*1.5
                 font.bold: true
                 Layout.alignment: Qt.AlignVCenter
 
                 onClicked: optionsMenu.open()
+            }
+
+            ToolButton {
+                visible: eventView.active || mapView.active
+                font.family: "Material Design Icons"
+                text: MdiFont.Icon.close
+                Layout.alignment: Qt.AlignVCenter
+
+                onClicked: {
+                    if (mapView.active) {
+                        mapView.closeView();
+                        return;
+                    }
+                    eventView.closePage();
+                }
             }
         }
     }
@@ -159,7 +177,7 @@ ApplicationWindow {
             padding: 24
             bottomPadding: 0
             font.bold: true
-            font.pointSize: fontPointSize || 18
+            font.pointSize: root.font.pointSize
         }
 
         Label {
@@ -193,7 +211,7 @@ ApplicationWindow {
             padding: 24
             bottomPadding: 0
             font.bold: true
-            font.pointSize: fontPointSize || 18
+            //font.pointSize: fontPointSize || 18
         }
 
         Frame {
@@ -290,7 +308,7 @@ ApplicationWindow {
                         console.log("Setting event details for item %1".arg(index));
                         App.selectEvent(index);
                         swipeView.enabled = false;
-                        eventPage.active = true;
+                        eventView.active = true;
                     }
                 }
                 onLoaded: {
@@ -323,9 +341,14 @@ ApplicationWindow {
 
             Button {
                 id: back
-                Layout.alignment: Qt.AlignLeft
-                text: qsTr("< Back")
+
+                visible: !root.currentOSIsAndroid
                 enabled: swipeView.currentIndex > 0
+
+                Layout.alignment: Qt.AlignLeft
+
+                text: qsTr("< Back")
+
                 onClicked: root.setPrevious()
             }
             PageIndicator {
@@ -337,9 +360,8 @@ ApplicationWindow {
             }
             Button {
                 id: forward
-                Layout.alignment: Qt.AlignRight
-                text: qsTr("Next >")
-                focus: true
+
+                visible: !root.currentOSIsAndroid
                 enabled: {
                     var index = swipeView.currentIndex;
                     if (index === location.index && !App.isLoaded) {
@@ -347,6 +369,12 @@ ApplicationWindow {
                     }
                     return index >= 0 && index < swipeView.count - 1;
                 }
+                focus: !root.currentOSIsAndroid
+
+                Layout.alignment: Qt.AlignRight
+
+                text: qsTr("Next >")
+
                 onClicked: root.setNext()
             }
         }
@@ -355,24 +383,24 @@ ApplicationWindow {
     Loader {
         anchors.fill: parent
         z: 1
-        id: eventPage
+        id: eventView
         active: false
-        source: "qrc:/ui/EventPage.qml"
+        source: "qrc:/ui/EventView.qml"
 
         function closePage() {
-            eventPage.active = false;
+            eventView.active = false;
             swipeView.enabled = true;
         }
         Connections {
-            target: eventPage.item
-            onCloseClicked: eventPage.closePage()
+            target: eventView.item
+            onCloseClicked: eventView.closePage()
             onLinkActivated: App.openLink(link)
             onLocationActivated: {
                 if (root.currentOSIsAndroid) {
                     App.showLocation();
                 } else {
                     mapView.active = true;
-                    eventPage.item.enabled = false;
+                    eventView.item.enabled = false;
                     if (mapView.item) {
                         mapView.updateCoordinates();
                     }
@@ -384,15 +412,15 @@ ApplicationWindow {
         }
 
         function updateEventInfo() {
-            if (eventPage.item) {
+            if (eventView.item) {
                 console.log("Updating event details...");
-                eventPage.item.updateEventInfo();
+                eventView.item.updateEventInfo();
             }
         }
         function updateLocationInfo() {
-            if (eventPage.item) {
+            if (eventView.item) {
                 console.log("Updating location details...");
-                eventPage.item.updateLocationInfo();
+                eventView.item.updateLocationInfo();
             }
         }
         onLoaded: {
@@ -402,8 +430,8 @@ ApplicationWindow {
 
         Connections {
             target: App
-            onCurrentEventChanged: eventPage.updateEventInfo()
-            onCurrentLocationChanged: eventPage.updateLocationInfo()
+            onCurrentEventChanged: eventView.updateEventInfo()
+            onCurrentLocationChanged: eventView.updateLocationInfo()
             onFailedToOpenMapApp: noMapApplication.open()
         }
     }
@@ -434,10 +462,10 @@ ApplicationWindow {
                 anchors.verticalCenter: parent.verticalCenter
                 padding: 12
                 spacing: 6
-                Text {
+                Label {
                     text: qsTr("Please wait…")
                 }
-                Text {
+                Label {
                     wrapMode: Text.WordWrap
                     visible: text !== ""
                     text: {
@@ -483,8 +511,8 @@ ApplicationWindow {
         function closeView() {
             console.log("closeView()");
             mapView.active = false;
-            eventPage.active = true;
-            eventPage.item.enabled = true;
+            eventView.active = true;
+            eventView.item.enabled = true;
         }
 
         source: root.currentOSIsAndroid ? "" : "qrc:/ui/map.qml"
@@ -515,7 +543,7 @@ ApplicationWindow {
         console.log("App.isLoaded=%1".arg(App.isLoaded));
         swipeView.currentIndex = 0;
         App.reload();
-        console.log("currentOS is android=" + root.currentOSIsAndroid)
+        console.log("currentOS is android=" + root.currentOSIsAndroid);
     }
 
     readonly property var appState: App.state

@@ -22,8 +22,12 @@ import QtQuick.Controls 2.12
 
 import org.radar.app 1.0
 
+import "Icon.js" as MdiFont
+
 Item {
     id: root
+
+    readonly property bool currentOSIsAndroid: Qt.platform.os === "android"
 
     anchors.fill: parent
     anchors.margins: 12
@@ -32,16 +36,18 @@ Item {
 
     Column {
         spacing: 10
-        anchors.fill: parent
+
+        width: root.width - root.anchors.margins*2
+        anchors.centerIn: parent
 
         GridLayout {
             columns: 2
             rowSpacing: 10
             columnSpacing: 10
-            anchors.left: parent.left
-            anchors.right: parent.right
 
-            Text {
+            width: parent.width
+
+            Label {
                 id: countryLabel
 
                 Layout.row: 0
@@ -68,7 +74,7 @@ Item {
                 }
             }
 
-            Text {
+            Label {
                 id: cityLabel
 
                 Layout.row: 1
@@ -116,7 +122,9 @@ Item {
             anchors.left: parent.left
             anchors.right: parent.right
 
-            Text {
+            anchors.margins: 0
+
+            Label {
                 Layout.row: 0
                 Layout.column: 0
                 Layout.fillWidth: true
@@ -126,7 +134,7 @@ Item {
                 text: qsTr("%1 events in this area".arg(App.totalFoundEvents))
             }
 
-            Text {
+            Label {
                 Layout.row: 1
                 Layout.column: 0
                 Layout.fillWidth: true
@@ -136,36 +144,52 @@ Item {
                 text: qsTr("%1 events today".arg(App.todayFoundEvents))
             }
 
-            Button {
-                id: showEvents
-
+            ColumnLayout {
                 Layout.row: 0
                 Layout.column: 1
-                Layout.fillWidth: true
-                Layout.maximumWidth: Math.max(showEvents.implicitWidth, reload.implicitWidth)
+                Layout.rowSpan: 2
 
-                text: qsTr("Show...")
+                Layout.fillHeight: true
+                Layout.preferredWidth: Math.max(showEvents.implicitWidth, reload.implicitWidth)
 
-                onClicked: root.showClicked()
+                Button {
+                    id: showEvents
 
-                visible: App.totalFoundEvents > 0
-                enabled: App.state === AppStates.Idle
-            }
+                    Layout.preferredWidth: parent.width
 
-            Button {
-                id: reload
+                    text: root.currentOSIsAndroid ?
+                              qsTr("Show >") :
+                              qsTr("Show...")
 
-                Layout.row: 1
-                Layout.column: 1
-                Layout.fillWidth: true
-                Layout.maximumWidth: Math.max(showEvents.implicitWidth, reload.implicitWidth)
+                    onClicked: root.showClicked()
 
-                text: qsTr("Reload...")
-                onClicked: {
-                    App.resetNetworkConnection();
-                    App.reloadEvents();
+                    visible: App.totalFoundEvents > 0
+                    enabled: App.state === AppStates.Idle
                 }
-                enabled: App.state === AppStates.Idle
+
+
+                Button {
+                    id: reload
+
+                    Layout.preferredWidth: parent.width
+
+                    icon.name: "empty"
+
+                    Text {
+                        anchors.left: parent.left
+                        anchors.verticalCenter: parent.verticalCenter
+                        anchors.leftMargin: 12
+                        font.family: "Material Design Icons"
+                        text: MdiFont.Icon.reload
+                    }
+
+                    text: qsTr("Reload...")
+                    onClicked: {
+                        App.resetNetworkConnection();
+                        App.reloadEvents();
+                    }
+                    enabled: App.state === AppStates.Idle
+                }
             }
         }
     }

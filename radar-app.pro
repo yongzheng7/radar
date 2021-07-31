@@ -1,4 +1,4 @@
-QT += quick positioning sql
+QT += quick quickcontrols2 positioning sql
 QT -= widgets
 QT -= gui
 
@@ -31,15 +31,18 @@ RESOURCES += images/qrcode-apk.png
 RESOURCES += icons/radar/index.theme \
              icons/radar/20x20/back.png \
              icons/radar/20x20/drawer.png \
+             icons/radar/20x20/empty.png \
              icons/radar/20x20/menu.png \
              icons/radar/20x20@2/back.png \
              icons/radar/20x20@2/drawer.png \
+             icons/radar/20x20@2/empty.png \
              icons/radar/20x20@2/menu.png \
              icons/radar/20x20@3/back.png \
              icons/radar/20x20@3/drawer.png \
              icons/radar/20x20@3/menu.png \
              icons/radar/20x20@4/back.png \
              icons/radar/20x20@4/drawer.png \
+             icons/radar/20x20@4/empty.png \
              icons/radar/20x20@4/menu.png
 
 # Additional import path used to resolve QML modules in Qt Creator's code model
@@ -73,7 +76,7 @@ android {
                  android/gradlew \
                  android/gradlew.bat \
                  android/res/values/libs.xml
- 
+
     include($$PWD/android_openssl/openssl.pri)
 }
 

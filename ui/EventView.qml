@@ -23,7 +23,9 @@ import QtQuick.Controls.Material 2.12
 
 import org.radar.app 1.0
 
-Rectangle {
+import "Icon.js" as MdiFont
+
+Pane {
     id: root
 
     readonly property bool currentOSIsAndroid: Qt.platform.os === "android"
@@ -84,6 +86,11 @@ Cras nec ante sit amet augue sodales iaculis. Aliquam erat volutpat. Nam aliquet
         root.urlProvided = App.url !== ""
     }
 
+    function openMap() {
+        console.log("Location: %1".arg(address.text));
+        root.locationActivated();
+    }
+
     Flickable {
         id: flickable
         anchors.fill: parent
@@ -100,7 +107,7 @@ Cras nec ante sit amet augue sodales iaculis. Aliquam erat volutpat. Nam aliquet
             spacing: 12
             width: parent.width
 
-            Text {
+            Label {
                 Layout.fillWidth: true
                 Layout.fillHeight: true
                 id: header
@@ -118,7 +125,7 @@ Cras nec ante sit amet augue sodales iaculis. Aliquam erat volutpat. Nam aliquet
                     text: qsTr("Category:")
                     font.bold: true
                 }
-                Text {
+                Label {
                     Layout.alignment: Qt.AlignTop
                     Layout.fillWidth: true
                     text: root.category
@@ -131,21 +138,20 @@ Cras nec ante sit amet augue sodales iaculis. Aliquam erat volutpat. Nam aliquet
                 height: Layout.preferredHeight
                 spacing: 6
                 Label {
-                    Layout.alignment: Qt.AlignTop
-
                     text: qsTr("at:")
                     font.bold: true
                 }
-                TextEdit {
+                TextArea {
                     Layout.fillWidth: true
 
                     readOnly: true
                     selectByMouse: true
                     text: root.locationName
                     wrapMode: Text.Wrap
+                    focus: false
                 }
             }
-            Text {
+            Label {
                 Layout.fillWidth: true
                 id: description
                 wrapMode: Text.Wrap
@@ -175,11 +181,10 @@ Cras nec ante sit amet augue sodales iaculis. Aliquam erat volutpat. Nam aliquet
                 height: Layout.preferredHeight
                 spacing: 6
                 Label {
-                    Layout.alignment: Qt.AlignTop
-                    text: qsTr("Date & Time:")
+                    text: qsTr("When:")
                     font.bold: true
                 }
-                Text {
+                Label {
                     Layout.alignment: Qt.AlignTop
                     Layout.fillWidth: true
                     text: root.dateTime
@@ -197,7 +202,7 @@ Cras nec ante sit amet augue sodales iaculis. Aliquam erat volutpat. Nam aliquet
                     text: qsTr("Duration:")
                     font.bold: true
                 }
-                Text {
+                Label {
                     Layout.alignment: Qt.AlignTop
                     Layout.fillWidth: true
                     text: root.duration
@@ -213,7 +218,7 @@ Cras nec ante sit amet augue sodales iaculis. Aliquam erat volutpat. Nam aliquet
                     text: qsTr("Price:")
                     font.bold: true
                 }
-                Text {
+                Label {
                     Layout.alignment: Qt.AlignTop
                     text: root.price
                     Layout.fillWidth: true
@@ -225,11 +230,11 @@ Cras nec ante sit amet augue sodales iaculis. Aliquam erat volutpat. Nam aliquet
                 spacing: 6
 
                 Label {
-                    Layout.alignment: Qt.AlignTop
+                    //Layout.alignment: Qt.AlignTop
                     text: qsTr("Address:")
                     font.bold: true
                 }
-                TextEdit {
+                TextArea {
                     Layout.alignment: Qt.AlignTop
                     id: address
                     readOnly: true
@@ -238,13 +243,20 @@ Cras nec ante sit amet augue sodales iaculis. Aliquam erat volutpat. Nam aliquet
                     text: root.locationAddress
                     font.underline: true
                     MouseArea {
+                        id: addressArea
                         anchors.fill: parent
-                        onClicked: {
-                            console.log("Location: %1".arg(address.text));
-                            root.locationActivated();
-                        }
+                        onClicked: root.openMap()
                         cursorShape: Qt.PointingHandCursor
                     }
+                    focus: false
+                }
+                ToolButton {
+                    font.family: "Material Design Icons"
+                    text: MdiFont.Icon.mapSearch
+                    onClicked: root.openMap()
+
+                    ToolTip.visible: hovered
+                    ToolTip.text: qsTr("View on Map")
                 }
             }
 
@@ -253,51 +265,84 @@ Cras nec ante sit amet augue sodales iaculis. Aliquam erat volutpat. Nam aliquet
                 visible: root.directions.length > 0
                 spacing: 6
                 Label {
-                    Layout.alignment: Qt.AlignTop
                     text: qsTr("Directions:")
                     font.bold: true
                 }
 
-                TextEdit {
+                TextArea {
                     Layout.alignment: Qt.AlignTop
                     Layout.fillWidth: true
                     readOnly: true
                     text: root.directions
                     wrapMode: TextEdit.Wrap
+                    focus: false
                 }
             }
 
-            Column {
+            Frame {
                 Layout.alignment: Qt.AlignHCenter
-                width: Math.max(addToCalendar.contentItem.implicitWidth, Math.max(show.implicitWidth, share.implicitWidth))
-                Button {
-                    id: addToCalendar
-                    text: qsTr("Add to calendar")
-                    onClicked: root.addToCalendarClicked()
-                    anchors.left: parent.left
-                    anchors.right: parent.right
+                background: Rectangle {
+                    implicitWidth: 100
+                    implicitHeight: 40
+                    opacity: 1
+                    color: "transparent"
+
+                    border.width: 1.0
+                    border.color: Material.color(Material.Grey)//"#d0d0d0"
+
+                    radius: addToCalendar.radius*2
+
                 }
-                Button {
-                    id: show
-                    visible: root.urlProvided
-                    text: qsTr("Show in Browser")
-                    onClicked: root.openUrlRequested()
-                    anchors.left: parent.left
-                    anchors.right: parent.right
-                }
-                Button {
-                    id: share
-                    visible: root.urlProvided
-                    text: qsTr("Share...")
-                    onClicked: root.shareRequested()
-                    anchors.left: parent.left
-                    anchors.right: parent.right
+
+                Row {
+                    anchors.fill: parent
+                    spacing: 20
+                    RoundButton {
+                        id: addToCalendar
+
+                        font.family: "Material Design Icons"
+                        text: MdiFont.Icon.calendar
+
+                        onClicked: root.addToCalendarClicked()
+                        Material.elevation: 1
+
+                        ToolTip.visible: hovered
+                        ToolTip.text: qsTr("Add to calendar")
+                    }
+                    RoundButton {
+                        id: show
+                        visible: root.urlProvided
+
+                        font.family: "Material Design Icons"
+                        text: MdiFont.Icon.web
+
+                        onClicked: root.openUrlRequested()
+                        Material.elevation: 1
+
+                        ToolTip.visible: hovered
+                        ToolTip.text: qsTr("Show in Browser")
+                    }
+                    RoundButton {
+                        id: share
+                        visible: root.urlProvided
+                        font.family: "Material Design Icons"
+                        text: MdiFont.Icon.share
+
+                        onClicked: root.shareRequested()
+                        Material.elevation: 1
+
+                        ToolTip.visible: hovered
+                        ToolTip.text: qsTr("Share...")
+                    }
                 }
             }
+
         }
     }
-    Button {
+    RoundButton {
         id: closeButton
+
+        visible: !root.currentOSIsAndroid
 
         z: root.z + 1
 
@@ -306,7 +351,12 @@ Cras nec ante sit amet augue sodales iaculis. Aliquam erat volutpat. Nam aliquet
         anchors.bottomMargin: 12
         anchors.rightMargin:  12
 
-        text: qsTr("Close")
+        font.family: "Material Design Icons"
+        text: MdiFont.Icon.close
+
+        ToolTip.visible: hovered
+        ToolTip.text: qsTr("Close")
+
         onClicked: root.closeClicked()
     }
 }
