@@ -13,7 +13,7 @@
    sodipodi:docname="app-icon.svg"
    viewBox="0 0 85.629453 85.629453"
    version="1.1"
-   inkscape:version="0.92.3 (2405546, 2018-03-11)"
+   inkscape:version="0.92.5 (2060ec1f9f, 2020-04-08)"
    width="85.629456"
    height="85.629456">
   <defs
@@ -22,22 +22,22 @@
      id="base"
      bordercolor="#666666"
      inkscape:pageshadow="2"
-     inkscape:window-y="24"
+     inkscape:window-y="41"
      fit-margin-left="0"
      pagecolor="#ffffff"
      fit-margin-top="0"
      inkscape:window-maximized="1"
-     inkscape:zoom="3.959798"
+     inkscape:zoom="7.919596"
      inkscape:window-x="0"
-     inkscape:window-height="1056"
+     inkscape:window-height="2082"
      showgrid="false"
      borderopacity="1.0"
      inkscape:current-layer="layer1"
-     inkscape:cx="139.72803"
-     inkscape:cy="30.926132"
+     inkscape:cx="27.887781"
+     inkscape:cy="48.408916"
      fit-margin-right="0"
      fit-margin-bottom="0"
-     inkscape:window-width="1920"
+     inkscape:window-width="3840"
      inkscape:pageopacity="0.0"
      inkscape:document-units="px" />
   <g
@@ -46,12 +46,13 @@
      inkscape:groupmode="layer"
      transform="translate(-201.04167,-179.35349)">
     <rect
-       y="190.85349"
-       x="212.54167"
-       height="62.629459"
-       width="62.629459"
-       id="rect4553"
-       style="fill:#ffffff;stroke:#ffffff;stroke-width:23;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+       style="fill:#ffffff;stroke:#ffffff;stroke-width:36.40763855;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;fill-opacity:1"
+       id="rect823"
+       width="196.89348"
+       height="154.08832"
+       x="148.27277"
+       y="149.26891"
+       ry="0" />
     <g
        id="g4068"
        transform="matrix(0.64087425,0.3360825,-0.3360825,0.64087425,165.2266,-313.56493)">
