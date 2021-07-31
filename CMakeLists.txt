@@ -84,6 +84,7 @@ if(ANDROID)
 
     add_library(radar-app SHARED
         ${CXX_SOURCES}
+	translations.qrc
         resources.qrc
         qml_desktop.qrc
         ${CMAKE_GENERATED_RCC}
@@ -101,6 +102,7 @@ else()
     find_package(Qt5 COMPONENTS Core Quick Positioning QuickControls2 Sql REQUIRED)
     add_executable(radar-app
         ${CXX_SOURCES}
+	translations.qrc
         resources.qrc
         qml_desktop.qrc
         ${CMAKE_GENERATED_RCC}
