@@ -77,7 +77,7 @@ set(CXX_SOURCES
 if(ANDROID)
 #    set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY BOTH)
 #    set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE BOTH)
-    find_package(Qt5 COMPONENTS Core AndroidExtras Quick Positioning Sql REQUIRED)
+    find_package(Qt5 COMPONENTS Core AndroidExtras Quick QuickControls2 Positioning Sql REQUIRED)
 
     include(android_openssl/CMakeLists.txt)
     include(qt-android-cmake/AddQtAndroidApk.cmake)
@@ -88,7 +88,7 @@ if(ANDROID)
         qml_desktop.qrc
         ${CMAKE_GENERATED_RCC}
     )
-    qt5_use_modules(radar-app Core AndroidExtras Quick Positioning Sql)
+    qt5_use_modules(radar-app Core AndroidExtras Quick QuickControls2 Positioning Sql)
 
     add_qt_android_apk(radar-app_apk radar-app
         NAME "Radar App"
@@ -98,14 +98,14 @@ if(ANDROID)
     DEPENDS "${ANDROID_EXTRA_LIBS}"
         )
 else()
-    find_package(Qt5 COMPONENTS Core Quick Positioning Sql REQUIRED)
+    find_package(Qt5 COMPONENTS Core Quick Positioning QuickControls2 Sql REQUIRED)
     add_executable(radar-app
         ${CXX_SOURCES}
         resources.qrc
         qml_desktop.qrc
         ${CMAKE_GENERATED_RCC}
     )
-    qt5_use_modules(radar-app Core Quick Positioning Sql)
+    qt5_use_modules(radar-app Core Quick QuickControls2 Positioning Sql)
 endif()
 
 set_target_properties(radar-app
