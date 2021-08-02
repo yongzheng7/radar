@@ -133,9 +133,11 @@ void App::setupFSM()
 
     countryLoad->addTransition(this, &App::countriesAlreadyLoaded, citiesLoad);
     countryLoad->addTransition(this, &App::loadCompleted, countryFilter);
+    countryLoad->addTransition(this, &App::loadFailed, error);
 
     countryFilter->addTransition(this, &App::countriesFiltered, citiesLoad);
 
+    citiesLoad->addTransition(this, &App::loadFailed, error);
     citiesLoad->addTransition(this, &App::citiesAlreadyLoaded, checkCurrentLocation);
     auto transition = citiesLoad->addTransition(this, &App::allCitiesLoaded, idle);
     connect(transition, &QAbstractTransition::triggered, this, &App::updateCurrentLocation);
@@ -335,6 +337,11 @@ void App::doLoadCountries()
         emit this->countriesAlreadyLoaded(QPrivateSignal());
         return;
     }
+    if (m_networkAccessManager->networkAccessible() != QNetworkAccessManager::NetworkAccessibility::Accessible) {
+        qDebug() << "Network is not accessible!";
+        emit loadFailed(QPrivateSignal());
+        return;
+    }
     QNetworkRequest request;
     QUrl requestUrl(m_groupsRequestUrl, QUrl::ParsingMode::TolerantMode);
     qDebug() << "requestUrl=" << requestUrl.toString();
@@ -386,6 +393,13 @@ void App::doLoadCities()
     for (const auto &country : qAsConst(m_allCountries)) {
         allCodes.push_back(Countries::countryCode(country));
     }
+
+    if (m_networkAccessManager->networkAccessible() != QNetworkAccessManager::NetworkAccessibility::Accessible) {
+        qDebug() << "Network is not accessible!";
+        emit loadFailed(QPrivateSignal());
+        return;
+    }
+
     m_countriesToLoad = QSet< QString >::fromList(qAsConst(allCodes));
 
     for (const auto &code : qAsConst(allCodes)) {
