@@ -4,32 +4,32 @@
 <context>
     <name>App</name>
     <message>
-        <location filename="../src/app.cpp" line="882"/>
+        <location filename="../src/app.cpp" line="896"/>
         <source>Radar App</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/app.cpp" line="882"/>
+        <location filename="../src/app.cpp" line="896"/>
         <source>Link to Android APK: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/app.cpp" line="964"/>
+        <location filename="../src/app.cpp" line="978"/>
         <source>%1 days, %2 hours %3 minutes</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/app.cpp" line="966"/>
+        <location filename="../src/app.cpp" line="980"/>
         <source>%1:%2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/app.cpp" line="998"/>
+        <location filename="../src/app.cpp" line="1012"/>
         <source>%1, %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/app.cpp" line="1070"/>
+        <location filename="../src/app.cpp" line="1084"/>
         <source>%1
 Date: %2
 %3
@@ -251,27 +251,27 @@ Link: %4</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/main.qml" line="471"/>
+        <location filename="../ui/main.qml" line="478"/>
         <source>Please wait…</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/main.qml" line="479"/>
+        <location filename="../ui/main.qml" line="508"/>
         <source>Getting events</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/main.qml" line="481"/>
+        <location filename="../ui/main.qml" line="511"/>
         <source>Filtering events</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/main.qml" line="483"/>
+        <location filename="../ui/main.qml" line="514"/>
         <source>Loading countries</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/main.qml" line="485"/>
+        <location filename="../ui/main.qml" line="517"/>
         <source>Loading cities</source>
         <translation type="unfinished"></translation>
     </message>

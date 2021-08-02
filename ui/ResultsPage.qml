@@ -32,7 +32,7 @@ FocusScope {
 
     function positionToTodaysEvents() {
         console.log("positionToTodaysEvents()");
-        let indexOfTodaysFirstEvent = App.getFirstTodaysItemIndex();
+        var indexOfTodaysFirstEvent = App.getFirstTodaysItemIndex();
         if (indexOfTodaysFirstEvent !== -1) {
             resultsList.positionViewAtIndex(indexOfTodaysFirstEvent, ListView.Beginning);
         }

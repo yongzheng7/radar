@@ -485,6 +485,7 @@ ApplicationWindow {
                 Layout.row: 1
                 Layout.fillWidth: true
                 Layout.alignment: Qt.AlignHCenter | Qt.AlignTop
+                Layout.preferredWidth: popupMessage.implicitWidth
 
                 wrapMode: Text.WordWrap
 
