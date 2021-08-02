@@ -455,37 +455,51 @@ ApplicationWindow {
         focus: true
         modal: true
 
-        contentItem: Row {
-            spacing: 6
-            anchors.centerIn: parent
+        contentItem: GridLayout {
+            columnSpacing: 10
+            rowSpacing: 10
+            rows: 2
+            columns: 2
+
+            anchors.fill: parent
+
             BusyIndicator {
+                Layout.column: 0
+                Layout.row: 0
+                Layout.rowSpan: 2
+                Layout.margins: 10
+                Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
                 id: indicator
-                anchors.verticalCenter: parent.verticalCenter
             }
 
-            Column {
-                anchors.verticalCenter: parent.verticalCenter
-                padding: 12
-                spacing: 6
-                Label {
-                    text: qsTr("Please wait…")
-                }
-                Label {
-                    wrapMode: Text.WordWrap
-                    visible: text !== ""
-                    text: {
-                        switch (appState) {
-                        case AppStates.Loading:
-                            return qsTr("Getting events");
-                        case AppStates.Filtering:
-                            return qsTr("Filtering events");
-                        case AppStates.CountryLoad:
-                            return qsTr("Loading countries");
-                        case AppStates.CitiesLoad:
-                            return qsTr("Loading cities");
-                        default:
-                            return "";
-                        }
+            Label {
+                Layout.column: 1
+                Layout.row: 0
+                text: qsTr("Please wait…")
+                Layout.fillWidth: true
+                Layout.alignment: Qt.AlignHCenter
+            }
+            Label {
+                Layout.column: 1
+                Layout.row: 1
+                Layout.fillWidth: true
+                Layout.alignment: Qt.AlignHCenter | Qt.AlignTop
+
+                wrapMode: Text.WordWrap
+
+                visible: text !== ""
+                text: {
+                    switch (appState) {
+                    case AppStates.Loading:
+                        return qsTr("Getting events");
+                    case AppStates.Filtering:
+                        return qsTr("Filtering events");
+                    case AppStates.CountryLoad:
+                        return qsTr("Loading countries");
+                    case AppStates.CitiesLoad:
+                        return qsTr("Loading cities");
+                    default:
+                        return "";
                     }
                 }
             }
