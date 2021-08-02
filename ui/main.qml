@@ -480,6 +480,7 @@ ApplicationWindow {
                 Layout.alignment: Qt.AlignHCenter
             }
             Label {
+                id: popupMessage
                 Layout.column: 1
                 Layout.row: 1
                 Layout.fillWidth: true
@@ -488,20 +489,7 @@ ApplicationWindow {
                 wrapMode: Text.WordWrap
 
                 visible: text !== ""
-                text: {
-                    switch (appState) {
-                    case AppStates.Loading:
-                        return qsTr("Getting events");
-                    case AppStates.Filtering:
-                        return qsTr("Filtering events");
-                    case AppStates.CountryLoad:
-                        return qsTr("Loading countries");
-                    case AppStates.CitiesLoad:
-                        return qsTr("Loading cities");
-                    default:
-                        return "";
-                    }
-                }
+                text: ""
             }
         }
 
@@ -512,7 +500,34 @@ ApplicationWindow {
                   appState === AppStates.CountryFilter ||
                   appState === AppStates.CitiesLoad
 
+
+        function updatePopupText() {
+            switch (appState) {
+            case AppStates.Loading:
+                popupMessage.text = qsTr("Getting events");
+                break;
+            case AppStates.Filtering:
+                popupMessage.text = qsTr("Filtering events");
+                break;
+            case AppStates.CountryLoad:
+                popupMessage.text = qsTr("Loading countries");
+                break;
+            case AppStates.CitiesLoad:
+                popupMessage.text = qsTr("Loading cities");
+                break;
+            default:
+                break;
+            }
+        }
+
+        onVisibleChanged: pleaseWait.updatePopupText()
+        Connections {
+            target: root
+            onAppStateChanged: pleaseWait.updatePopupText()
+        }
+
         onClosed: App.cancelOperation()
+
     }
 
     Loader {
