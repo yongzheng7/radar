@@ -91,7 +91,7 @@ if(ANDROID)
         ${CMAKE_GENERATED_RCC}
     )
 
-    target_add_compile_definitions(radar-app PRIVATE APK_DOWNLOAD_URL="${DOWNLOAD_URL}")
+    target_compile_definitions(radar-app PRIVATE APK_DOWNLOAD_URL="${DOWNLOAD_URL}")
 
     qt5_use_modules(radar-app Core AndroidExtras Quick QuickControls2 Positioning Sql)
 
