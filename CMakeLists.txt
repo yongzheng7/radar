@@ -15,6 +15,7 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
+set(DOWNLOAD_URL ${APK_DOWNLOAD_URL} CACHE PATH "Apk download URL")
 
 set(IMAGE_RESOURCES images/qrcode-apk.png)
 set(ICON_RESOURCES
@@ -89,6 +90,9 @@ if(ANDROID)
         qml_desktop.qrc
         ${CMAKE_GENERATED_RCC}
     )
+
+    target_add_compile_definitions(radar-app PRIVATE APK_DOWNLOAD_URL="${DOWNLOAD_URL}")
+
     qt5_use_modules(radar-app Core AndroidExtras Quick QuickControls2 Positioning Sql)
 
     add_qt_android_apk(radar-app_apk radar-app
