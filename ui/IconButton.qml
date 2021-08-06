@@ -44,6 +44,8 @@ Button {
 
         Text {
             horizontalAlignment: Text.AlignHCenter
+            anchors.top: parent.top
+            anchors.bottom: parent.bottom
             verticalAlignment: Text.AlignVCenter
 
             text: root.text

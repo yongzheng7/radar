@@ -172,8 +172,6 @@ Item {
 
                     Layout.preferredWidth: parent.width
 
-                    opacity: enabled ? 1.0 : 0.3
-
                     iconCode: MdiFont.Icon.reload
                     text: qsTr("Reload...")
 

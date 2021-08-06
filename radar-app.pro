@@ -82,7 +82,8 @@ android {
                  android/gradle/wrapper/gradle-wrapper.properties \
                  android/gradlew \
                  android/gradlew.bat \
-                 android/res/values/libs.xml
+                 android/res/values/libs.xml \
+                 android/res/values/styles.xml 
 
     include($$PWD/android_openssl/openssl.pri)
 }
