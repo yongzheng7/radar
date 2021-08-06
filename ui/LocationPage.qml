@@ -167,24 +167,16 @@ Item {
                 }
 
 
-                Button {
+                IconButton {
                     id: reload
 
                     Layout.preferredWidth: parent.width
 
-                    icon.name: "empty"
+                    opacity: enabled ? 1.0 : 0.3
 
-                    Text {
-                        anchors.left: parent.left
-                        anchors.verticalCenter: parent.verticalCenter
-                        anchors.leftMargin: 12
-                        font.family: "Material Design Icons"
-                        font.bold: true
-                        font.pixelSize: parent.font.pixelSize
-                        text: MdiFont.Icon.reload
-                    }
-
+                    iconCode: MdiFont.Icon.reload
                     text: qsTr("Reload...")
+
                     onClicked: {
                         App.resetNetworkConnection();
                         App.reloadEvents();

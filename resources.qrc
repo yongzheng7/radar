@@ -12,5 +12,6 @@
         <file>images/qrcode-apk.png</file>
         <file>fonts/materialdesignicons-webfont.ttf</file>
         <file>ui/Icon.js</file>
+        <file>ui/IconButton.qml</file>
     </qresource>
 </RCC>
