@@ -16,8 +16,7 @@
                  android:name="org.qtproject.qt5.android.bindings.QtApplication"
                  android:label="-- %%INSERT_APP_NAME%% --"
                  android:icon="@drawable/icon">
-        <activity android:theme="@style/RadarAppTheme"
-                  android:configChanges="orientation|uiMode|screenLayout|screenSize|smallestScreenSize|locale|fontScale|keyboard|keyboardHidden|navigation|mcc|mnc"
+        <activity android:configChanges="orientation|uiMode|screenLayout|screenSize|smallestScreenSize|locale|fontScale|keyboard|keyboardHidden|navigation|mcc|mnc"
                   android:name="org.qtproject.qt5.android.bindings.QtActivity"
                   android:label="-- %%INSERT_APP_NAME%% --"
                   android:screenOrientation="unspecified"
