@@ -29,7 +29,7 @@ variables:
   GIT_CLONE_PATH: "${CI_BUILDS_DIR}/radar-app"
   GIT_SUBMODULE_STRATEGY: "normal"
   CMAKE_VERSION: "3.18.1"
-  DOWNLOAD_URL: "https://0xacab.org/xandyx/radar-app/-/jobs/v0.1/artifacts/raw/build-android/radar-app-armeabi-v7a/build/outputs/apk/debug/radar-app-armeabi-v7a-debug.apk?job=assembleDebug"
+  DOWNLOAD_URL: "https://0xacab.org/xandyx/radar-app"
 
 # Packages installation before running script
 before_script:
