@@ -35,7 +35,8 @@ variables:
 before_script:
   - apt-get --quiet update --yes
   - apt-get --quiet install --yes wget tar unzip lib32stdc++6 lib32z1
-  - apt-get --quiet install --yes make cmake python3-pip go-qrcode
+  - apt-get --quiet install --yes make cmake python3-pip
+  - apt-get --quiet install --yes python3-pyqrcode python3-setuptools python3-qrcode
   - pip3 install pipenv
 
   - git submodule update --init
@@ -88,11 +89,12 @@ assembleDebug:
     - export QT_BASE=${CI_BUILDS_DIR}/${QT_VERSION}/${QT_TARGET_ARCH}
     - export CMAKE=${ANDROID_HOME}/cmake/${CMAKE_VERSION}/bin/cmake
     - export CMAKE_BUILD_DIR=${GIT_CLONE_PATH}/build-android
-    - install -d "${CMAKE_BUILD_DIR}"
-    - pushd "${CMAKE_BUILD_DIR}"
+    # Generate QR Code image with DOWNLOAD_URL
     - echo "building with download url=${DOWNLOAD_URL}..."
     - echo "Generating QR Code..."
-    - qrcode -o images/qrcode-apk -s 600 "${DOWNLOAD_URL}"
+    - python3-qr "${DOWNLOAD_URL}" > images/qrcode-apk.png
+    - install -d "${CMAKE_BUILD_DIR}"
+    - pushd "${CMAKE_BUILD_DIR}"
     - ${CMAKE} -DCMAKE_TOOLCHAIN_FILE="${ANDROID_NDK}/build/cmake/android.toolchain.cmake" -DANDROID_ABI=${ANDROID_ABI} -DCMAKE_PREFIX_PATH:PATH="${QT_BASE}/lib" -DCMAKE_FIND_ROOT_PATH="${QT_BASE}/" -DDOWNLOAD_URL="${DOWNLOAD_URL}" ${GIT_CLONE_PATH}
     - ${CMAKE} --build . -- -j $(nproc)
     - popd
