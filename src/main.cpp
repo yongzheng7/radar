@@ -58,7 +58,7 @@ int main(int argc, char *argv[])
         app.installTranslator(tranlator);
     }
 
-    { //TODO: get font size settings on android
+    {
         auto font = QGuiApplication::font();
         auto fontSizePt = 16;
         fontSizePt *= App::getAndroidScale();

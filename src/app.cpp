@@ -100,6 +100,7 @@ App::App(QObject *parent)
                 }
             });
     setCountry(m_country);
+    setupNavigationBar();
 }
 
 App::~App() = default;
@@ -663,14 +664,14 @@ void App::reloadEvents()
     qDebug() << __PRETTY_FUNCTION__;
     if (!m_fsm.isRunning()) {
         QMetaObject::Connection *connection = new QMetaObject::Connection();
-        *connection = connect(&m_fsm, &QStateMachine::runningChanged, this,
-                             [this, connection, onReloadClicked](bool running) {
-                                 if (running) {
-                                     onReloadClicked();
-                                     m_fsm.disconnect(*connection);
-                                     delete connection;
-                                 }
-                             });
+        *connection
+            = connect(&m_fsm, &QStateMachine::runningChanged, this, [this, connection, onReloadClicked](bool running) {
+                  if (running) {
+                      onReloadClicked();
+                      m_fsm.disconnect(*connection);
+                      delete connection;
+                  }
+              });
         return;
     }
     onReloadClicked();
@@ -861,14 +862,13 @@ void App::doSharing(const QString &title, const QString &body)
 #endif
 }
 
-
 float App::getAndroidScale()
 {
 #ifdef Q_OS_ANDROID
-        // getResources().getConfiguration().fontScale
+    // getResources().getConfiguration().fontScale
     auto resources = QtAndroid::androidContext().callObjectMethod("getResources", "()Landroid/content/res/Resources;");
-    auto configuration =resources.callObjectMethod("getConfiguration", "()Landroid/content/res/Configuration;");
-    float fontScale = configuration.getField<float>("fontScale");
+    auto configuration = resources.callObjectMethod("getConfiguration", "()Landroid/content/res/Configuration;");
+    float fontScale = configuration.getField< float >("fontScale");
     QAndroidJniEnvironment env;
     if (env->ExceptionCheck()) {
         qCritical() << "Exception:";
@@ -879,6 +879,20 @@ float App::getAndroidScale()
     return fontScale;
 #else
     return 1.0;
+#endif
+}
+
+void App::setupNavigationBar()
+{
+#ifdef Q_OS_ANDROID
+    QtAndroid::runOnAndroidThread([=]()
+    {
+        QAndroidJniObject window = QtAndroid::androidActivity().callObjectMethod("getWindow", "()Landroid/view/Window;");
+        window.callMethod< void >("addFlags", "(I)V", 0x80000000);
+        window.callMethod< void >("clearFlags", "(I)V", 0x04000000);
+        window.callMethod< void >("setStatusBarColor", "(I)V", 0xffff6347); // Status bar color
+        window.callMethod< void >("setNavigationBarColor", "(I)V", 0xffff6347); // Navigation bar color
+    });
 #endif
 }
 
