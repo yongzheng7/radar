@@ -154,7 +154,6 @@ public:
     void updateCurrentLocation();
 
     static float getAndroidScale();
-    void setupNavigationBar();
 
 signals:
     void countriesChanged(QPrivateSignal);
@@ -198,6 +197,8 @@ signals:
 
 private:
     void prepareNetworkAccessManager();
+    void cleanupJNI();
+    void setupNavigationBar();
 
     using MemberFunc = void (App::*)();
     void setupFSM();

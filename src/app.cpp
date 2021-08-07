@@ -882,16 +882,35 @@ float App::getAndroidScale()
 #endif
 }
 
+void App::cleanupJNI()
+{
+    QAndroidJniEnvironment env;
+    if (env->ExceptionCheck()) {
+        qCritical() << "Exception:";
+        env->ExceptionDescribe();
+        env->ExceptionClear();
+    }
+}
+
 void App::setupNavigationBar()
 {
 #ifdef Q_OS_ANDROID
     QtAndroid::runOnAndroidThread([=]()
     {
+        constexpr int LOLLIPOP_SDK_VERSION = 21;
+        if (QtAndroid::androidSdkVersion() < LOLLIPOP_SDK_VERSION) {
+            qDebug() << "Skipping navigation bar tweaks for SDK=" << QtAndroid::androidSdkVersion();
+            return;
+        }
         QAndroidJniObject window = QtAndroid::androidActivity().callObjectMethod("getWindow", "()Landroid/view/Window;");
         window.callMethod< void >("addFlags", "(I)V", 0x80000000);
+        cleanupJNI();
         window.callMethod< void >("clearFlags", "(I)V", 0x04000000);
+        cleanupJNI();
         window.callMethod< void >("setStatusBarColor", "(I)V", 0xffff6347); // Status bar color
+        cleanupJNI();
         window.callMethod< void >("setNavigationBarColor", "(I)V", 0xffff6347); // Navigation bar color
+        cleanupJNI();
     });
 #endif
 }
