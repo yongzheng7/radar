@@ -94,7 +94,7 @@ assembleDebug:
   artifacts:
     public: true
     expire_in: never
-    rules: 
+    rule: 
       - if: $CI_BUILD_TAG
     expose_as: 'radar-app-armeabi-v7a-debug.apk'
     paths:
