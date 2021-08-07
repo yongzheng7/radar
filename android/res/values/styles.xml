@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <style name="RadarAppTheme" parent="Theme.Material.Light">
+    <style name="RadarAppTheme" parent="Theme.Material">
         <item name="android:navigationBarColor">#FFFFFFFF</item>
     </style>
 </resources>
