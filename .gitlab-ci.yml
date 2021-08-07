@@ -29,7 +29,10 @@ variables:
   GIT_CLONE_PATH: "${CI_BUILDS_DIR}/radar-app"
   GIT_SUBMODULE_STRATEGY: "normal"
   CMAKE_VERSION: "3.18.1"
-  DOWNLOAD_URL: "https://0xacab.org/xandyx/radar-app/-/jobs/v0.1/artifacts/raw/build-android/radar-app-armeabi-v7a/build/outputs/apk/debug/radar-app-armeabi-v7a-debug.apk?job=assembleDebug"
+  PACKAGE_REGISTRY_URL: "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/radar-app-release/${CI_COMMIT_TAG}/"
+  DEBUG_APK_FILE_NAME: "radar-app-armeabi-v7a-debug.apk"
+  DEBUG_APK_LOCAL_PATH: "${GIT_CLONE_PATH}/build-android/radar-app-armeabi-v7a/build/outputs/apk/debug/${DEBUG_APK_FILE_NAME}"
+  DOWNLOAD_URL: "${PACKAGE_REGISTRY_URL}${DEBUG_APK_FILE_NAME}"
 
 # Packages installation before running script
 before_script:
@@ -93,5 +96,24 @@ assembleDebug:
     - popd
   artifacts:
     paths:
-      - ${GIT_CLONE_PATH}/build-android/radar-app-armeabi-v7a/build/outputs/apk/debug/radar-app-armeabi-v7a-debug.apk
+      - "${DEBUG_APK_LOCAL_PATH}"
+
+upload:
+  stage: upload
+  image: curlimages/curl:latest
+  rules:
+    - if: $CI_COMMIT_TAG
+  script:
+    - |
+      curl --header "JOB-TOKEN: ${CI_JOB_TOKEN}" --upload-file "${DEBUG_APK_LOCAL_PATH}" "${PACKAGE_REGISTRY_URL}"
+
+release:
+  stage: release
+  image: registry.gitlab.com/gitlab-org/release-cli:v0.4.0
+  rules:
+    - if: $CI_COMMIT_TAG
+  script:
+    - |
+      release-cli create --name "Release $CI_COMMIT_TAG" --tag-name $CI_COMMIT_TAG \
+        --assets-link "{\"name\":\"${DEBUG_APK_FILE_NAME}\",\"url\":\"${PACKAGE_REGISTRY_URL}${DEBUG_APK_FILE_NAME}\"}"
 
