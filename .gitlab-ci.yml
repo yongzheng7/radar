@@ -76,6 +76,8 @@ before_script:
 
 # Run build script      
 assembleDebug:
+  rules: 
+    - if: $CI_BUILD_TAG
   interruptible: true
   stage: build
   script:
@@ -94,8 +96,6 @@ assembleDebug:
   artifacts:
     public: true
     expire_in: never
-    rule: 
-      - if: $CI_BUILD_TAG
     expose_as: 'radar-app-armeabi-v7a-debug.apk'
     paths:
       - ${GIT_CLONE_PATH}/build-android/radar-app-armeabi-v7a/build/outputs/apk/debug/radar-app-armeabi-v7a-debug.apk
