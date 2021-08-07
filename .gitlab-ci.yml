@@ -29,7 +29,7 @@ variables:
   GIT_CLONE_PATH: "${CI_BUILDS_DIR}/radar-app"
   GIT_SUBMODULE_STRATEGY: "normal"
   CMAKE_VERSION: "3.18.1"
-  DOWNLOAD_URL: "https://0xacab.org/xandyx/radar-app/-/jobs/artifacts/master/raw/build-android/radar-app-armeabi-v7a/build/outputs/apk/debug/radar-app-armeabi-v7a-debug.apk?job=assembleDebug"
+  DOWNLOAD_URL: 'https://0xacab.org/xandyx/radar-app/-/jobs/artifacts/master/raw/build-android/radar-app-armeabi-v7a/build/outputs/apk/debug/radar-app-armeabi-v7a-debug.apk?job=assembleDebug'
 
 # Packages installation before running script
 before_script:
@@ -90,6 +90,7 @@ assembleDebug:
     - export CMAKE_BUILD_DIR=${GIT_CLONE_PATH}/build-android
     - install -d "${CMAKE_BUILD_DIR}"
     - pushd "${CMAKE_BUILD_DIR}"
+    - echo "building with download url=${DOWNLOAD_URL}..."
     - ${CMAKE} -DCMAKE_TOOLCHAIN_FILE="${ANDROID_NDK}/build/cmake/android.toolchain.cmake" -DANDROID_ABI=${ANDROID_ABI} -DCMAKE_PREFIX_PATH:PATH="${QT_BASE}/lib" -DCMAKE_FIND_ROOT_PATH="${QT_BASE}/" -DDOWNLOAD_URL="${DOWNLOAD_URL}" ${GIT_CLONE_PATH}
     - ${CMAKE} --build . -- -j $(nproc)
     - popd

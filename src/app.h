@@ -251,7 +251,7 @@ private:
 #ifdef APK_DOWNLOAD_URL
         QStringLiteral(APK_DOWNLOAD_URL);
 #else
-        QStringLiteral("https://0xacab.org/xandyx/radar-app/-/jobs/213170/artifacts/raw/build-android/radar-app-armeabi-v7a/build/outputs/apk/debug/radar-app-armeabi-v7a-debug.apk");
+        QStringLiteral("https://0xacab.org/xandyx/radar-app/-/jobs/artifacts/master/raw/build-android/radar-app-armeabi-v7a/build/outputs/apk/debug/radar-app-armeabi-v7a-debug.apk?job=assembleDebug");
 #endif
 
     const QString m_settingsCityKey = QStringLiteral("filter/city");
