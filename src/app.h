@@ -88,7 +88,7 @@ class App : public QObject
     Q_PROPERTY(int totalFoundEvents READ totalFoundEvents NOTIFY totalFoundEventsChanged)
     Q_PROPERTY(int todayFoundEvents READ todayFoundEvents NOTIFY todayFoundEventsChanged)
 
-    Q_PROPERTY(QString downloadLink MEMBER m_downloadLink CONSTANT)
+    Q_PROPERTY(QString downloadLink MEMBER m_downloadLink FINAL CONSTANT)
 
 public:
     explicit App(QObject *parent = nullptr);

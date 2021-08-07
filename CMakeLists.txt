@@ -17,7 +17,9 @@ set(CMAKE_AUTOUIC ON)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(DOWNLOAD_URL ${APK_DOWNLOAD_URL} CACHE STRING "Apk download URL")
 
-set(IMAGE_RESOURCES images/qrcode-apk.png)
+set(IMAGE_RESOURCES
+    images/qrcode-apk.png
+)
 set(ICON_RESOURCES
     icons/radar/index.theme
     icons/radar/20x20/back.png
@@ -38,7 +40,7 @@ set(ICON_RESOURCES
     icons/radar/20x20@4/menu.png
 )
 
-set(QRC_SOURCES ${IMAGE_RESOURCES} ${ICON_RESOURCES})
+set(QRC_SOURCES ${ICON_RESOURCES} ${IMAGE_RESOURCES})
 set(CMAKE_GENERATED_RCC ${CMAKE_BINARY_DIR}/cmake_generated.qrc)
 file(WRITE ${CMAKE_GENERATED_RCC}
 "<!DOCTYPE RCC><RCC version=\"1.0\">\n"
@@ -85,7 +87,7 @@ if(ANDROID)
 
     add_library(radar-app SHARED
         ${CXX_SOURCES}
-	translations.qrc
+        translations.qrc
         resources.qrc
         qml_desktop.qrc
         ${CMAKE_GENERATED_RCC}
@@ -106,7 +108,7 @@ else()
     find_package(Qt5 COMPONENTS Core Quick Positioning QuickControls2 Sql REQUIRED)
     add_executable(radar-app
         ${CXX_SOURCES}
-	translations.qrc
+        translations.qrc
         resources.qrc
         qml_desktop.qrc
         ${CMAKE_GENERATED_RCC}
