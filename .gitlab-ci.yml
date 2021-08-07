@@ -96,7 +96,7 @@ assembleDebug:
   artifacts:
     public: true
     expire_in: never
-    expose_as: 'radar-app-armeabi-v7a-debug.apk'
+    expose_as: 'Radar APK Debug'
     paths:
       - ${GIT_CLONE_PATH}/build-android/radar-app-armeabi-v7a/build/outputs/apk/debug/radar-app-armeabi-v7a-debug.apk
 
