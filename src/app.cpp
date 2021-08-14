@@ -884,12 +884,14 @@ float App::getAndroidScale()
 
 void App::cleanupJNI()
 {
+#ifdef Q_OS_ANDROID
     QAndroidJniEnvironment env;
     if (env->ExceptionCheck()) {
         qCritical() << "Exception:";
         env->ExceptionDescribe();
         env->ExceptionClear();
     }
+#endif
 }
 
 void App::setupNavigationBar()
