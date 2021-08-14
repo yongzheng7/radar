@@ -26,6 +26,8 @@ import org.radar.app 1.0
 FocusScope {
     id: root
 
+    clip: true
+
     readonly property bool currentOSIsAndroid: Qt.platform.os === "android"
 
     signal itemClicked(int index);
@@ -54,18 +56,27 @@ FocusScope {
 
     Component {
         id: sectionHeading
-        Rectangle {
+        Item {
+            y: -1
             width: root.width
-            height: sectionText.font.pixelSize*1.5
-            color: Material.color(Material.Grey, Material.Shade400)
+            height: sectionText.font.pixelSize*2.0 //1.5
+
+            Rectangle {
+                anchors.top: parent.top
+                anchors.left: parent.left
+                anchors.right: parent.right
+                height: 0.5
+                color: Material.color(Material.Grey, Material.Shade500)
+            }
+
 
             Text {
                 id: sectionText
                 anchors.centerIn: parent
                 text: section
-                color: Material.color(Material.Grey, Material.Shade800)
-                font.bold: true
+                font.capitalization: Font.AllUppercase
                 font.pointSize: fontPointSize * 1.2
+                color: Material.color(Material.Pink, Material.Shade800)
             }
         }
     }
@@ -107,7 +118,7 @@ FocusScope {
         interactive: true
         keyNavigationEnabled: true
 
-        clip: true
+        clip: false
 
         boundsMovement: Flickable.FollowBoundsBehavior
         boundsBehavior: Flickable.DragOverBounds
