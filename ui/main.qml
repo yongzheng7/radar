@@ -48,9 +48,6 @@ ApplicationWindow {
     }
 
     header: ToolBar {
-        Material.foreground: "white"
-        Material.background: "tomato"
-
         RowLayout {
             spacing: 20
             anchors.fill: parent
