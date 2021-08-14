@@ -909,10 +909,10 @@ void App::setupNavigationBar()
         cleanupJNI();
         window.callMethod< void >("clearFlags", "(I)V", 0x04000000);
         cleanupJNI();
-        window.callMethod< void >("setStatusBarColor", "(I)V", 0xffff6347); // Status bar color
+        window.callMethod< void >("setStatusBarColor", "(I)V", 0xffba000d); // Status bar color
         cleanupJNI();
-        window.callMethod< void >("setNavigationBarColor", "(I)V", 0xffff6347); // Navigation bar color
-        cleanupJNI();
+//        window.callMethod< void >("setNavigationBarColor", "(I)V", 0xffff6347); // Navigation bar color
+//        cleanupJNI();
     });
 #endif
 }
