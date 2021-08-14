@@ -333,6 +333,8 @@ ApplicationWindow {
         RowLayout {
             id: buttons
 
+            visible: !root.currentOSIsAndroid
+
             Layout.preferredWidth: swipeView.width
             Layout.topMargin: 0
             Layout.bottomMargin: 12
@@ -344,7 +346,6 @@ ApplicationWindow {
             Button {
                 id: back
 
-                visible: !root.currentOSIsAndroid
                 enabled: swipeView.currentIndex > 0
 
                 Layout.alignment: Qt.AlignLeft
@@ -363,7 +364,6 @@ ApplicationWindow {
             Button {
                 id: forward
 
-                visible: !root.currentOSIsAndroid
                 enabled: {
                     var index = swipeView.currentIndex;
                     if (index === location.index && !App.isLoaded) {
