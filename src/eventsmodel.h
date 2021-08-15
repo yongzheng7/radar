@@ -51,6 +51,8 @@ public:
 
     enum Roles { Title = Qt::UserRole, Place, Address, Date, StartDateTime, Category, LocationName, Distance, Url };
 
+    Q_PROPERTY(int datePropertyIndex MEMBER m_datePropertyIndex CONSTANT FINAL)
+
 public:
     void setEvents(QVector< Event > &&events);
     void appendEvents(QVector< Event > &&events);
@@ -81,6 +83,7 @@ private:
     QGeoPositionInfoSource *const m_positionSource;
     QGeoCoordinate m_latestPosition;
     QGeoPositionInfoSource::Error m_geoError{QGeoPositionInfoSource::NoError};
+    const int m_datePropertyIndex = Roles::Date;
 };
 
 Q_DECLARE_METATYPE(QAbstractItemModel *);

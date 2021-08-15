@@ -54,21 +54,25 @@ FocusScope {
         z: 2
     }
 
+    readonly property string firstDate: App.eventsModel.data(
+                                            App.eventsModel.index(0,0),
+                                            App.eventsModel.datePropertyIndex)
+
     Component {
         id: sectionHeading
         Item {
-            y: -1
+            id: sectionDelegateRoot
             width: root.width
-            height: sectionText.font.pixelSize*2.0 //1.5
+            height: sectionText.font.pixelSize*2.0
 
             Rectangle {
-                anchors.top: parent.top
-                anchors.left: parent.left
-                anchors.right: parent.right
+                visible: section !== root.firstDate
+                x:0
+                y:0
+                width: sectionDelegateRoot.ListView.view.width
                 height: 0.5
                 color: Material.color(Material.Grey, Material.Shade500)
             }
-
 
             Text {
                 id: sectionText
@@ -136,7 +140,7 @@ FocusScope {
         }
 
         delegate: Loader {
-            width: root.width
+            width: ListView.view.width
             sourceComponent: MouseArea {
                 id: mouseArea
                 readonly property bool highlighted: resultsList.currentIndex === index ||
