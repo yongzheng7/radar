@@ -107,70 +107,43 @@ Item {
                     cities.currentIndex = find(App.city);
                 }
             }
-        }
-        CheckBox {
-            id: remember
-            checked: App.isRememberLocationOn
-            text: qsTr("Remember location")
-            onToggled: App.toggleRememberLocation()
-        }
-        GridLayout {
-            columns: 2
-            rowSpacing: 10
-            columnSpacing: 10
 
-            anchors.left: parent.left
-            anchors.right: parent.right
-
-            anchors.margins: 0
-
-            Label {
-                Layout.row: 0
-                Layout.column: 0
+            CheckBox {
+                id: remember
+                Layout.row: 3
+                Layout.column: 1
                 Layout.fillWidth: true
-
-                wrapMode: Text.WordWrap
-
-                text: qsTr("%1 events in this area").arg(App.totalFoundEvents)
+                checked: App.isRememberLocationOn
+                text: qsTr("Remember location")
+                onToggled: App.toggleRememberLocation()
             }
-
-            Label {
-                Layout.row: 1
-                Layout.column: 0
-                Layout.fillWidth: true
-
-                wrapMode: Text.WordWrap
-
-                text: qsTr("%1 events today").arg(App.todayFoundEvents)
-            }
-
             ColumnLayout {
-                Layout.row: 0
+                spacing: 10
+
+                Layout.row: 4
                 Layout.column: 1
                 Layout.rowSpan: 2
 
-                Layout.fillHeight: true
-                Layout.preferredWidth: Math.max(showEvents.implicitWidth, reload.implicitWidth)
+                Layout.fillWidth: true
 
-                Button {
-                    id: showEvents
+                Label {
+                    wrapMode: Text.WordWrap
 
-                    Layout.preferredWidth: parent.width
-
-                    text: root.currentOSIsAndroid ?
-                              qsTr("Show >") :
-                              qsTr("Show...")
-
-                    onClicked: root.showClicked()
-
-                    enabled: App.state === AppStates.Idle && App.totalFoundEvents > 0
+                    text: qsTr("%1 events in this area").arg(App.totalFoundEvents)
+                    Layout.fillWidth: true
                 }
 
+                Label {
+                    wrapMode: Text.WordWrap
+
+                    text: qsTr("%1 events today").arg(App.todayFoundEvents)
+                    Layout.fillWidth: true
+                }
+
+                property int buttonWidth: Math.max(showEvents.implicitWidth, reload.implicitWidth)
 
                 IconButton {
                     id: reload
-
-                    Layout.preferredWidth: parent.width
 
                     iconCode: MdiFont.Icon.reload
                     text: qsTr("Reload...")
@@ -180,6 +153,22 @@ Item {
                         App.reloadEvents();
                     }
                     enabled: App.state === AppStates.Idle
+                    Layout.preferredWidth: parent.buttonWidth
+                    Layout.alignment: Qt.AlignRight
+                }
+                Button {
+                    id: showEvents
+
+                    text: root.currentOSIsAndroid ?
+                              qsTr("Show >") :
+                              qsTr("Show...")
+
+                    onClicked: root.showClicked()
+
+                    enabled: App.state === AppStates.Idle && App.totalFoundEvents > 0
+
+                    Layout.preferredWidth: parent.buttonWidth
+                    Layout.alignment: Qt.AlignRight
                 }
             }
         }
