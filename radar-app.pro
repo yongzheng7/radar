@@ -83,8 +83,12 @@ android {
                  android/gradlew \
                  android/gradlew.bat \
                  android/res/values/libs.xml \
-                 android/res/values/styles.xml 
+                 android/res/values/styles.xml
 
     include($$PWD/android_openssl/openssl.pri)
 }
 
+DISTFILES += \
+    android/res/values-de/strings.xml \
+    android/res/values-ru/strings.xml \
+    android/res/values/strings.xml
