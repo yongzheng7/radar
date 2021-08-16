@@ -29,6 +29,7 @@ Pane {
     id: root
 
     readonly property bool currentOSIsAndroid: Qt.platform.os === "android"
+    readonly property real subscriptFontSize: fontPointSize * 0.75
 
     Shortcut {
         sequences:  root.currentOSIsAndroid ? ["Esc", "Back"] : ["Esc"]
@@ -181,6 +182,7 @@ Cras nec ante sit amet augue sodales iaculis. Aliquam erat volutpat. Nam aliquet
                     }
                 }
             }
+
             RowLayout {
                 Layout.fillWidth: true
                 height: Layout.preferredHeight
@@ -281,66 +283,94 @@ Cras nec ante sit amet augue sodales iaculis. Aliquam erat volutpat. Nam aliquet
 
             Frame {
                 Layout.alignment: Qt.AlignHCenter
-                background: Rectangle {
-                    implicitWidth: 100
-                    implicitHeight: 40
-                    opacity: 1
-                    color: "transparent"
 
-                    border.width: 1.0
-                    border.color: Material.color(Material.Grey)
-
-                    radius: addToCalendar.radius*2
-
-                }
+                background: Item {}
+//                background: Rectangle {
+//                    implicitWidth: 120
+//                    implicitHeight: 60
+//                    opacity: 1
+//                    color: "transparent"
+//                    border.width: 1.0
+//                    border.color: Material.color(Material.Grey)
+//                    radius: addToCalendar.radius*2
+//                }
 
                 Row {
                     anchors.fill: parent
                     spacing: 20
-                    RoundButton {
-                        id: addToCalendar
+                    Column {
+                        spacing: 4
 
-                        font.family: "Material Design Icons"
-                        font.pixelSize: 24
-                        text: MdiFont.Icon.calendar
+                        RoundButton {
+                            id: addToCalendar
 
-                        onClicked: root.addToCalendarClicked()
-                        Material.elevation: 1
+                            font.family: "Material Design Icons"
+                            font.pixelSize: 24
+                            text: MdiFont.Icon.calendarPlus
 
-                        ToolTip.visible: hovered
-                        ToolTip.text: qsTr("Add to calendar")
+                            onClicked: root.addToCalendarClicked()
+                            Material.elevation: 1
+
+                            ToolTip.visible: hovered
+                            ToolTip.text: qsTr("Add to calendar")
+                        }
+                        Text {
+                            font.pointSize: root.subscriptFontSize
+                            text: qsTr("Plan")
+                            horizontalAlignment: Text.AlignHCenter
+                            anchors.horizontalCenter: addToCalendar.horizontalCenter
+                        }
                     }
-                    RoundButton {
-                        id: show
-                        visible: root.urlProvided
+                    Column {
+                        spacing: 4
 
-                        font.family: "Material Design Icons"
-                        font.pixelSize: 24
-                        text: MdiFont.Icon.web
+                        RoundButton {
+                            id: show
+                            visible: root.urlProvided
 
-                        onClicked: root.openUrlRequested()
-                        Material.elevation: 1
+                            font.family: "Material Design Icons"
+                            font.pixelSize: 24
+                            text: MdiFont.Icon.web
 
-                        ToolTip.visible: hovered
-                        ToolTip.text: qsTr("Show in Browser")
+                            onClicked: root.openUrlRequested()
+                            Material.elevation: 1
+
+                            ToolTip.visible: hovered
+                            ToolTip.text: qsTr("Show in Browser")
+                        }
+                        Text {
+                            font.pointSize: root.subscriptFontSize
+                            text: qsTr("View")
+                            horizontalAlignment: Text.AlignHCenter
+                            anchors.horizontalCenter: show.horizontalCenter
+                        }
                     }
-                    RoundButton {
-                        id: share
-                        visible: root.urlProvided
-                        font.family: "Material Design Icons"
-                        font.pixelSize: 24
-                        text: MdiFont.Icon.share
+                    Column {
+                        spacing: 4
 
-                        onClicked: root.shareRequested()
-                        Material.elevation: 1
-                        Material.accent: Material.Grey
+                        RoundButton {
+                            id: share
+                            visible: root.urlProvided
+                            font.family: "Material Design Icons"
+                            font.pixelSize: 24
+                            text: MdiFont.Icon.shareVariant
 
-                        ToolTip.visible: hovered
-                        ToolTip.text: qsTr("Share...")
+                            onClicked: root.shareRequested()
+                            Material.elevation: 1
+                            Material.accent: Material.Grey
+
+                            ToolTip.visible: hovered
+                            ToolTip.text: qsTr("Share...")
+                        }
+                        Text {
+                            font.pointSize: root.subscriptFontSize
+                            text: qsTr("Share")
+                            horizontalAlignment: Text.AlignHCenter
+                            anchors.horizontalCenter: share.horizontalCenter
+                        }
                     }
                 }
             }
-
         }
     }
     RoundButton {
