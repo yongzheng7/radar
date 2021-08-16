@@ -147,14 +147,13 @@ Cras nec ante sit amet augue sodales iaculis. Aliquam erat volutpat. Nam aliquet
                     text: qsTr("at:")
                     font.bold: true
                 }
-                TextArea {
+                Label {
                     Layout.fillWidth: true
 
-                    readOnly: true
-                    selectByMouse: true
                     text: root.locationName
                     wrapMode: Text.Wrap
                     focus: false
+                    font.underline: true
                 }
             }
             Label {
@@ -195,6 +194,7 @@ Cras nec ante sit amet augue sodales iaculis. Aliquam erat volutpat. Nam aliquet
                     Layout.fillWidth: true
                     text: root.dateTime
                     wrapMode: TextEdit.Wrap
+                    font.underline: true
                 }
             }
             RowLayout {
@@ -235,9 +235,8 @@ Cras nec ante sit amet augue sodales iaculis. Aliquam erat volutpat. Nam aliquet
                     text: qsTr("Address:")
                     font.bold: true
                 }
-                TextArea {
+                Label {
                     id: address
-                    readOnly: true
                     Layout.fillWidth: true
                     wrapMode: TextEdit.Wrap
                     text: root.locationAddress
@@ -271,10 +270,9 @@ Cras nec ante sit amet augue sodales iaculis. Aliquam erat volutpat. Nam aliquet
                     font.bold: true
                 }
 
-                TextArea {
+                Label {
                     Layout.alignment: Qt.AlignTop
                     Layout.fillWidth: true
-                    readOnly: true
                     text: root.directions
                     wrapMode: TextEdit.Wrap
                     focus: false
