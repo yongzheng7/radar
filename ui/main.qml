@@ -48,13 +48,24 @@ ApplicationWindow {
     }
 
     header: ToolBar {
+        padding: 0
         RowLayout {
-            spacing: 20
+            spacing: 0
             anchors.fill: parent
+            Layout.margins: 0
 
+            readonly property bool isPaneActive: eventView.active || mapView.active
+            readonly property bool isEventActive: eventView.active
             ToolButton {
                 id: toolBarBackButton
-                icon.name: swipeView.currentIndex > 0 ? "back" : ""
+
+                icon.name: swipeView.currentIndex > 0 && !parent.isPaneActive ? "back" : ""
+                text: parent.isPaneActive ? MdiFont.Icon.close : ""
+
+                font.family: "Material Design Icons"
+                font.bold: true
+                font.pixelSize: toolBarBackButton.icon.height
+
                 enabled: swipeView.currentIndex > 0
                 onClicked: {
                     if (mapView.active) {
@@ -76,6 +87,7 @@ ApplicationWindow {
 
             Label {
                 id: titleLabel
+                fontSizeMode: Text.HorizontalFit
                 text: {
                     if (mapView.active) {
                         return qsTr("Event on Map");
@@ -100,7 +112,6 @@ ApplicationWindow {
                 Layout.fillWidth: true
             }
 
-
             ToolButton {
                 visible: !eventView.active
                 icon.name: "menu"
@@ -111,22 +122,49 @@ ApplicationWindow {
             }
 
             ToolButton {
-                visible: eventView.active || mapView.active
+                visible: parent.isEventActive
+
+                Layout.leftMargin: 0
+                Layout.rightMargin: 0
+                Layout.preferredWidth: 1.5*font.pixelSize
 
                 font.family: "Material Design Icons"
-                font.bold: true
                 font.pixelSize: toolBarBackButton.icon.height
 
-                text: MdiFont.Icon.close
+                text: MdiFont.Icon.calendarPlus
                 Layout.alignment: Qt.AlignVCenter
 
-                onClicked: {
-                    if (mapView.active) {
-                        mapView.closeView();
-                        return;
-                    }
-                    eventView.closePage();
-                }
+                onClicked: eventView.item.addToCalendarClicked()
+            }
+            ToolButton {
+                visible: parent.isEventActive
+
+                Layout.leftMargin: 0
+                Layout.rightMargin: 0
+                Layout.preferredWidth: 1.5*font.pixelSize
+
+                font.family: "Material Design Icons"
+                font.pixelSize: toolBarBackButton.icon.height
+
+                text: MdiFont.Icon.mapSearch
+                Layout.alignment: Qt.AlignVCenter
+
+                onClicked: eventView.item.openMap()
+            }
+            ToolButton {
+                visible: parent.isEventActive
+
+                Layout.leftMargin: 0
+                Layout.rightMargin: 4
+                Layout.preferredWidth: 1.5*font.pixelSize
+
+                font.family: "Material Design Icons"
+                font.pixelSize: toolBarBackButton.icon.height
+
+                text: MdiFont.Icon.shareVariant
+                Layout.alignment: Qt.AlignVCenter
+
+                onClicked: eventView.item.shareRequested()
             }
         }
     }
