@@ -15,6 +15,14 @@ DEFINES += QT_DEPRECATED_WARNINGS
 # You can also select to disable deprecated APIs only up to a certain version of Qt.
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
+iconfonts.target = icons.ttf
+iconfonts.output = $$PWD/fonts/icons.ttf
+iconfonts.commands = cd $$PWD/fonts; ./create_icon_font.sh; cd .. 
+
+QMAKE_EXTRA_TARGETS += iconfonts
+
+PRE_TARGETDEPS += icons.ttf
+
 SOURCES += \
         src/all_countries.cpp \
         src/app.cpp \
