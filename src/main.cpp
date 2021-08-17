@@ -67,7 +67,7 @@ int main(int argc, char *argv[])
     }
 
     {
-        int fontId = QFontDatabase::addApplicationFont(":/fonts/materialdesignicons-webfont.ttf");
+        int fontId = QFontDatabase::addApplicationFont(":/fonts/icons.ttf");
         Q_ASSERT(fontId!= -1);
         qDebug() << "font id=" << fontId;
         qDebug() << QFontDatabase::applicationFontFamilies(fontId);
