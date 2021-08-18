@@ -77,7 +77,6 @@ TRANSLATIONS += \
     i18n/radar_de.ts \
     i18n/radar_en.ts
 
-
 android {
     QT += androidextras
     QT -= location

@@ -1,5 +1,5 @@
 /*
- *   Copyright (c) 2019-2020 <xandyx_at_riseup dot net>
+ *   Copyright (c) 2019-2021 <xandyx_at_riseup dot net>
  *
  *   This file is part of Radar-App.
  *
