@@ -16,12 +16,15 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 iconfonts.target = icons.ttf
-iconfonts.output = $$PWD/fonts/icons.ttf
-iconfonts.commands = cd $$PWD/fonts; ./create_icon_font.sh; cd .. 
+iconfonts.output = $$OUT_PWD/icons.ttf
+iconfonts.commands = pyftsubset --output-file="$$iconfonts.target" --unicodes-file="$$PWD/fonts/used_glyphs.txt" "$$PWD/fonts/materialdesignicons-webfont.ttf"
 
-QMAKE_EXTRA_TARGETS += iconfonts
+fonts_qrc.target = fonts.qrc
+fonts_qrc.output = $$OUT_PWD/fonts.qrc
+fonts_qrc.commands = $$QMAKE_COPY_FILE "$$PWD/fonts/fonts.qrc" "$$OUT_PWD/"
+QMAKE_EXTRA_TARGETS += iconfonts fonts_qrc
 
-PRE_TARGETDEPS += icons.ttf
+PRE_TARGETDEPS += icons.ttf fonts.qrc
 
 SOURCES += \
         src/all_countries.cpp \
@@ -30,6 +33,8 @@ SOURCES += \
         src/eventsmodel.cpp \
         src/locationprovider.cpp \
         src/main.cpp
+
+build_pass:RESOURCES += $$OUT_PWD/fonts.qrc
 
 RESOURCES += resources.qrc \
     translations.qrc

@@ -10,7 +10,6 @@
         <file>icons/app-icon.svg</file>
         <file>icons/app-xhdpi.png</file>
         <file>images/qrcode-apk.png</file>
-        <file>fonts/icons.ttf</file>
         <file>ui/Icon.js</file>
         <file>ui/IconButton.qml</file>
     </qresource>
