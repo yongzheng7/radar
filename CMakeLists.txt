@@ -63,6 +63,15 @@ file(APPEND ${CMAKE_GENERATED_RCC}
 "</RCC>\n"
 )
 
+set(FONTS_RCC "${CMAKE_BINARY_DIR}/fonts.qrc")
+set(SOURCE_FONT "${CMAKE_CURRENT_LIST_DIR}/fonts/materialdesignicons-webfont.ttf")
+set(GLYPH_LIST "${CMAKE_CURRENT_LIST_DIR}/fonts/used_glyphs.txt")
+#file(COPY fonts/fonts.qrc DESTINATION ${FONTS_RCC})
+configure_file(fonts/fonts.qrc "${FONTS_RCC}")
+add_custom_target(ICON_FONT pyftsubset --output-file="${CMAKE_BINARY_DIR}/icons.ttf" --unicodes-file="${GLYPH_LIST}" "${SOURCE_FONT}"
+	BYPRODUCTS "${CMAKE_BINARY_DIR}/icons.ttf")
+
+
 set(CXX_SOURCES
     src/all_countries.cpp
     src/app.cpp
@@ -91,6 +100,7 @@ if(ANDROID)
         resources.qrc
         qml_desktop.qrc
         ${CMAKE_GENERATED_RCC}
+	${FONTS_RCC}
     )
 
     target_compile_definitions(radar-app PRIVATE APK_DOWNLOAD_URL="${DOWNLOAD_URL}")
@@ -112,10 +122,12 @@ else()
         resources.qrc
         qml_desktop.qrc
         ${CMAKE_GENERATED_RCC}
+	${FONTS_RCC}
     )
     qt5_use_modules(radar-app Core Quick QuickControls2 Positioning Sql)
 endif()
 
+add_dependencies(radar-app ICON_FONT)
 set_target_properties(radar-app
                       PROPERTIES CXX_STANDARD_REQUIRED 14)
 

@@ -38,6 +38,7 @@ before_script:
   - apt-get --quiet install --yes make cmake python3-pip
   - apt-get --quiet install --yes python3-pyqrcode python3-setuptools python3-qrcode
   - pip3 install pipenv
+  - pip3 install fonttools
 
   - git submodule update --init
   - pushd qt-downloader
