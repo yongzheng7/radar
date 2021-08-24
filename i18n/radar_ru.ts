@@ -45,87 +45,122 @@ Link: %4</source>
 <context>
     <name>EventView</name>
     <message>
+        <location filename="../ui/EventView.qml" line="131"/>
         <source>Category:</source>
-        <translation type="vanished">Категория:</translation>
+        <translation>Категория:</translation>
     </message>
     <message>
+        <location filename="../ui/EventView.qml" line="147"/>
         <source>at:</source>
-        <translation type="vanished">место:</translation>
+        <translation>место:</translation>
     </message>
     <message>
+        <location filename="../ui/EventView.qml" line="190"/>
         <source>When:</source>
-        <translation type="vanished">Когда:</translation>
+        <translation>Когда:</translation>
     </message>
     <message>
+        <location filename="../ui/EventView.qml" line="207"/>
         <source>Duration:</source>
-        <translation type="vanished">Длительность:</translation>
+        <translation>Длительность:</translation>
     </message>
     <message>
+        <location filename="../ui/EventView.qml" line="221"/>
         <source>Price:</source>
-        <translation type="vanished">Цена:</translation>
+        <translation>Цена:</translation>
     </message>
     <message>
+        <location filename="../ui/EventView.qml" line="235"/>
         <source>Address:</source>
-        <translation type="vanished">Адрес:</translation>
+        <translation>Адрес:</translation>
     </message>
     <message>
+        <location filename="../ui/EventView.qml" line="260"/>
         <source>View on Map</source>
-        <translation type="vanished">Показать на карте</translation>
+        <translation>Показать на карте</translation>
     </message>
     <message>
+        <location filename="../ui/EventView.qml" line="269"/>
         <source>Directions:</source>
-        <translation type="vanished">Проезд:</translation>
+        <translation>Проезд:</translation>
     </message>
     <message>
+        <location filename="../ui/EventView.qml" line="313"/>
         <source>Add to calendar</source>
-        <translation type="vanished">В календарь</translation>
+        <translation>В календарь</translation>
     </message>
     <message>
+        <location filename="../ui/EventView.qml" line="317"/>
+        <source>Plan</source>
+        <translation>Запланировать</translation>
+    </message>
+    <message>
+        <location filename="../ui/EventView.qml" line="337"/>
         <source>Show in Browser</source>
-        <translation type="vanished">Открыть в браузере</translation>
+        <translation>Открыть в браузере</translation>
     </message>
     <message>
+        <location filename="../ui/EventView.qml" line="341"/>
+        <source>View</source>
+        <translation>Смотреть</translation>
+    </message>
+    <message>
+        <location filename="../ui/EventView.qml" line="361"/>
         <source>Share...</source>
-        <translation type="vanished">Поделиться...</translation>
+        <translation>Поделиться...</translation>
     </message>
     <message>
+        <location filename="../ui/EventView.qml" line="365"/>
+        <source>Share</source>
+        <translation>Поделиться</translation>
+    </message>
+    <message>
+        <location filename="../ui/EventView.qml" line="390"/>
         <source>Close</source>
-        <translation type="vanished">Закрыть</translation>
+        <translation>Закрыть</translation>
     </message>
 </context>
 <context>
     <name>LocationPage</name>
     <message>
+        <location filename="../ui/LocationPage.qml" line="57"/>
         <source>Country</source>
-        <translation type="vanished">Страна</translation>
+        <translation>Страна</translation>
     </message>
     <message>
+        <location filename="../ui/LocationPage.qml" line="84"/>
         <source>City</source>
-        <translation type="vanished">Город</translation>
+        <translation>Город</translation>
     </message>
     <message>
+        <location filename="../ui/LocationPage.qml" line="117"/>
         <source>Remember location</source>
-        <translation type="vanished">Запомнить место</translation>
+        <translation>Запомнить место</translation>
     </message>
     <message>
+        <location filename="../ui/LocationPage.qml" line="132"/>
         <source>%1 events in this area</source>
-        <translation type="vanished">Мероприятий в регионе: %1</translation>
+        <translation>Мероприятий в регионе: %1</translation>
     </message>
     <message>
+        <location filename="../ui/LocationPage.qml" line="139"/>
         <source>%1 events today</source>
-        <translation type="vanished">Мероприятий сегодня: %1</translation>
+        <translation>Мероприятий сегодня: %1</translation>
     </message>
     <message>
+        <location filename="../ui/LocationPage.qml" line="163"/>
         <source>Show &gt;</source>
-        <translation type="vanished">Показать &gt;</translation>
+        <translation>Показать &gt;</translation>
     </message>
     <message>
+        <location filename="../ui/LocationPage.qml" line="164"/>
         <source>Show...</source>
-        <translation type="vanished">Показать...</translation>
+        <translation>Показать...</translation>
     </message>
     <message>
+        <location filename="../ui/LocationPage.qml" line="149"/>
         <source>Reload...</source>
-        <translation type="vanished">Перезагрузить...</translation>
+        <translation>Перезагрузить...</translation>
     </message>
 </context>
 <context>
@@ -144,103 +179,128 @@ Link: %4</source>
 <context>
     <name>main</name>
     <message>
+        <location filename="../ui/main.qml" line="39"/>
+        <location filename="../ui/main.qml" line="215"/>
         <source>Radar App</source>
-        <translation type="vanished">Радар</translation>
+        <translation>Радар</translation>
     </message>
     <message>
+        <location filename="../ui/main.qml" line="93"/>
         <source>Event on Map</source>
-        <translation type="vanished">Событие на карте</translation>
+        <translation>Событие на карте</translation>
     </message>
     <message>
+        <location filename="../ui/main.qml" line="96"/>
         <source>Event</source>
-        <translation type="vanished">Мероприятие</translation>
+        <translation>Мероприятие</translation>
     </message>
     <message>
+        <location filename="../ui/main.qml" line="100"/>
         <source>Location</source>
-        <translation type="vanished">Место</translation>
+        <translation>Место</translation>
     </message>
     <message>
+        <location filename="../ui/main.qml" line="102"/>
         <source>Ongoing events</source>
-        <translation type="vanished">Мероприятия</translation>
+        <translation>Мероприятия</translation>
     </message>
     <message>
+        <location filename="../ui/main.qml" line="104"/>
         <source>Radar</source>
-        <translation type="vanished">Радар</translation>
+        <translation>Радар</translation>
     </message>
     <message>
+        <location filename="../ui/main.qml" line="185"/>
         <source>Reload Countries</source>
-        <translation type="vanished">Обновить страны</translation>
+        <translation>Обновить страны</translation>
     </message>
     <message>
+        <location filename="../ui/main.qml" line="191"/>
         <source>About</source>
-        <translation type="vanished">О программе</translation>
+        <translation>О программе</translation>
     </message>
     <message>
+        <location filename="../ui/main.qml" line="196"/>
         <source>Share App...</source>
-        <translation type="vanished">Поделиться приложением...</translation>
+        <translation>Поделиться приложением...</translation>
     </message>
     <message>
+        <location filename="../ui/main.qml" line="201"/>
         <source>Share via QR-code...</source>
-        <translation type="vanished">Поделиться через QR-код...</translation>
+        <translation>Поделиться через QR-код...</translation>
     </message>
     <message>
+        <location filename="../ui/main.qml" line="228"/>
         <source>&lt;p&gt;Copyright © 2019-2020&lt;/p&gt;&lt;p&gt;This program comes with ABSOLUTELY NO WARRANTY.&lt;/p&gt;&lt;p&gt;This is free software, and you are welcome to redistribute it under certain conditions.&lt;/p&gt;&lt;p&gt;&lt;a href=&quot;https://www.gnu.org/licenses/gpl-3.0.en.html&quot;&gt;Details on License…&lt;/a&gt;&lt;/p&gt;&lt;p&gt;&lt;a href=&quot;https://0xacab.org/xandyx/radar-app/tree/master&quot;&gt;Source code…&lt;/a&gt;&lt;/p&gt;</source>
-        <translation type="vanished">&lt;p&gt;Copyright © 2019-2021&lt;/p&gt;&lt;p&gt;Программа поставляется БЕЗ КАКИХ-ЛИБО ГАРАНТИЙ.&lt;/p&gt;&lt;p&gt;Это Свободное Программное Обеспечение, распространение на определённых условиях приветствуется.&lt;/p&gt;&lt;p&gt;&lt;a href=&quot;https://www.gnu.org/licenses/gpl-3.0.ru.html&quot;&gt;Подробнее о лицензии…&lt;/a&gt;&lt;/p&gt;&lt;p&gt;&lt;a href=&quot;https://0xacab.org/xandyx/radar-app/tree/master&quot;&gt;Исходный код…&lt;/a&gt;&lt;/p&gt;</translation>
+        <translation>&lt;p&gt;Copyright © 2019-2021&lt;/p&gt;&lt;p&gt;Программа поставляется БЕЗ КАКИХ-ЛИБО ГАРАНТИЙ.&lt;/p&gt;&lt;p&gt;Это Свободное Программное Обеспечение, распространение на определённых условиях приветствуется.&lt;/p&gt;&lt;p&gt;&lt;a href=&quot;https://www.gnu.org/licenses/gpl-3.0.ru.html&quot;&gt;Подробнее о лицензии…&lt;/a&gt;&lt;/p&gt;&lt;p&gt;&lt;a href=&quot;https://0xacab.org/xandyx/radar-app/tree/master&quot;&gt;Исходный код…&lt;/a&gt;&lt;/p&gt;</translation>
     </message>
     <message>
+        <location filename="../ui/main.qml" line="249"/>
         <source>Scan QR Code to download</source>
-        <translation type="vanished">Отсканируйте QR-код для скачивания</translation>
+        <translation>Отсканируйте QR-код для скачивания</translation>
     </message>
     <message>
+        <location filename="../ui/main.qml" line="284"/>
         <source>No Maps application available.</source>
-        <translation type="vanished">Нет приложения &quot;Карты&quot;</translation>
+        <translation>Нет приложения Карты.</translation>
     </message>
     <message>
+        <location filename="../ui/main.qml" line="288"/>
         <source>Do you want to see event location with web browser?</source>
-        <translation type="vanished">Желаете ли вы открыть местоположение мероприятия в браузере?</translation>
+        <translation>Желаете ли вы открыть местоположение мероприятия в браузере?</translation>
     </message>
     <message>
+        <location filename="../ui/main.qml" line="304"/>
         <source>Failed to load data</source>
-        <translation type="vanished">Сбой загрузки данных</translation>
+        <translation>Сбой загрузки данных</translation>
     </message>
     <message>
+        <location filename="../ui/main.qml" line="305"/>
         <source>Network Errror</source>
-        <translation type="vanished">Ошибка сети</translation>
+        <translation>Ошибка сети</translation>
     </message>
     <message>
+        <location filename="../ui/main.qml" line="391"/>
         <source>&lt; Back</source>
-        <translation type="vanished">&lt; Назад</translation>
+        <translation>&lt; Назад</translation>
     </message>
     <message>
+        <location filename="../ui/main.qml" line="416"/>
         <source>Next &gt;</source>
-        <translation type="vanished">Далее &gt;</translation>
+        <translation>Далее &gt;</translation>
     </message>
     <message>
+        <location filename="../ui/main.qml" line="513"/>
         <source>Please wait…</source>
-        <translation type="vanished">Подождите...</translation>
+        <translation>Подождите...</translation>
     </message>
     <message>
+        <location filename="../ui/main.qml" line="543"/>
         <source>Getting events</source>
-        <translation type="vanished">Загрузка мероприятий</translation>
+        <translation>Загрузка мероприятий</translation>
     </message>
     <message>
+        <location filename="../ui/main.qml" line="546"/>
         <source>Filtering events</source>
-        <translation type="vanished">Фильтрация мероприятий</translation>
+        <translation>Фильтрация мероприятий</translation>
     </message>
     <message>
+        <location filename="../ui/main.qml" line="549"/>
         <source>Loading countries</source>
-        <translation type="vanished">Загрузка стран</translation>
+        <translation>Загрузка стран</translation>
     </message>
     <message>
+        <location filename="../ui/main.qml" line="552"/>
         <source>Loading cities</source>
-        <translation type="vanished">Загрузка городов</translation>
+        <translation>Загрузка городов</translation>
     </message>
 </context>
 <context>
     <name>map</name>
     <message>
+        <location filename="../ui/map.qml" line="64"/>
         <source>Close</source>
-        <translation type="vanished">Закрыть</translation>
+        <translation>Закрыть</translation>
     </message>
 </context>
 </TS>
