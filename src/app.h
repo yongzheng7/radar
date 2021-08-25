@@ -245,9 +245,8 @@ private:
     QMap< QString, QStringList > m_citiesByCountryCode;
     QSet< QString > m_countriesToLoad;
     const QString m_eventsRequestUrlBase = QStringLiteral("https://radar.squat.net/api/1.2/search/events.json");
-    const QString m_groupsRequestUrl = QStringLiteral("https://radar.squat.net/api/1.1/search/groups.json?fields[]=uuid&limit=1");
+    const QString m_locationsRequestUrl = QStringLiteral("https://radar.squat.net/api/1.2/search/location.json?fields=%22%22&limit=1");
     const QString m_cityRequestUrlBase = QStringLiteral("https://radar.squat.net/api/1.2/search/groups.json?fields[]=uuid&limit=1&facets[country][]=%1");
-    //Locations in city: https://radar.squat.net/api/1.2/search/location.json?facets[country][]=DE&facets[locality][]=Berlin&fields[]=directions&fields[]=title&fields[]=address&fields[]=uuid&fields[]=map
     const QString m_downloadLink =
 #ifdef APK_DOWNLOAD_URL
         QStringLiteral(APK_DOWNLOAD_URL);
@@ -259,7 +258,7 @@ private:
     const QString m_settingsCountryKey = QStringLiteral("filter/country");
 
     QJsonObject m_events;
-    QJsonObject m_groups;
+    QJsonObject m_locations;
 
     QDateTime m_start;
     QDateTime m_end;

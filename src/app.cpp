@@ -344,7 +344,7 @@ void App::doLoadCountries()
         return;
     }
     QNetworkRequest request;
-    QUrl requestUrl(m_groupsRequestUrl, QUrl::ParsingMode::TolerantMode);
+    QUrl requestUrl(m_locationsRequestUrl, QUrl::ParsingMode::TolerantMode);
     qDebug() << "requestUrl=" << requestUrl.toString();
     request.setUrl(requestUrl);
     request.setRawHeader(QByteArrayLiteral("User-Agent"), QByteArrayLiteral("Radar App 1.0"));
@@ -358,14 +358,13 @@ void App::doLoadCountries()
         qDebug() << "Content-Type" << reply->header(QNetworkRequest::KnownHeaders::ContentTypeHeader);
         if (reply->isFinished()) {
             QByteArray buf = reply->readAll();
-            // qDebug() << buf;
             QJsonParseError err{};
             QJsonDocument json = QJsonDocument::fromJson(buf, &err);
             if (json.isNull()) {
                 qCritical() << "Json parse error:" << err.errorString();
                 emit loadFailed(QPrivateSignal());
             }
-            m_groups = json.object();
+            m_locations = json.object();
             qDebug() << "loadCompleted!";
             emit this->loadCompleted(QPrivateSignal());
             reply->close();
@@ -462,8 +461,8 @@ void App::doLoadCities()
 void App::doFilterCountries()
 {
     qDebug() << __PRETTY_FUNCTION__;
-    const auto &constEnd = m_groups.constEnd();
-    const auto &facets = m_groups.constFind(QLatin1String("facets"));
+    const auto &constEnd = m_locations.constEnd();
+    const auto &facets = m_locations.constFind(QLatin1String("facets"));
     QSet< QString > codes;
     if (facets != constEnd) {
         const auto &facetsObj = facets->toObject();
@@ -496,6 +495,7 @@ void App::doFilterCountries()
     qDebug() << "loaded codes:" << codes;
     emit countriesChanged(QPrivateSignal());
     emit countriesFiltered(QPrivateSignal());
+    m_locations = {};
 }
 
 void App::doCurrentLocationCheck()
