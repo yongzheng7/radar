@@ -111,8 +111,8 @@ if(ANDROID)
         NAME "Radar App"
         VERSION_CODE 1
         PACKAGE_NAME "org.radar.app"
-    PACKAGE_SOURCES "${CMAKE_CURRENT_LIST_DIR}/android"
-    DEPENDS "${ANDROID_EXTRA_LIBS}"
+        PACKAGE_SOURCES "${CMAKE_CURRENT_LIST_DIR}/android"
+        DEPENDS "${ANDROID_EXTRA_LIBS}"
         )
 else()
     find_package(Qt5 COMPONENTS Core Quick Positioning QuickControls2 Sql REQUIRED)
