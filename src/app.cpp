@@ -637,6 +637,8 @@ void App::getPermissions()
 void App::reload()
 {
     qDebug() << __PRETTY_FUNCTION__;
+    m_networkAccessManager->clearAccessCache();
+    m_networkAccessManager->clearConnectionCache();
     if (!m_fsm.isRunning()) {
         connect(&m_fsm, &QStateMachine::runningChanged, this, [this](bool running) {
             if (running) {
@@ -743,11 +745,7 @@ void App::showLocation()
     QAndroidIntent intent(QStringLiteral("android.intent.action.VIEW"));
     intent.handle().callObjectMethod("setData", "(Landroid/net/Uri;)Landroid/content/Intent;", uri.object< jobject >());
     QtAndroid::startActivity(intent.handle(), 0, nullptr);
-    QAndroidJniEnvironment env;
-    if (env->ExceptionCheck()) {
-        qCritical() << "Exception:";
-        env->ExceptionDescribe();
-        env->ExceptionClear();
+    if (cleanupJNI()) {
         emit failedToOpenMapApp(QPrivateSignal());
     }
 #endif
@@ -757,7 +755,6 @@ void App::addToCalendar()
 {
     qDebug() << __PRETTY_FUNCTION__;
 #ifdef Q_OS_ANDROID
-    QAndroidJniEnvironment env;
     auto getCalendarContractEventsColumnsStaticField = [](const char *field, const char *sig) {
         auto fieldId
             = QAndroidJniObject::getStaticObjectField("android/provider/CalendarContract$EventsColumns", field, sig);
@@ -800,11 +797,7 @@ void App::addToCalendar()
 
     qDebug() << "Starting activity...";
     QtAndroid::startActivity(intent.handle(), 0);
-    if (env->ExceptionCheck()) {
-        qCritical() << "Exception:";
-        env->ExceptionDescribe();
-        env->ExceptionClear();
-    }
+    cleanupJNI();
 #endif
 }
 
@@ -833,32 +826,31 @@ void App::doSharing(const QString &title, const QString &body)
         QDesktopServices::openUrl(url);
     }
 #else
-    auto action
-        = QAndroidJniObject::getStaticObjectField("android/content/Intent", "ACTION_SEND", "Ljava/lang/String;").toString();
-    qDebug() << "action=" << action;
-    auto extraSubject
-        = QAndroidJniObject::getStaticObjectField("android/content/Intent", "EXTRA_SUBJECT", "Ljava/lang/String;");
-    auto extraText = QAndroidJniObject::getStaticObjectField("android/content/Intent", "EXTRA_TEXT", "Ljava/lang/String;");
-    QAndroidIntent intent(action);
-    intent.handle().callObjectMethod("putExtra", "(Ljava/lang/String;Ljava/lang/String;)Landroid/content/Intent;",
-                                     extraSubject.object< jstring >(),
-                                     QAndroidJniObject::fromString(title).object< jstring >());
-    intent.handle().callObjectMethod("putExtra", "(Ljava/lang/String;Ljava/lang/String;)Landroid/content/Intent;",
-                                     extraText.object< jstring >(), QAndroidJniObject::fromString(body).object< jstring >());
-    intent.handle().callObjectMethod("setType", "(Ljava/lang/String;)Landroid/content/Intent;",
-                                     QAndroidJniObject::fromString(QStringLiteral("text/plain")).object< jstring >());
-    auto chooser = QAndroidJniObject::callStaticObjectMethod(
-        "android/content/Intent", "createChooser",
-        "(Landroid/content/Intent;Ljava/lang/CharSequence;)Landroid/content/Intent;", intent.handle().object(),
-        QAndroidJniObject::fromString(QStringLiteral("Share URL")).object< jstring >());
-    QtAndroid::startActivity(chooser, 0, nullptr);
-
-    QAndroidJniEnvironment env;
-    if (env->ExceptionCheck()) {
-        qCritical() << "Exception:";
-        env->ExceptionDescribe();
-        env->ExceptionClear();
-    }
+    qApp->processEvents();
+    QtAndroid::runOnAndroidThread([=]() {
+        auto action = QAndroidJniObject::getStaticObjectField("android/content/Intent", "ACTION_SEND", "Ljava/lang/String;")
+                          .toString();
+        qDebug() << "action=" << action;
+        auto extraSubject
+            = QAndroidJniObject::getStaticObjectField("android/content/Intent", "EXTRA_SUBJECT", "Ljava/lang/String;");
+        auto extraText
+            = QAndroidJniObject::getStaticObjectField("android/content/Intent", "EXTRA_TEXT", "Ljava/lang/String;");
+        QAndroidIntent intent(action);
+        intent.handle().callObjectMethod("putExtra", "(Ljava/lang/String;Ljava/lang/String;)Landroid/content/Intent;",
+                                         extraSubject.object< jstring >(),
+                                         QAndroidJniObject::fromString(title).object< jstring >());
+        intent.handle().callObjectMethod("putExtra", "(Ljava/lang/String;Ljava/lang/String;)Landroid/content/Intent;",
+                                         extraText.object< jstring >(),
+                                         QAndroidJniObject::fromString(body).object< jstring >());
+        intent.handle().callObjectMethod("setType", "(Ljava/lang/String;)Landroid/content/Intent;",
+                                         QAndroidJniObject::fromString(QStringLiteral("text/plain")).object< jstring >());
+        auto chooser = QAndroidJniObject::callStaticObjectMethod(
+            "android/content/Intent", "createChooser",
+            "(Landroid/content/Intent;Ljava/lang/CharSequence;)Landroid/content/Intent;", intent.handle().object(),
+            QAndroidJniObject::fromString(QStringLiteral("Share URL")).object< jstring >());
+        QtAndroid::startActivity(chooser, 0, nullptr);
+        cleanupJNI();
+    });
 #endif
 }
 
@@ -869,12 +861,7 @@ float App::getAndroidScale()
     auto resources = QtAndroid::androidContext().callObjectMethod("getResources", "()Landroid/content/res/Resources;");
     auto configuration = resources.callObjectMethod("getConfiguration", "()Landroid/content/res/Configuration;");
     float fontScale = configuration.getField< float >("fontScale");
-    QAndroidJniEnvironment env;
-    if (env->ExceptionCheck()) {
-        qCritical() << "Exception:";
-        env->ExceptionDescribe();
-        env->ExceptionClear();
-    }
+    cleanupJNI();
     qDebug() << "fontScale = " << fontScale;
     return fontScale;
 #else
@@ -882,7 +869,7 @@ float App::getAndroidScale()
 #endif
 }
 
-void App::cleanupJNI()
+bool App::cleanupJNI()
 {
 #ifdef Q_OS_ANDROID
     QAndroidJniEnvironment env;
@@ -890,8 +877,10 @@ void App::cleanupJNI()
         qCritical() << "Exception:";
         env->ExceptionDescribe();
         env->ExceptionClear();
+        return true;
     }
 #endif
+    return false;
 }
 
 void App::setupNavigationBar()

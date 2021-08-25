@@ -197,7 +197,7 @@ signals:
 
 private:
     void prepareNetworkAccessManager();
-    void cleanupJNI();
+    static bool cleanupJNI();
     void setupNavigationBar();
 
     using MemberFunc = void (App::*)();
