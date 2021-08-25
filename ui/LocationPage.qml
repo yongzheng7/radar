@@ -19,6 +19,7 @@
 import QtQuick 2.12
 import QtQuick.Layouts 1.3
 import QtQuick.Controls 2.12
+import QtQuick.Controls.Material 2.12
 
 import org.radar.app 1.0
 
@@ -72,6 +73,8 @@ Item {
                 onModelChanged: {
                     countries.currentIndex = find(App.country);
                 }
+
+                Material.elevation: 0
             }
 
             Label {
@@ -106,6 +109,7 @@ Item {
                 onModelChanged: {
                     cities.currentIndex = find(App.city);
                 }
+                Material.elevation: 0
             }
 
             CheckBox {
