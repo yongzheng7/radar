@@ -54,9 +54,7 @@ FocusScope {
         z: 2
     }
 
-    readonly property string firstDate: App.eventsModel.data(
-                                            App.eventsModel.index(0,0),
-                                            App.eventsModel.datePropertyIndex)
+    readonly property string earliestDate: App.eventsModel.earliestDate
 
     Component {
         id: sectionHeading
@@ -66,7 +64,7 @@ FocusScope {
             height: sectionText.font.pixelSize*2.0
 
             Rectangle {
-                visible: section !== root.firstDate
+                visible: section !== root.earliestDate
                 x:0
                 y:0
                 width: sectionDelegateRoot.ListView.view.width

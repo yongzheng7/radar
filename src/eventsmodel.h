@@ -52,6 +52,7 @@ public:
     enum Roles { Title = Qt::UserRole, Place, Address, Date, StartDateTime, Category, LocationName, Distance, Url };
 
     Q_PROPERTY(int datePropertyIndex MEMBER m_datePropertyIndex CONSTANT FINAL)
+    Q_PROPERTY(QString earliestDate READ earliestDate NOTIFY earliestDateChanged)
 
 public:
     void setEvents(QVector< Event > &&events);
@@ -69,9 +70,11 @@ public:
     void stopUpdatePosition();
     void startUpdatePosition();
     bool hasGeoError() const;
+    Q_INVOKABLE QString earliestDate();
 
 signals:
     void hasGeoErrorChanged(QPrivateSignal);
+    void earliestDateChanged(QPrivateSignal);
 
 private:
     void emitLocationDataChanged(const QUuid &uuid);

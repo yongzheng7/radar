@@ -63,6 +63,7 @@ void EventsModel::setEvents(QVector< Event > &&events)
     beginResetModel();
     m_events = events;
     endResetModel();
+    emit earliestDateChanged(QPrivateSignal());
 }
 
 void EventsModel::appendEvents(QVector< Event > &&events)
@@ -77,6 +78,7 @@ void EventsModel::setEvents(const QVector< Event > &events)
     beginResetModel();
     m_events = events;
     endResetModel();
+    emit earliestDateChanged(QPrivateSignal());
 }
 
 Event EventsModel::getEventByIndex(int index) const
@@ -216,6 +218,14 @@ void EventsModel::startUpdatePosition()
 bool EventsModel::hasGeoError() const
 {
     return !m_positionSource || m_positionSource->error() != QGeoPositionInfoSource::Error::NoError;
+}
+
+QString EventsModel::earliestDate()
+{
+    if (m_events.empty()) {
+        return QString();
+    }
+    return data(index(0), Roles::Date).toString();
 }
 
 void EventsModel::emitLocationDataChanged(const QUuid &uuid)
