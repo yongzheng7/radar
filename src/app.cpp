@@ -266,7 +266,9 @@ void App::doReload()
     QNetworkRequest request;
     QUrl requestUrl(m_eventsRequestUrlBase, QUrl::ParsingMode::TolerantMode);
     QUrlQuery query;
-    query.addQueryItem(QStringLiteral("fields"), QStringLiteral("body,category,date_time,offline,price,title,url"));
+    query.addQueryItem(QStringLiteral("fields"), QStringLiteral("body,category,date_time,offline,"
+                                                                "price,title,url,offline:address,"
+                                                                "offline:directions,offline:map,offline:uuid"));
     if (m_city.isEmpty()) {
         query.addQueryItem(QStringLiteral("facets[country][]"), Countries::countryCode(m_country));
     } else {
@@ -510,17 +512,14 @@ void App::doCurrentLocationCheck()
 void App::doExtract()
 {
     QVector< Event > events;
-    QSet< QUuid > locationIDs;
+    QHash<QUuid, Location> locationsFromEvents;
     const auto &constEnd = m_events.constEnd();
     const auto &result = m_events.constFind(QLatin1String("result"));
     if (result != constEnd) {
-        auto countIter = m_events.constFind(QLatin1String("count"));
-        if (countIter != constEnd) {
-            Q_ASSERT(countIter->type() == QJsonValue::Double);
-            events.reserve(countIter.value().toInt());
-            locationIDs.reserve(events.size());
-        }
         const auto &resultObj = result.value().toObject();
+        const auto eventsCount = resultObj.size();
+        events.reserve(eventsCount);
+        locationsFromEvents.reserve(eventsCount);
         for (const auto &member : qAsConst(resultObj)) {
             const auto &memberObj = member.toObject();
             Event event{};
@@ -540,7 +539,9 @@ void App::doExtract()
                 event.rawAddress = offline0.value(QLatin1String("title")).toString();
                 const auto &uuid = offline0.value(QLatin1String("id")).toString();
                 event.locationID = QUuid::fromString(uuid);
-                locationIDs.insert(event.locationID);
+
+                Location location = LocationProvider::extractLocationFromJSONObject(offline0);
+                locationsFromEvents.insert(location.uuid, location);
             }
             const auto &categoriesIt = memberObj.constFind(QLatin1String("category"));
             if (categoriesIt != memberObj.constEnd()) {
@@ -554,15 +555,14 @@ void App::doExtract()
             events.push_back(event);
         }
     }
-    locationIDs.squeeze();
-    qDebug() << "Locations count:" << locationIDs.size();
-    //    m_allEvents.append(events);
-    m_allEvents = std::move(events);
 
+    m_allEvents = std::move(events);
     auto capitalized = m_city;
     capitalized[0] = capitalized[0].toUpper();
 
-    m_locationProvider->setLocationsToLoad(std::move(locationIDs), Countries::countryCode(m_country), capitalized);
+    m_locationProvider->setCity(capitalized);
+    m_locationProvider->setLocationFromEvents(std::move(locationsFromEvents));
+    //m_locationProvider->setLocationsToLoad(std::move(locationIDs), Countries::countryCode(m_country), capitalized);
     emit eventListReady(QPrivateSignal());
 }
 

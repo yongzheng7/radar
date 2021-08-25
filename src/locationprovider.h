@@ -65,10 +65,28 @@ public:
 
     void requestLocation(const QUuid &uuid);
     std::pair< Location, bool > getLoadedLocation(const QUuid &uuid) const;
+    void clearLoadedLocations();
+
+    void setCity(const QString &city)
+    {
+        m_city = city;
+        clearLoadedLocations();
+        m_locationsToInsert.clear();
+        m_locationsToInsert.squeeze();
+        m_locationsToLoad.clear();
+        m_locationsToLoad.squeeze();
+    }
+    void setLocationFromEvents(QHash<QUuid, Location> &&locations)
+    {
+        clearLoadedLocations();
+        m_loadedLocations = std::move(locations);
+    }
+
     void setLocationsToLoad(QSet< QUuid > &&locations, const QString &countryCode, const QString &city);
     void doLoad(const QUuid &id);
     void loadAllLocations();
     void setDB(DB *db);
+    static Location extractLocationFromJSONObject(const QJsonObject &obj);
 
 private:
     Q_DISABLE_COPY(LocationProvider)
@@ -76,7 +94,6 @@ private:
     void processBatchReply(QNetworkReply *reply);
     QNetworkReply *requestLocationByUUID(const QUuid &id);
     Location extractLocationFromJSONDocument(const QJsonDocument &json);
-    Location extractLocationFromJSONObject(const QJsonObject &obj);
 
 signals:
     void locationAvailable(const QUuid &id, const Location &location);

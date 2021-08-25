@@ -217,6 +217,12 @@ std::pair< Location, bool > LocationProvider::getLoadedLocation(const QUuid &uui
     return {*found, true};
 }
 
+void LocationProvider::clearLoadedLocations()
+{
+    m_loadedLocations.clear();
+    m_loadedLocations.squeeze();
+}
+
 void LocationProvider::setLocationsToLoad(QSet< QUuid > &&locations, const QString &countryCode, const QString &city)
 {
     qDebug() << __PRETTY_FUNCTION__ << "locations.size() = " << locations.size();
