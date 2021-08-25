@@ -23,6 +23,8 @@ import QtQuick.Controls.Material 2.12
 
 import org.radar.app 1.0
 
+import "Icon.js" as MdiFont
+
 FocusScope {
     id: root
 
@@ -202,6 +204,7 @@ FocusScope {
                 Text {
                     id: distance
                     text: model.distance
+                    visible: text !== ""
                     textFormat: Text.PlainText
                     anchors.margins: 4
                     anchors.top: date.bottom
@@ -211,6 +214,21 @@ FocusScope {
                     color: mouseArea.textColor
                 }
                 Text {
+                    id: distanceIcon
+                    anchors.left: distance.right
+                    anchors.top: date.bottom
+                    anchors.bottom: mouseArea.bottom
+                    anchors.margins: 4
+                    verticalAlignment: Text.AlignBottom
+
+                    text: MdiFont.Icon.mapMarkerDistance
+                    font.family: "Material Design Icons"
+                    font.pixelSize: distance.font.pixelSize*1.5
+
+                    visible: distance.visible
+                }
+
+                Text {
                     id: location
 
                     visible: location.text !== ""
@@ -218,7 +236,7 @@ FocusScope {
                     anchors.margins: 4
                     anchors.bottom: mouseArea.bottom
                     anchors.right: mouseArea.right
-                    anchors.left: distance.text !== "" ? distance.right : date.right
+                    anchors.left: distance.visible ? distanceIcon.right : date.right
 
                     text: model.locationName
                     textFormat: Text.PlainText
