@@ -96,7 +96,7 @@ App::App(QObject *parent)
                 qDebug() << "m_networkAccessManager.networkAccessibleChanged:" << accessible;
                 if (!isLoaded() && accessible == QNetworkAccessManager::NetworkAccessibility::Accessible) {
                     qDebug() << "Emitting reloadEventsRequested...";
-                    emit this->reloadEventsRequested(QPrivateSignal());
+                    emit this->loadEventsRequested(QPrivateSignal());
                 }
             });
     setCountry(m_country);
@@ -113,7 +113,7 @@ void App::setupFSM()
     auto countryFilter = addState(AppState::Values::CountryFilter, &App::doFilterCountries);
     auto citiesLoad = addState(AppState::Values::CitiesLoad, &App::doLoadCities);
     auto checkCurrentLocation = addState(AppState::Values::CurrentLocationCheck, &App::doCurrentLocationCheck);
-    auto loading = addState(AppState::Values::Loading, &App::doReload);
+    auto loading = addState(AppState::Values::Loading, &App::requestEvents);
     auto extraction = addState(AppState::Values::Extraction, &App::doExtract);
     auto filtering = addState(AppState::Values::Filtering, &App::doFiltering);
 #ifdef Q_OS_ANDROID
@@ -130,7 +130,7 @@ void App::setupFSM()
 #else
     idle->addTransition(this, &App::reloadRequested, requestingPermissions);
 #endif
-    idle->addTransition(this, &App::reloadEventsRequested, loading);
+    idle->addTransition(this, &App::loadEventsRequested, loading);
 
     countryLoad->addTransition(this, &App::countriesAlreadyLoaded, citiesLoad);
     countryLoad->addTransition(this, &App::loadCompleted, countryFilter);
@@ -248,7 +248,7 @@ void App::clearEventsModel()
     emit totalFoundEventsChanged(QPrivateSignal());
 }
 
-void App::doReload()
+void App::requestEvents()
 {
     qDebug() << "doReload...";
     assignIsLoaded(!m_firstLoad);
@@ -655,15 +655,20 @@ void App::reload()
 
 void App::reloadEvents()
 {
+    m_firstLoad = true;
+    loadMoreEvents();
+}
+
+void App::loadMoreEvents()
+{
     auto onReloadClicked = [this]() noexcept
     {
         qDebug() << "requesting reloadEvents!";
         if (m_networkAccessManager->networkAccessible() != QNetworkAccessManager::NetworkAccessibility::Accessible) {
             prepareNetworkAccessManager();
         }
-        emit reloadEventsRequested(QPrivateSignal());
+        emit loadEventsRequested(QPrivateSignal());
     };
-    qDebug() << __PRETTY_FUNCTION__;
     if (!m_fsm.isRunning()) {
         QMetaObject::Connection *connection = new QMetaObject::Connection();
         *connection

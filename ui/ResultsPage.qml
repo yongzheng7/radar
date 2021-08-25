@@ -135,7 +135,7 @@ FocusScope {
             console.log("% verticalOvershoot=" + (verticalOvershoot/height) * 100);
             if (verticalOvershoot > root.height/5) {
                 console.log("Load more needed...");
-                App.reloadEvents();
+                App.loadMoreEvents();
             }
         }
 

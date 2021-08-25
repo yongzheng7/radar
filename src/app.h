@@ -104,6 +104,7 @@ public:
     const QString &city() const;
     Q_INVOKABLE void reload();
     Q_INVOKABLE void reloadEvents();
+    Q_INVOKABLE void loadMoreEvents();
 
     Q_INVOKABLE void selectEvent(int index);
     Q_INVOKABLE void openLink(const QString &link);
@@ -170,7 +171,7 @@ signals:
     void stateChanged(QPrivateSignal);
 
     void reloadRequested(QPrivateSignal);
-    void reloadEventsRequested(QPrivateSignal);
+    void loadEventsRequested(QPrivateSignal);
     void loadCompleted(QPrivateSignal);
     void loadFailed(QPrivateSignal);
 
@@ -205,7 +206,7 @@ private:
     QState *addState(AppState::Values stateEnumVal);
     QState *addState(AppState::Values stateEnumVal, std::function< void() > onEnter);
     QState *addState(AppState::Values stateEnumVal, MemberFunc onEnter);
-    void doReload();
+    void requestEvents();
     void doLoadCountries();
     void doLoadCities();
     void doFilterCountries();
