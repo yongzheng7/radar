@@ -6,10 +6,11 @@ else()
     cmake_policy(VERSION 3.18)
 endif()
 
-project(RadarApp VERSION 1.0
+cmake_policy(SET CMP0048 NEW)
+project(RadarApp
+	VERSION 0.1
         DESCRIPTION "Radar Squat Net Mobile App"
         LANGUAGES CXX)
-
 
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
