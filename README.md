@@ -14,6 +14,10 @@ Other platforms supported by Qt may require code adaptation.
 **Programming Languages used:** C++, JavaScript
 *Framework:* Qt5, QML
 
+## Disclaimer
+
+Application author is not responsible for any contents published at https://radar.squat.net
+
 ## Building for Android
 
 Needed tools:
