@@ -1,6 +1,6 @@
 Radar App - mobile/desktop client for displaying events from
 the radar.squat.net portal.
-Copyright (C) 2021  Andy
+Copyright (C) 2021  Andy Ex
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
