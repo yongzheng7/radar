@@ -1,5 +1,7 @@
 /*
- *   Copyright (c) %YEAR% <xandyx_at_riseup dot net>
+ *   %FILENAME%
+ *
+ *   Copyright (c) %YEAR% Andy Ex
  *
  *   This file is part of Radar-App.
  *
