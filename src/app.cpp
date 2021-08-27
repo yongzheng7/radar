@@ -512,7 +512,7 @@ void App::doCurrentLocationCheck()
 void App::doExtract()
 {
     QVector< Event > events;
-    QHash<QUuid, Location> locationsFromEvents;
+    QHash< QUuid, Location > locationsFromEvents;
     const auto &constEnd = m_events.constEnd();
     const auto &result = m_events.constFind(QLatin1String("result"));
     if (result != constEnd) {
@@ -562,7 +562,7 @@ void App::doExtract()
 
     m_locationProvider->setCity(capitalized);
     m_locationProvider->setLocationFromEvents(std::move(locationsFromEvents));
-    //m_locationProvider->setLocationsToLoad(std::move(locationIDs), Countries::countryCode(m_country), capitalized);
+    // m_locationProvider->setLocationsToLoad(std::move(locationIDs), Countries::countryCode(m_country), capitalized);
     emit eventListReady(QPrivateSignal());
 }
 
@@ -891,8 +891,7 @@ bool App::cleanupJNI()
 void App::setupNavigationBar()
 {
 #ifdef Q_OS_ANDROID
-    QtAndroid::runOnAndroidThread([=]()
-    {
+    QtAndroid::runOnAndroidThread([=]() {
         constexpr int LOLLIPOP_SDK_VERSION = 21;
         if (QtAndroid::androidSdkVersion() < LOLLIPOP_SDK_VERSION) {
             qDebug() << "Skipping navigation bar tweaks for SDK=" << QtAndroid::androidSdkVersion();
@@ -903,10 +902,10 @@ void App::setupNavigationBar()
         cleanupJNI();
         window.callMethod< void >("clearFlags", "(I)V", 0x04000000);
         cleanupJNI();
-        window.callMethod< void >("setStatusBarColor", "(I)V", 0xffba000d); // Status bar color
+        window.callMethod< void >("setStatusBarColor", "(I)V", 0xffba000d);// Status bar color
         cleanupJNI();
-//        window.callMethod< void >("setNavigationBarColor", "(I)V", 0xffff6347); // Navigation bar color
-//        cleanupJNI();
+        //        window.callMethod< void >("setNavigationBarColor", "(I)V", 0xffff6347); // Navigation bar color
+        //        cleanupJNI();
     });
 #endif
 }

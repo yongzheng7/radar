@@ -262,7 +262,6 @@ void DB::clearCities()
         qDebug() << "success";
     }
     qCritical() << "Error deleting cities:" << q.lastError().text();
-
 }
 
 DB::DB(QObject *parent)

@@ -68,11 +68,10 @@ int main(int argc, char *argv[])
 
     {
         int fontId = QFontDatabase::addApplicationFont(":/fonts/icons.ttf");
-        Q_ASSERT(fontId!= -1);
+        Q_ASSERT(fontId != -1);
         qDebug() << "font id=" << fontId;
         qDebug() << QFontDatabase::applicationFontFamilies(fontId);
     }
-
 
     qRegisterMetaType< QAbstractItemModel * >();
     qmlRegisterSingletonType< App >("org.radar.app", 1, 0, "App", createAppInstance);

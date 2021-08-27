@@ -223,6 +223,22 @@ void LocationProvider::clearLoadedLocations()
     m_loadedLocations.squeeze();
 }
 
+void LocationProvider::setCity(const QString &city)
+{
+    m_city = city;
+    clearLoadedLocations();
+    m_locationsToInsert.clear();
+    m_locationsToInsert.squeeze();
+    m_locationsToLoad.clear();
+    m_locationsToLoad.squeeze();
+}
+
+void LocationProvider::setLocationFromEvents(QHash< QUuid, Location > &&locations)
+{
+    clearLoadedLocations();
+    m_loadedLocations = std::move(locations);
+}
+
 void LocationProvider::setLocationsToLoad(QSet< QUuid > &&locations, const QString &countryCode, const QString &city)
 {
     qDebug() << __PRETTY_FUNCTION__ << "locations.size() = " << locations.size();
@@ -255,12 +271,12 @@ void LocationProvider::setLocationsToLoad(QSet< QUuid > &&locations, const QStri
         auto reply = m_networkAccessManager.get(request);
         connect(reply, &QNetworkReply::finished, this, [ this, reply ]() noexcept { processBatchReply(reply); });
     }
-    //loadAllLocations();
 }
 
 QNetworkReply *LocationProvider::requestLocationByUUID(const QUuid &id)
 {
-    QUrl requestUrl(QStringLiteral("%1%2.json?fields=address,direction,map,title,uuid").arg(m_locationUrlBase, id.toString(QUuid::WithoutBraces)));
+    QUrl requestUrl(QStringLiteral("%1%2.json?fields=address,direction,map,title,uuid")
+                        .arg(m_locationUrlBase, id.toString(QUuid::WithoutBraces)));
     QNetworkRequest request(requestUrl);
     request.setRawHeader(QByteArrayLiteral("User-Agent"), QByteArrayLiteral("Radar App 1.0"));
     qDebug() << "[Network] Requesting location " << id;
@@ -285,4 +301,14 @@ void LocationProvider::loadAllLocations()
 void LocationProvider::setDB(DB *db)
 {
     m_db = db;
+}
+
+QString Location::toString() const
+{
+    return QStringLiteral("name: %1, country %2, locality: %3, firstName: %4, lastName: %5,"
+                          "postalCode: %6, thoroughfare: %7, directions: %8,"
+                          "coordinates: %9")
+        .arg(name, country, locality, firstName, lastName)
+        .arg(postalCode)
+        .arg(thoroughfare, directions, coordinate.toString(QGeoCoordinate::Degrees));
 }

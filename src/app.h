@@ -246,13 +246,16 @@ private:
     QMap< QString, QStringList > m_citiesByCountryCode;
     QSet< QString > m_countriesToLoad;
     const QString m_eventsRequestUrlBase = QStringLiteral("https://radar.squat.net/api/1.2/search/events.json");
-    const QString m_locationsRequestUrl = QStringLiteral("https://radar.squat.net/api/1.2/search/location.json?fields=%22%22&limit=1");
-    const QString m_cityRequestUrlBase = QStringLiteral("https://radar.squat.net/api/1.2/search/groups.json?fields[]=uuid&limit=1&facets[country][]=%1");
+    const QString m_locationsRequestUrl
+        = QStringLiteral("https://radar.squat.net/api/1.2/search/location.json?fields=%22%22&limit=1");
+    const QString m_cityRequestUrlBase
+        = QStringLiteral("https://radar.squat.net/api/1.2/search/groups.json?fields[]=uuid&limit=1&facets[country][]=%1");
     const QString m_downloadLink =
 #ifdef APK_DOWNLOAD_URL
         QStringLiteral(APK_DOWNLOAD_URL);
 #else
-        QStringLiteral("https://0xacab.org/xandyx/radar-app/-/jobs/artifacts/master/raw/build-android/radar-app-armeabi-v7a/build/outputs/apk/debug/radar-app-armeabi-v7a-debug.apk?job=assembleDebug");
+        QStringLiteral("https://0xacab.org/xandyx/radar-app/-/jobs/artifacts/master/raw/build-android/radar-app-armeabi-v7a/"
+                       "build/outputs/apk/debug/radar-app-armeabi-v7a-debug.apk?job=assembleDebug");
 #endif
 
     const QString m_settingsCityKey = QStringLiteral("filter/city");
@@ -264,5 +267,5 @@ private:
     QDateTime m_start;
     QDateTime m_end;
 
-    bool m_firstLoad { true };
+    bool m_firstLoad{true};
 };

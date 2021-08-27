@@ -19,10 +19,12 @@
 #pragma once
 
 #include "locationprovider.h"
-#include <QtSql>
 #include <QObject>
 #include <QSet>
 #include <QVector>
+#include <QtSql>
+
+#include <utility>
 
 class DB : QObject
 {
@@ -35,12 +37,13 @@ public:
     QVariant insertLocations(const QVector< Location > &locations);
     std::pair< bool, Location > findLocation(QUuid uuid);
     QVector< Location > getLocations(const QString &countryCode, const QString &city);
-    QSet<QUuid> getAllUUIDs();
+    QSet< QUuid > getAllUUIDs();
     QStringList getAllCountries();
-    QMap<QString, QStringList> getAllCities();
+    QMap< QString, QStringList > getAllCities();
     QVariant insertCountry(const QString &code, const QString &name, const QStringList &cities);
     void clearCountries();
     void clearCities();
+
 private:
     Q_DISABLE_COPY(DB)
 };

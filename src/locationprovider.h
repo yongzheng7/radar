@@ -24,7 +24,7 @@
 #include <QStringBuilder>
 #include <QUuid>
 #include <QVector>
-#include <tuple>
+#include <utility>
 
 struct Location {
     QUuid uuid;
@@ -40,15 +40,7 @@ struct Location {
     QGeoCoordinate coordinate;
     int postalCode{0};
 
-    QString toString() const
-    {
-        return QStringLiteral("name: %1, country %2, locality: %3, firstName: %4, lastName: %5,"
-                              "postalCode: %6, thoroughfare: %7, directions: %8,"
-                              "coordinates: %9")
-            .arg(name, country, locality, firstName, lastName)
-            .arg(postalCode)
-            .arg(thoroughfare, directions, coordinate.toString(QGeoCoordinate::Degrees));
-    }
+    QString toString() const;
 };
 
 Q_DECLARE_METATYPE(Location)
@@ -67,20 +59,8 @@ public:
     std::pair< Location, bool > getLoadedLocation(const QUuid &uuid) const;
     void clearLoadedLocations();
 
-    void setCity(const QString &city)
-    {
-        m_city = city;
-        clearLoadedLocations();
-        m_locationsToInsert.clear();
-        m_locationsToInsert.squeeze();
-        m_locationsToLoad.clear();
-        m_locationsToLoad.squeeze();
-    }
-    void setLocationFromEvents(QHash<QUuid, Location> &&locations)
-    {
-        clearLoadedLocations();
-        m_loadedLocations = std::move(locations);
-    }
+    void setCity(const QString &city);
+    void setLocationFromEvents(QHash< QUuid, Location > &&locations);
 
     void setLocationsToLoad(QSet< QUuid > &&locations, const QString &countryCode, const QString &city);
     void doLoad(const QUuid &id);
@@ -104,8 +84,10 @@ private:
     QHash< QUuid, Location > m_loadedLocations;
     QNetworkAccessManager &m_networkAccessManager;
     DB *m_db{nullptr};
-    const QString m_locationUrlBase {QStringLiteral("https://radar.squat.net/api/1.2/location/")};
-    const QString m_locationsInCity {QStringLiteral("https://radar.squat.net/api/1.2/search/location.json?facets[country][]=%1&facets[locality][]=%2&fields=address,directions,map,title,uuid")};
+    const QString m_locationUrlBase{QStringLiteral("https://radar.squat.net/api/1.2/location/")};
+    const QString m_locationsInCity{
+        QStringLiteral("https://radar.squat.net/api/1.2/search/"
+                       "location.json?facets[country][]=%1&facets[locality][]=%2&fields=address,directions,map,title,uuid")};
     QString m_countryCode;
     QString m_city;
 };
