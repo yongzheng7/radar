@@ -1,0 +1,95 @@
+Categories:
+  - Navigation
+License: GPL-3.0-only
+SourceCode: https://0xacab.org/xandyx/radar-app/
+IssueTracker: https://0xacab.org/xandyx/radar-app/-/issues
+
+AutoName: Event Radar
+Summary: Alternative and radical events in your city
+Description: |-
+    Radar App allows you to navigate through alternative and
+    radical events in your location.
+    Events are loaded from https://radar.squat.net
+    App allows getting the list of events with distance to their locations and
+    adding them to your calendar, viewing location or sharing with friends.
+
+RepoType: git
+Repo: https://0xacab.org/xandyx/radar-app
+
+Builds:
+  - versionName: '0.1'
+    versionCode: 1
+    commit: v0.1
+    submodules: true
+    sudo:
+      - apt-get --quiet update --yes || apt-get update --yes
+      - apt-get --quiet install --yes wget tar unzip lib32stdc++6 lib32z1
+      - apt-get --quiet install --yes make cmake python3-pip
+      - apt-get --quiet install --yes python3-setuptools python3-qrcode
+      - pip3 install pipenv
+      - pip3 install fonttools
+      - pip3 install cmake
+    output: build-android/radar-app-armeabi-v7a/build/outputs/apk/release/radar-app-armeabi-v7a-release-unsigned.apk
+    srclibs:
+      - OpenSSL@OpenSSL_1_1_1i
+    prebuild:
+      - export QT_VERSION=5.12.11
+      - export QT_TARGET_ARCH=android_armv7
+      - export ANDROID_ABI=armeabi-v7a
+      - export CI_BUILDS_DIR="${PWD}/../"
+      - git submodule update --init
+      - echo "Removing binaries..."
+      - pushd qt-downloader
+      - pipenv run pipenv install
+      - pipenv run ./qt-downloader -o ${CI_BUILDS_DIR}/ --opensource linux android
+        ${QT_VERSION} ${QT_TARGET_ARCH}
+      - popd
+    target: android-19
+    scandelete:
+      - android_openssl/
+    build:
+      - export JAVA_HOME=$(readlink -f /usr/bin/javac | sed "s:/bin/javac::")
+      - export SSL_SUBMODULE_DIR=$(readlink -f ${PWD}/android_openssl)
+      - export Qt5_android=$$QT$$/android_armv7
+      - export QT_VERSION="5.12.11"
+      - export QT_TARGET_ARCH=android_armv7
+      - export QT_BASE=$(readlink -f ${PWD}/../${QT_VERSION}/${QT_TARGET_ARCH})
+      - export CMAKE_PREFIX_PATH=${QT_BASE}/lib/cmake
+      - export QT_QMAKE_EXECUTABLE=${QT_BASE}/bin/qmake
+      - export ANDROID_NDK_ROOT=$$NDK$$
+      - export ANDROID_SDK_ROOT=$$SDK$$
+      - export ANDROID_HOME=$$SDK$$
+      - export CMAKE=cmake
+      - export ANDROID_NDK_VERSION="21.3.6528147"
+      - export ANDROID_NDK=${ANDROID_HOME}/ndk/${ANDROID_NDK_VERSION}
+      - export ANDROID_ABI=armeabi-v7a
+      - export DOWNLOAD_URL="https://f-droid.org/packages/org.radar.app/"
+      - export OPENSSL_SRCDIR=$(readlink -f "${PWD}/../srclib/OpenSSL")
+      - git submodule update
+      - echo "building with download url=${DOWNLOAD_URL}..."
+      - echo "Generating QR Code..."
+      - python3-qr "${DOWNLOAD_URL}" > images/qrcode-apk.png
+      - pushd "${OPENSSL_SRCDIR}"
+      - export PATH=$ANDROID_NDK_ROOT/toolchains/llvm/prebuilt/linux-x86_64/bin:$ANDROID_NDK_ROOT/toolchains/arm-linux-androideabi-4.9/prebuilt/linux-x86_64/bin:$PATH
+      - ./Configure shared android-arm -D__ANDROID_API__=16
+      - make -j`nproc` SHLIB_VERSION_NUMBER= SHLIB_EXT=_1_1.so build_libs
+      - llvm-strip --strip-all libcrypto_1_1.so
+      - llvm-strip --strip-all libssl_1_1.so
+      - cp libcrypto_1_1.so "${SSL_SUBMODULE_DIR}"/Qt-5.12.4_5.13.0/arm/libcrypto.so
+      - cp libssl_1_1.so "${SSL_SUBMODULE_DIR}"/Qt-5.12.4_5.13.0/arm/libssl.so
+      - git clean -dffx
+      - popd
+      - install -d build-android
+      - pushd build-android
+      - ${CMAKE} -DCMAKE_TOOLCHAIN_FILE="${ANDROID_NDK}/build/cmake/android.toolchain.cmake"
+        -DCMAKE_BUILD_TYPE=Release -DQT_ANDROID_BUILD_TYPE=--release -DQT_VERSION=${QT_VERSION}
+        -DANDROID_TARGET_ARCH="armeabi-v7a" -DANDROID_ABI=${ANDROID_ABI} -DCMAKE_PREFIX_PATH:PATH="${QT_BASE}/lib/cmake"
+        -DCMAKE_FIND_ROOT_PATH="${QT_BASE}/" -DDOWNLOAD_URL="${DOWNLOAD_URL}" ..
+      - ${CMAKE} --build . -- -j $(nproc)
+      - popd
+    ndk: r21d
+
+AutoUpdateMode: None
+UpdateCheckMode: Tags
+CurrentVersion: '0.1'
+CurrentVersionCode: 1
