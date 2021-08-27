@@ -1,5 +1,7 @@
 ﻿/*
- *   Copyright (c) 2019-2021 <xandyx_at_riseup dot net>
+ *   main.qml
+ *
+ *   Copyright (c) 2021 Andy Ex
  *
  *   This file is part of Radar-App.
  *
@@ -20,7 +22,7 @@ import QtQuick 2.12
 import QtQuick.Controls 2.12
 import QtQuick.Controls.Material 2.12
 
-import QtQuick.Layouts 1.11
+import QtQuick.Layouts 1.12
 
 import org.radar.app 1.0
 
@@ -225,7 +227,7 @@ ApplicationWindow {
             anchors.fill: parent
             wrapMode: Text.WordWrap
             textFormat: Text.RichText
-            text: qsTr("<p>Copyright © 2019-2020</p>" +
+            text: qsTr("<p>Copyright © 2021</p>" +
                        "<p>This program comes with ABSOLUTELY NO WARRANTY.</p>" +
                        "<p>This is free software, and you are welcome to redistribute it under certain conditions.</p>"+
                        "<p><a href=\"https://www.gnu.org/licenses/gpl-3.0.en.html\">Details on License…</a></p>" +
