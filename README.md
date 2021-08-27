@@ -101,3 +101,5 @@ Main source repository is located here: https://0xacab.org/xandyx/radar-app/
 
 Feel free to provide pull requests and issue reports.
 
+For reporing Issues, use this link: https://0xacab.org/xandyx/radar-app/-/issues
+
