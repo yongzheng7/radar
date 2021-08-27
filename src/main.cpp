@@ -1,5 +1,7 @@
 /*
- *   Copyright (c) 2021 <xandyx_at_riseup dot net>
+ *   main.cpp
+ *
+ *   Copyright (c) 2021 Andy Ex
  *
  *   This file is part of Radar-App.
  *

@@ -1,5 +1,7 @@
 /*
- *   Copyright (c) 2019-2020 <xandyx_at_riseup dot net>
+ *   app.h
+ *
+ *   Copyright (c) 2021 Andy Ex
  *
  *   This file is part of Radar-App.
  *
