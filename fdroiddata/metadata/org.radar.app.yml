@@ -5,13 +5,6 @@ SourceCode: https://0xacab.org/xandyx/radar-app/
 IssueTracker: https://0xacab.org/xandyx/radar-app/-/issues
 
 AutoName: Event Radar
-Summary: Alternative and radical events in your city
-Description: |-
-    Radar App allows you to navigate through alternative and
-    radical events in your location.
-    Events are loaded from https://radar.squat.net
-    App allows getting the list of events with distance to their locations and
-    adding them to your calendar, viewing location or sharing with friends.
 
 RepoType: git
 Repo: https://0xacab.org/xandyx/radar-app
