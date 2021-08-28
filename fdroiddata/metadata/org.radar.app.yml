@@ -30,12 +30,13 @@ Builds:
       - export QT_TARGET_ARCH=android_armv7
       - export ANDROID_ABI=armeabi-v7a
       - export CI_BUILDS_DIR="${PWD}/../"
-      - git submodule update --init
-      - echo "Removing binaries..."
+      - export QT_MODULES="qtbase qtandroidextras qttranslations qtsvg qtdeclarative
+        qtimageformats qtlocation qtquickcontrols2 qttools"
+      - echo "Loading Qt Libraries..."
       - pushd qt-downloader
       - pipenv run pipenv install
       - pipenv run ./qt-downloader -o ${CI_BUILDS_DIR}/ --opensource linux android
-        ${QT_VERSION} ${QT_TARGET_ARCH}
+        ${QT_VERSION} ${QT_TARGET_ARCH} --modules ${QT_MODULES}
       - popd
     target: android-19
     scandelete:
