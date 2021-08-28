@@ -1,0 +1,6 @@
+Radar App ermöglicht es, alternative und radikale Veranstaltungen in der Nähe zu finden.
+
+Informationen über die Veranstaltungen werden vom Server https://radar.squat.net geladen.
+
+Die App ermöglicht es, die Listen von Events mit Distanzen durchzusehen, Termine in den Kalender einzutragen, und Informationen über die Events zu teilen.
+
