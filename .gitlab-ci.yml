@@ -45,8 +45,7 @@ before_script:
   - pipenv run pipenv install
   # Download Qt to CI_BUILDS_DIR, to prevent androiddeployqt from skipping Qt QML dependencies for APK
   # (option -o ${CI_BUILDS_DIR}
-  - export QT_MODULES="qtbase qtandroidextras qttranslations qtsvg qtdeclarative qtimageformats qtlocation qtquickcontrols2 qttools
-"
+  - export QT_MODULES="qtbase qtandroidextras qttranslations qtsvg qtdeclarative qtimageformats qtlocation qtquickcontrols2 qttools"
   - pipenv run ./qt-downloader -o ${CI_BUILDS_DIR}/ --opensource linux android ${QT_VERSION} ${QT_TARGET_ARCH} --modules ${QT_MODULES}
   - popd
   # Setup path as android_home for moving/exporting the downloaded sdk into it
