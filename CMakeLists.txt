@@ -93,7 +93,7 @@ if(ANDROID)
     find_package(Qt5 COMPONENTS Core AndroidExtras Quick QuickControls2 Positioning Sql REQUIRED)
 
     if(ANDROID_SSL_LIBS)
-        set(ANDROID_EXTRA_LIBS ${ANDROID_EXTRA_LIBS} ANDROID_SSL_LIBS)
+        set(ANDROID_EXTRA_LIBS ${ANDROID_EXTRA_LIBS} ${ANDROID_SSL_LIBS})
     else()
         include(android_openssl/CMakeLists.txt)
     endif()
