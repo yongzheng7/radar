@@ -92,7 +92,12 @@ if(ANDROID)
 #    set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE BOTH)
     find_package(Qt5 COMPONENTS Core AndroidExtras Quick QuickControls2 Positioning Sql REQUIRED)
 
-    include(android_openssl/CMakeLists.txt)
+    if(ANDROID_SSL_LIBS)
+        set(ANDROID_EXTRA_LIBS ${ANDROID_EXTRA_LIBS} ANDROID_SSL_LIBS)
+    else()
+        include(android_openssl/CMakeLists.txt)
+    endif()
+
     include(qt-android-cmake/AddQtAndroidApk.cmake)
 
     add_library(radar-app SHARED
