@@ -97,7 +97,7 @@ assembleDebug:
     - python3-qr "${DOWNLOAD_URL}" > images/qrcode-apk.png
     - install -d "${CMAKE_BUILD_DIR}"
     - pushd "${CMAKE_BUILD_DIR}"
-    - ${CMAKE} -DCMAKE_TOOLCHAIN_FILE="${ANDROID_NDK}/build/cmake/android.toolchain.cmake" -DANDROID_ABI=${ANDROID_ABI} -DCMAKE_PREFIX_PATH:PATH="${QT_BASE}/lib" -DCMAKE_FIND_ROOT_PATH="${QT_BASE}/" -DDOWNLOAD_URL="${DOWNLOAD_URL}" ${GIT_CLONE_PATH}
+    - ${CMAKE} -DCMAKE_BUILD_TYPE=Debug -DCMAKE_TOOLCHAIN_FILE="${ANDROID_NDK}/build/cmake/android.toolchain.cmake" -DANDROID_ABI=${ANDROID_ABI} -DCMAKE_PREFIX_PATH:PATH="${QT_BASE}/lib" -DCMAKE_FIND_ROOT_PATH="${QT_BASE}/" -DDOWNLOAD_URL="${DOWNLOAD_URL}" ${GIT_CLONE_PATH}
     - ${CMAKE} --build . -- -j $(nproc)
     - popd
   artifacts:
