@@ -7,7 +7,6 @@
         <file>ui/EventView.qml</file>
         <file>data/db.sqlite</file>
         <file>icons/map-marker-icon.png</file>
-        <file>icons/app-icon.svg</file>
         <file>icons/app-xhdpi.png</file>
         <file>images/qrcode-apk.png</file>
         <file>ui/Icon.js</file>

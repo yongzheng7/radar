@@ -8,7 +8,7 @@ endif()
 
 cmake_policy(SET CMP0048 NEW)
 project(RadarApp
-	VERSION 0.1
+    VERSION 0.1
         DESCRIPTION "Radar Squat Net Mobile App"
         LANGUAGES CXX)
 
@@ -21,27 +21,8 @@ set(DOWNLOAD_URL ${APK_DOWNLOAD_URL} CACHE STRING "Apk download URL")
 set(IMAGE_RESOURCES
     images/qrcode-apk.png
 )
-set(ICON_RESOURCES
-    icons/radar/index.theme
-    icons/radar/20x20/back.png
-    icons/radar/20x20/drawer.png
-    icons/radar/20x20/empty.png
-    icons/radar/20x20/menu.png
-    icons/radar/20x20@2/back.png
-    icons/radar/20x20@2/drawer.png
-    icons/radar/20x20@2/empty.png
-    icons/radar/20x20@2/menu.png
-    icons/radar/20x20@3/back.png
-    icons/radar/20x20@3/drawer.png
-    icons/radar/20x20@3/empty.png
-    icons/radar/20x20@3/menu.png
-    icons/radar/20x20@4/back.png
-    icons/radar/20x20@4/drawer.png
-    icons/radar/20x20@4/empty.png
-    icons/radar/20x20@4/menu.png
-)
 
-set(QRC_SOURCES ${ICON_RESOURCES} ${IMAGE_RESOURCES})
+set(QRC_SOURCES ${IMAGE_RESOURCES})
 set(CMAKE_GENERATED_RCC ${CMAKE_BINARY_DIR}/cmake_generated.qrc)
 file(WRITE ${CMAKE_GENERATED_RCC}
 "<!DOCTYPE RCC><RCC version=\"1.0\">\n"
@@ -67,10 +48,10 @@ file(APPEND ${CMAKE_GENERATED_RCC}
 set(FONTS_RCC "${CMAKE_BINARY_DIR}/fonts.qrc")
 set(SOURCE_FONT "${CMAKE_CURRENT_LIST_DIR}/fonts/materialdesignicons-webfont.ttf")
 set(GLYPH_LIST "${CMAKE_CURRENT_LIST_DIR}/fonts/used_glyphs.txt")
-#file(COPY fonts/fonts.qrc DESTINATION ${FONTS_RCC})
 configure_file(fonts/fonts.qrc "${FONTS_RCC}")
+
 add_custom_target(ICON_FONT pyftsubset --output-file="${CMAKE_BINARY_DIR}/icons.ttf" --unicodes-file="${GLYPH_LIST}" "${SOURCE_FONT}"
-	BYPRODUCTS "${CMAKE_BINARY_DIR}/icons.ttf")
+    BYPRODUCTS "${CMAKE_BINARY_DIR}/icons.ttf")
 
 
 set(CXX_SOURCES
@@ -88,8 +69,6 @@ set(CXX_SOURCES
 
 
 if(ANDROID)
-#    set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY BOTH)
-#    set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE BOTH)
     find_package(Qt5 COMPONENTS Core AndroidExtras Quick QuickControls2 Positioning Sql REQUIRED)
 
     if(ANDROID_SSL_LIBS)
@@ -106,7 +85,7 @@ if(ANDROID)
         resources.qrc
         qml_desktop.qrc
         ${CMAKE_GENERATED_RCC}
-	${FONTS_RCC}
+        ${FONTS_RCC}
     )
 
     target_compile_definitions(radar-app PRIVATE APK_DOWNLOAD_URL="${DOWNLOAD_URL}")
@@ -128,7 +107,7 @@ else()
         resources.qrc
         qml_desktop.qrc
         ${CMAKE_GENERATED_RCC}
-	${FONTS_RCC}
+        ${FONTS_RCC}
     )
     qt5_use_modules(radar-app Core Quick QuickControls2 Positioning Sql)
 endif()

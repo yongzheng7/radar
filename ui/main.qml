@@ -58,15 +58,16 @@ ApplicationWindow {
 
             readonly property bool isPaneActive: eventView.active || mapView.active
             readonly property bool isEventActive: eventView.active
+            readonly property int iconSize: 24
             ToolButton {
                 id: toolBarBackButton
 
-                icon.name: swipeView.currentIndex > 0 && !parent.isPaneActive ? "back" : ""
-                text: parent.isPaneActive ? MdiFont.Icon.close : ""
+                Layout.alignment: Qt.AlignVCenter
+
+                text: parent.isPaneActive ? MdiFont.Icon.close : (swipeView.currentIndex > 0 ? MdiFont.Icon.back : "")
 
                 font.family: "Material Design Icons"
-                font.bold: true
-                font.pixelSize: toolBarBackButton.icon.height
+                font.pixelSize: parent.iconSize
 
                 enabled: swipeView.currentIndex > 0
                 onClicked: {
@@ -107,7 +108,7 @@ ApplicationWindow {
                     }
                 }
 
-                font.pixelSize: toolBarBackButton.icon.height
+                font.pixelSize: parent.iconSize
                 elide: Label.ElideRight
                 horizontalAlignment: Qt.AlignHCenter
                 verticalAlignment: Qt.AlignVCenter
@@ -116,9 +117,13 @@ ApplicationWindow {
 
             ToolButton {
                 visible: !eventView.active
-                icon.name: "menu"
-                font.bold: true
+
                 Layout.alignment: Qt.AlignVCenter
+
+                font.family: "Material Design Icons"
+                font.pixelSize: parent.iconSize
+
+                text: MdiFont.Icon.menu
 
                 onClicked: optionsMenu.open()
             }
@@ -131,7 +136,7 @@ ApplicationWindow {
                 Layout.preferredWidth: 1.5*font.pixelSize
 
                 font.family: "Material Design Icons"
-                font.pixelSize: toolBarBackButton.icon.height
+                font.pixelSize: parent.iconSize
 
                 text: MdiFont.Icon.calendarPlus
                 Layout.alignment: Qt.AlignVCenter
@@ -146,7 +151,7 @@ ApplicationWindow {
                 Layout.preferredWidth: 1.5*font.pixelSize
 
                 font.family: "Material Design Icons"
-                font.pixelSize: toolBarBackButton.icon.height
+                font.pixelSize: parent.iconSize
 
                 text: MdiFont.Icon.mapSearch
                 Layout.alignment: Qt.AlignVCenter
@@ -161,7 +166,7 @@ ApplicationWindow {
                 Layout.preferredWidth: 1.5*font.pixelSize
 
                 font.family: "Material Design Icons"
-                font.pixelSize: toolBarBackButton.icon.height
+                font.pixelSize: parent.iconSize
 
                 text: MdiFont.Icon.shareVariant
                 Layout.alignment: Qt.AlignVCenter
