@@ -154,7 +154,7 @@ Item {
                     iconCode: MdiFont.Icon.reload
                     text: qsTr("Reload...")
 
-                    onClicked: {
+                    onActivated: {
                         App.resetNetworkConnection();
                         App.reloadEvents();
                     }
