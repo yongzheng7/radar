@@ -50,6 +50,7 @@ ApplicationWindow {
     }
 
     header: ToolBar {
+        z: 2
         padding: 0
         RowLayout {
             spacing: 0
