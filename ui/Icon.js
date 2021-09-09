@@ -19,7 +19,8 @@
  *   along with Radar-App.  If not, see <https://www.gnu.org/licenses/>.
  */
 var Icon = {
-    back: String.fromCodePoint(0x1f868),
+    back: String.fromCodePoint(0xf004D),
+    //back: String.fromCodePoint(0x1f868),
     //"calendar": String.fromCodePoint(0xf00ED),
     calendarPlus: String.fromCodePoint(0xf00F3),
     close: String.fromCodePoint(0xf0156),
