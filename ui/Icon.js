@@ -20,7 +20,6 @@
  */
 var Icon = {
     back: String.fromCodePoint(0xf004D),
-    //back: String.fromCodePoint(0x1f868),
     //"calendar": String.fromCodePoint(0xf00ED),
     calendarPlus: String.fromCodePoint(0xf00F3),
     close: String.fromCodePoint(0xf0156),
@@ -36,5 +35,4 @@ var Icon = {
     //"shareAll": String.fromCodePoint(0xf11F4),
     shareVariant: String.fromCodePoint(0xf0497),
     web: String.fromCodePoint(0xf059F),
-    //wifi: String.fromCodePoint(0xf05A9)
 }
