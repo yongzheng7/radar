@@ -18,9 +18,8 @@ Builds:
       - apt-get --quiet update --yes || apt-get update --yes
       - apt-get --quiet install --yes wget tar unzip lib32stdc++6 lib32z1
       - apt-get --quiet install --yes build-essential
-      - apt-get --quiet install --yes make cmake python3-pip
+      - apt-get --quiet install --yes make python3-pip
       - apt-get --quiet install --yes python3-setuptools python3-qrcode
-      - pip3 install pipenv
       - pip3 install fonttools
     output: build-android/radar-app-armeabi-v7a/build/outputs/apk/release/radar-app-armeabi-v7a-release-unsigned.apk
     srclibs:
