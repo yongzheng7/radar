@@ -986,6 +986,18 @@ const QString &App::description() const
     return m_currentEvent.description;
 }
 
+QString App::plainTextDescription() const
+{
+    QTextDocument doc;
+    doc.setHtml(description());
+    return doc.toPlainText();
+}
+
+bool App::hasRichText() const
+{
+    return Qt::mightBeRichText(m_currentEvent.description);
+}
+
 QString App::dateTime() const
 {
     const auto dateTime = QDateTime::fromSecsSinceEpoch(m_currentEvent.timeStart);

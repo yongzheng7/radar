@@ -70,6 +70,8 @@ class App : public QObject
 
     Q_PROPERTY(QString title READ title NOTIFY currentEventChanged)
     Q_PROPERTY(QString description READ description NOTIFY currentEventChanged)
+    Q_PROPERTY(QString plainTextDescription READ plainTextDescription NOTIFY currentEventChanged)
+    Q_PROPERTY(bool hasRichText READ hasRichText NOTIFY currentEventChanged)
     Q_PROPERTY(QString dateTime READ dateTime NOTIFY currentEventChanged)
     Q_PROPERTY(QString duration READ duration NOTIFY currentEventChanged)
     Q_PROPERTY(QString category READ category NOTIFY currentEventChanged)
@@ -91,7 +93,6 @@ class App : public QObject
     Q_PROPERTY(int todayFoundEvents READ todayFoundEvents NOTIFY todayFoundEventsChanged)
 
     Q_PROPERTY(QString downloadLink MEMBER m_downloadLink FINAL CONSTANT)
-
 public:
     explicit App(QObject *parent = nullptr);
     ~App() override;
@@ -133,6 +134,8 @@ public:
 
     const QString &title() const;
     const QString &description() const;
+    QString plainTextDescription() const;
+    bool hasRichText() const;
     QString dateTime() const;
     QString duration() const;
     const QString &category() const;

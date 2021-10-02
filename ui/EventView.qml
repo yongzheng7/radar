@@ -58,6 +58,7 @@ Pane {
 </p><p>
 Cras nec ante sit amet augue sodales iaculis. Aliquam erat volutpat. Nam aliquet quis ipsum nec varius. Integer rutrum lacus eu est ullamcorper, bibendum egestas lorem posuere. Aliquam bibendum ligula in convallis bibendum. Donec efficitur, lacus at aliquam feugiat, risus turpis consequat lorem, ut placerat dolor est a magna. Cras lorem erat, malesuada a nunc tempor, gravida elementum dolor. Duis pharetra lobortis sapien. Quisque vulputate diam et magna facilisis, ac auctor dolor consequat. Praesent aliquam nunc est, id egestas risus iaculis ut. Curabitur pharetra enim eu arcu pretium finibus. Suspendisse potenti. Duis semper turpis enim, nec vulputate ligula fringilla pharetra.</p>"
 
+    property string plainTextDescription: "Plain text description"
     property string dateTime: "Sonntag, 12. Mai, 14:00"
     property string duration: ""
     property string category: "Party"
@@ -68,6 +69,7 @@ Cras nec ante sit amet augue sodales iaculis. Aliquam erat volutpat. Nam aliquet
     property string city: "Berlin"
     property string country: "Germany"
     property bool urlProvided: true
+    property bool hasRichText: true
 
     Keys.onBackPressed: root.closeClicked();
     Keys.onEscapePressed: root.closeClicked()
@@ -82,6 +84,7 @@ Cras nec ante sit amet augue sodales iaculis. Aliquam erat volutpat. Nam aliquet
     {
         root.title = App.title;
         root.description = App.description;
+        root.plainTextDescription = App.plainTextDescription;
         root.category = App.category;
         root.dateTime = App.dateTime;
         root.duration = App.duration
@@ -91,7 +94,10 @@ Cras nec ante sit amet augue sodales iaculis. Aliquam erat volutpat. Nam aliquet
         root.city = App.eventCity;
         root.country = App.eventCountry;
         root.directions = App.directions;
-        root.urlProvided = App.url !== ""
+        root.urlProvided = App.url !== "";
+        root.hasRichText = App.hasRichText;
+
+        forcePlainTextToggle.checked = false;
     }
 
     function openMap() {
@@ -162,8 +168,12 @@ Cras nec ante sit amet augue sodales iaculis. Aliquam erat volutpat. Nam aliquet
                 Layout.fillWidth: true
                 id: description
                 wrapMode: Text.Wrap
-                textFormat: Text.RichText
-                text: root.description
+                textFormat: (forcePlainTextToggle.visible &&
+                             forcePlainTextToggle.checked) ? Text.PlainText :
+                                                             Text.RichText
+                text: (forcePlainTextToggle.visible &&
+                       forcePlainTextToggle.checked) ? root.plainTextDescription :
+                                                       root.description
                 onLinkActivated: {
                     root.linkActivated(link);
                 }
@@ -182,6 +192,15 @@ Cras nec ante sit amet augue sodales iaculis. Aliquam erat volutpat. Nam aliquet
                         }
                     }
                 }
+            }
+
+            CheckBox {
+                id: forcePlainTextToggle
+
+                height: Layout.preferredHeight
+                Layout.fillWidth: true
+                text: qsTr("Force Plaintext")
+                visible: root.hasRichText
             }
 
             RowLayout {
@@ -285,15 +304,6 @@ Cras nec ante sit amet augue sodales iaculis. Aliquam erat volutpat. Nam aliquet
                 Layout.alignment: Qt.AlignHCenter
 
                 background: Item {}
-//                background: Rectangle {
-//                    implicitWidth: 120
-//                    implicitHeight: 60
-//                    opacity: 1
-//                    color: "transparent"
-//                    border.width: 1.0
-//                    border.color: Material.color(Material.Grey)
-//                    radius: addToCalendar.radius*2
-//                }
 
                 Row {
                     anchors.fill: parent
