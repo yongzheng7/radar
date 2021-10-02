@@ -31,7 +31,6 @@ Builds:
       - cd ../srclib/Qt5
       - ./init-repository -f --module-subset=essential,qtdeclarative,qtandroidextras,qtlocation,qtquickcontrols2,qtgraphicaleffects
         --branch
-    target: android-16
     scandelete:
       - android_openssl/
     build:
@@ -39,7 +38,6 @@ Builds:
       - export PATH=${JAVA_HOME}/bin:${PATH}
       - export SSL_SUBMODULE_DIR=$(readlink -f ${PWD}/android_openssl)
       - export OPENSSL_TARGET_DIR="${SSL_SUBMODULE_DIR}"/Qt-5.12.4_5.13.0/arm
-      - export QT_SRC=$(readlink -f ${PWD}/../srclib)/Qt5
       - export QT_BUILD=$(readlink -f ${PWD}/../srclib)/build-qt
       - export QT_VERSION="5.12.11"
       - export QT_TARGET_ARCH=android_armv7
@@ -55,12 +53,12 @@ Builds:
       - export ANDROID_NDK_VERSION="19.2.5345600"
       - export ANDROID_ABI=armeabi-v7a
       - export DOWNLOAD_URL="https://f-droid.org/packages/org.radar.app/"
-      - export OPENSSL_SRCDIR=$(readlink -f "${PWD}/../srclib/OpenSSL")
       - export ANDROID_NDK_PLATFORM=android-16
       - export ANDROID_API_VERSION=android-28
-      - echo "Generating QR Code for URL='${DDOWNLOAD_URL}' ..."
+      - echo "1. Generating QR Code for URL='${DOWNLOAD_URL}' ..."
       - python3-qr "${DOWNLOAD_URL}" > images/qrcode-apk.png
-      - pushd "${OPENSSL_SRCDIR}"
+      - echo "2. Building OpenSSL..."
+      - pushd $$OpenSSL$$
       - PATH=$ANDROID_NDK_ROOT/toolchains/llvm/prebuilt/linux-x86_64/bin:$ANDROID_NDK_ROOT/toolchains/arm-linux-androideabi-4.9/prebuilt/linux-x86_64/bin:$PATH
         ./Configure shared android-arm -D__ANDROID_API__=16
       - PATH=$ANDROID_NDK_ROOT/toolchains/llvm/prebuilt/linux-x86_64/bin:$ANDROID_NDK_ROOT/toolchains/arm-linux-androideabi-4.9/prebuilt/linux-x86_64/bin:$PATH
@@ -74,11 +72,12 @@ Builds:
       - ln -s libcrypto_1_1.so libcrypto.so
       - ln -s libssl_1_1.so libssl.so
       - popd
+      - echo "3. Configuring Qt..."
       - pushd ${QT_BUILD}
-      - ${QT_SRC}/configure -xplatform android-clang --disable-rpath -opensource -confirm-license
+      - $$Qt5$$/configure -xplatform android-clang --disable-rpath -opensource -confirm-license
         -silent -prefix $PREFIX -release -nomake tests -nomake examples -no-sql-mysql
         -no-widgets -no-dbus -no-use-gold-linker -sysconfdir /etc/xdg -opengl es2
-        -openssl -I ${OPENSSL_SRCDIR}/include -android-sdk $$SDK$$ -android-ndk $$NDK$$
+        -openssl -I $$OpenSSL$$/include -android-sdk $$SDK$$ -android-ndk $$NDK$$
         -android-ndk-host linux-x86_64 -android-arch armeabi-v7a -android-ndk-platform
         android-16 -skip qtwebengine -skip qtgamepad -skip qtwebchannel -skip qtwebview
         -skip qtwebsockets -skip qtwebglplugin -skip qtmultimedia -skip qtserialport
@@ -90,15 +89,17 @@ Builds:
         -no-feature-geoservices_esri -no-feature-geoservices_osm -no-feature-gif -no-feature-ico
         -no-feature-jpeg -no-feature-testlib -no-feature-xml -no-libjpeg -no-feature-debug
         -no-feature-qml-debug -no-feature-qml-profiler -no-feature-testlib -no-feature-itemmodeltester
+      - echo "4. Building Qt..."
       - make -s -j $(nproc)
       - make install
       - popd
-      - pushd "${OPENSSL_SRCDIR}"
+      - pushd $$OpenSSL$$
       - git clean -dffx
       - popd
       - pushd "${OPENSSL_TARGET_DIR}"
       - rm libssl.so libcrypto.so
       - popd
+      - echo "5. Configuring Radar-App..."
       - install -d build-android
       - pushd build-android
       - ${CMAKE} -DCMAKE_TOOLCHAIN_FILE=$$NDK$$/build/cmake/android.toolchain.cmake
@@ -106,9 +107,23 @@ Builds:
         -DANDROID_TARGET_ARCH="armeabi-v7a" -DANDROID_ABI=${ANDROID_ABI} -DCMAKE_PREFIX_PATH:PATH="${PREFIX}/lib/cmake"
         -DANDROID_SSL_LIBS="${OPENSSL_TARGET_DIR}/libcrypto_1_1.so;${OPENSSL_TARGET_DIR}/libssl_1_1.so"
         -DCMAKE_FIND_ROOT_PATH="${PREFIX}/" -DDOWNLOAD_URL="${DOWNLOAD_URL}" ..
+      - echo "6. Building Radar-App..."
       - ${CMAKE} --build . -- -j $(nproc)
       - popd
     ndk: r19c
+
+MaintainerNotes: |-
+    Build process includes the following steps:
+    1. Generation of a picture with QR-code of APK download URL.
+    2. Configuration and building of OpenSSL libraries libssl and libcrypto with Android NDK.
+      Suffix '_1_1' (SHLIB_EXT=_1_1.so) is added, beacause it is required for Qt to load APK-provided SSL libs instead of ones from Android installation.
+      Built libraries are processed with llvm-strip to remove unneeded symbols from SO-libs.
+    3. Configuration of Qt library to build it with Android NDK Toolchain, skipping modules and features that application does not use.
+      Qt modules, needed for App: qtdeclarative,qtandroidextras,qtlocation,qtquickcontrols2,qtgraphicaleffects. They are being loaded in prebuild section.
+      -android-ndk-platform is set to android-16 in order to support older devices running Android 4.1.
+    4. Build and installation of Qt library. Build takes more than 1 hour on CI.
+    5. Configuration of radar-app using CMake. Note that ANDROID_SSL_LIBS must be specified in order 'libcrypto_1_1.so;libssl_1_1.so' to get them loaded properly in the runtime.
+    6. On the final stage, build is being done. Submodule qt-android-cmake [https://github.com/LaurentGomila/qt-android-cmake] has allowed us to configure APK build using CMake.
 
 AutoUpdateMode: None
 UpdateCheckMode: Tags
