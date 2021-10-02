@@ -34,6 +34,15 @@ SOURCES += \
         src/locationprovider.cpp \
         src/main.cpp
 
+lupdate_only{
+SOURCES += ui/map.qml
+SOURCES += ui/main.qml
+SOURCES += ui/EventView.qml
+SOURCES += ui/IconButton.qml
+SOURCES += ui/ResultsPage.qml
+SOURCES += ui/LocationPage.qml
+}
+
 build_pass:RESOURCES += $$OUT_PWD/fonts.qrc
 
 RESOURCES += resources.qrc \
